@@ -32,6 +32,16 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function carrier(): BelongsTo
+    {
+        return $this->belongsTo(ShippingCarrier::class, 'shipping_carrier_id');
+    }
+
+    public function returns(): HasMany
+    {
+        return $this->hasMany(ReturnRequest::class);
+    }
+
     public function history(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class)->orderByDesc('id');
