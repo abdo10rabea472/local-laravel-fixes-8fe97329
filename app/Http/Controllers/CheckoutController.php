@@ -60,12 +60,14 @@ class CheckoutController extends Controller
             ->values();
 
         if ($ids->isEmpty()) {
-            return response()->json(['stocks' => (object) []]);
+            return response()->json(['stocks' => (object) [], 'prices' => (object) []]);
         }
 
-        $stocks = Product::whereIn('id', $ids)->pluck('stock', 'id');
+        $products = Product::whereIn('id', $ids)->get(['id', 'stock', 'price', 'sale_price']);
+        $stocks = $products->pluck('stock', 'id');
+        $prices = $products->mapWithKeys(fn ($p) => [$p->id => (float) ($p->sale_price ?? $p->price)]);
 
-        return response()->json(['stocks' => $stocks]);
+        return response()->json(['stocks' => $stocks, 'prices' => $prices]);
     }
 
 
