@@ -160,7 +160,7 @@ class PaymentService
                         $result['order_id'] = $order->id;
 
                         if (! $paidNow) {
-                            $this->rejectUnpaidOrder($order, $result['message'] ?? 'payment verification failed');
+                            $this->rejectUnpaidOrder($order, $result['message'] ?? 'payment verification failed', $result);
                             return;
                         }
 
@@ -402,14 +402,14 @@ class PaymentService
         return null;
     }
 
-    public function rejectUnpaidOrder(Order $order, string $reason = ''): void
+    public function rejectUnpaidOrder(Order $order, string $reason = '', array $response = []): void
     {
         if ($order->trashed()) {
             return;
         }
 
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reason) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reason, $response) {
                 $order->loadMissing('items');
                 $stockService = app(\App\Services\StockService::class);
 
@@ -452,6 +452,7 @@ class PaymentService
                     'payment_response' => array_filter([
                         'rejected_reason' => $reason,
                         'rejected_at' => now()->toIso8601String(),
+                        'gateway_response' => $response ?: null,
                     ]),
                     'cancelled_at' => now(),
                 ])->save();
