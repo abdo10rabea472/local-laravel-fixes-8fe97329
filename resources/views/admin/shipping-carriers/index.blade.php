@@ -30,8 +30,11 @@
         </div>
         <form method="POST" action="{{ route('admin.shipping-carriers.install-aramex') }}">
             @csrf
-            <button class="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold hover:bg-orange-700">
-                <i class="fa-solid fa-bolt ml-1"></i> تفعيل Aramex
+            <button type="submit"
+                style="background-color:#ea580c;color:#ffffff;"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:brightness-110 transition border border-orange-700">
+                <i class="fa-solid fa-bolt"></i>
+                <span>تفعيل Aramex</span>
             </button>
         </form>
     </div>
