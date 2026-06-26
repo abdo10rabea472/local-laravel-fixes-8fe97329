@@ -54,6 +54,8 @@
 <body>
     @include('components.front-header')
     @include('components.welcome-popup')
+    @include('components.free-shipping-popup')
+
 
     <main>
         @yield('content')
