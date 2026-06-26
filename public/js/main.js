@@ -102,11 +102,13 @@ function addToCart(element) {
     const nameEl = productCard.querySelector('h2, h3');
     const name = nameEl ? nameEl.textContent.trim() : 'Product';
 
-    // استخراج السعر
-    let price = 0;
-    const priceElement = productCard.querySelector('.text-lg.font-black, .text-xl.font-black, .price');
-    if (priceElement) {
-        price = parseFloat(priceElement.textContent.replace(/[^0-9.]/g, '')) || 0;
+    // استخراج السعر — يفضل قراءة data-price (أكثر دقة من تحليل النص)
+    let price = parseFloat(productCard.dataset.price);
+    if (!Number.isFinite(price) || price <= 0) {
+        const priceElement = productCard.querySelector('[data-price-display], .text-lg.font-black, .text-xl.font-black, .text-sm.font-black, .text-4xl.font-black, .price');
+        if (priceElement) {
+            price = parseFloat(priceElement.textContent.replace(/[^0-9.]/g, '')) || 0;
+        }
     }
 
     // استخراج الصورة

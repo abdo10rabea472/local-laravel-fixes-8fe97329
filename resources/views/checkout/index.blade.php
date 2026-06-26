@@ -221,12 +221,18 @@
             if (!res.ok) return;
             const data = await res.json();
             Object.assign(stockMap, data.stocks || {});
-            // Clamp any over-stock quantities
+            const prices = data.prices || {};
+            // Clamp over-stock quantities AND heal stale/zero prices from DB
             let changed = false;
             cart.forEach(item => {
                 const max = Number(stockMap[item.id] ?? Infinity);
                 if (Number.isFinite(max) && (item.quantity || 1) > max) {
                     item.quantity = Math.max(1, max);
+                    changed = true;
+                }
+                const livePrice = Number(prices[item.id]);
+                if (Number.isFinite(livePrice) && livePrice > 0 && (!item.price || item.price !== livePrice)) {
+                    item.price = livePrice;
                     changed = true;
                 }
             });

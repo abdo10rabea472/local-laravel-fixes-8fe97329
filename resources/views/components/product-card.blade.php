@@ -10,7 +10,7 @@
     $inStock = $product->stock > 0;
 @endphp
 
-<article class="group flex flex-col rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" data-id="{{ $product->id }}">
+<article class="group flex flex-col rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" data-id="{{ $product->id }}" data-price="{{ $displayPrice }}">
     <a href="{{ route('product.show', $product->slug) }}" class="relative aspect-square bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
         @if($hasDiscount && $discountPercent > 0)
             <span class="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">-{{ $discountPercent }}%</span>

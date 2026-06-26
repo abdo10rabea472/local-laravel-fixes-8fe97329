@@ -28,7 +28,7 @@
             <span class="text-slate-900 font-semibold truncate max-w-[200px]">{{ $product->name }}</span>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16" data-id="{{ $product->id }}">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16" data-id="{{ $product->id }}" data-price="{{ $displayPrice }}">
             <div class="space-y-4">
                 <div class="relative rounded-3xl overflow-hidden bg-white shadow-xl border border-slate-200">
                     <img id="main-product-image" src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full aspect-square object-contain bg-slate-50 p-6">

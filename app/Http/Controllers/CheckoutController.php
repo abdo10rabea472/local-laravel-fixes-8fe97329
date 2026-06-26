@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductDiscount;
@@ -60,12 +61,14 @@ class CheckoutController extends Controller
             ->values();
 
         if ($ids->isEmpty()) {
-            return response()->json(['stocks' => (object) []]);
+            return response()->json(['stocks' => (object) [], 'prices' => (object) []]);
         }
 
-        $stocks = Product::whereIn('id', $ids)->pluck('stock', 'id');
+        $products = Product::whereIn('id', $ids)->get(['id', 'stock', 'price', 'sale_price']);
+        $stocks = $products->pluck('stock', 'id');
+        $prices = $products->mapWithKeys(fn ($p) => [$p->id => (float) ($p->sale_price ?? $p->price)]);
 
-        return response()->json(['stocks' => $stocks]);
+        return response()->json(['stocks' => $stocks, 'prices' => $prices]);
     }
 
 
@@ -103,6 +106,13 @@ class CheckoutController extends Controller
 
         $userId = Auth::id();
         $result = $coupon->validateFor($serverCart, $userId, $data['email'] ?? null, $data['phone'] ?? null);
+
+        AuditLog::record($result['ok'] ? 'checkout.coupon.applied' : 'checkout.coupon.rejected', [
+            'code' => $coupon->code,
+            'items' => count($serverCart),
+            'discount' => $result['discount'] ?? 0,
+            'reason' => $result['ok'] ? null : ($result['message'] ?? null),
+        ], $userId ? 'user' : 'guest', $userId);
 
         return response()->json(array_merge($result, [
             'code' => $coupon->code,
@@ -190,9 +200,20 @@ class CheckoutController extends Controller
                 }
             });
         } catch (\Throwable $e) {
+            AuditLog::record('checkout.order.failed', [
+                'items' => array_sum($requested),
+                'distinct' => count($requested),
+                'coupon' => ! empty($data['code']) ? strtoupper($data['code']) : null,
+                'reason' => $e->getMessage(),
+            ], Auth::id() ? 'user' : 'guest', Auth::id());
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 422);
         }
 
+        AuditLog::record('checkout.order.placed', [
+            'items' => array_sum($requested),
+            'distinct' => count($requested),
+            'coupon' => ! empty($data['code']) ? strtoupper($data['code']) : null,
+        ], Auth::id() ? 'user' : 'guest', Auth::id());
 
         return response()->json([
             'ok' => true,
