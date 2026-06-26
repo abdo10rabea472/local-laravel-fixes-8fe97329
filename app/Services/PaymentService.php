@@ -34,6 +34,9 @@ class PaymentService
                 'payment_reference' => 'COD-' . $order->order_number,
             ])->save();
 
+            $this->sendPlacedMailOnce($order);
+            $this->dispatchShipmentIfNeeded($order);
+
             return [
                 'ok'           => true,
                 'payment_id'   => 'COD-' . $order->order_number,
@@ -147,12 +150,20 @@ class PaymentService
                     ->orWhere('order_number', $reference)
                     ->limit(1)
                     ->each(function (Order $order) use ($result, $gateway) {
+                        $wasPaid = $order->payment_status === 'paid';
+                        $paidNow = (bool) ($result['success'] ?? false);
+
                         $order->forceFill([
-                            'payment_status'   => ($result['success'] ?? false) ? 'paid' : 'failed',
+                            'payment_status'   => $paidNow ? 'paid' : 'failed',
                             'payment_response' => $result,
-                            'paid_at'          => ($result['success'] ?? false) ? now() : $order->paid_at,
-                            'status'           => ($result['success'] ?? false) ? 'paid' : $order->status,
+                            'paid_at'          => $paidNow ? now() : $order->paid_at,
+                            'status'           => $paidNow ? 'paid' : $order->status,
                         ])->save();
+
+                        if ($paidNow && ! $wasPaid) {
+                            $this->sendPlacedMailOnce($order);
+                            $this->dispatchShipmentIfNeeded($order);
+                        }
                     });
             }
 
@@ -223,7 +234,7 @@ class PaymentService
     protected function requiredKeysFor(string $driver): array
     {
         return [
-            'Paymob'       => ['PAYMOB_PUBLIC_KEY','PAYMOB_SECRET_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_HMAC'],
+            'Paymob'       => ['PAYMOB_API_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_IFRAME_ID','PAYMOB_HMAC'],
             'PaymobWallet' => ['PAYMOB_API_KEY','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_HMAC'],
             'Fawry'        => ['FAWRY_URL','FAWRY_SECRET','FAWRY_MERCHANT'],
             'Kashier'      => ['KASHIER_ACCOUNT_KEY','KASHIER_IFRAME_KEY','KASHIER_TOKEN','KASHIER_URL'],
@@ -253,19 +264,17 @@ class PaymentService
         try {
             switch ($gateway->driver) {
                 case 'Paymob':
-                    // New Paymob unified checkout uses Secret Key as an Authorization token.
-                    // Sending an empty intention should authenticate first, then fail validation.
-                    // 401/403 means the key itself is invalid.
                     $resp = \Illuminate\Support\Facades\Http::timeout(15)
                         ->acceptJson()
-                        ->withHeaders(['Authorization' => 'Token ' . $cfg['PAYMOB_SECRET_KEY']])
-                        ->post('https://accept.paymob.com/v1/intention/', []);
+                        ->post('https://accept.paymob.com/api/auth/tokens', [
+                            'api_key' => $cfg['PAYMOB_API_KEY'],
+                        ]);
 
-                    if (! in_array($resp->status(), [401, 403], true)) {
-                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ Paymob والتحقق من Secret Key.'];
+                    if ($resp->successful() && $resp->json('token')) {
+                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ Paymob بنجاح والتحقق من API Key.'];
                     }
 
-                    return ['ok' => false, 'message' => '❌ Paymob رفض Secret Key: ' . ($resp->json('detail') ?? $resp->body())];
+                    return ['ok' => false, 'message' => '❌ Paymob رفض API Key: ' . ($resp->json('detail') ?? $resp->body())];
 
                 case 'PaymobWallet':
                     $resp = \Illuminate\Support\Facades\Http::timeout(15)
@@ -363,5 +372,34 @@ class PaymentService
         $name = trim((string) ($name ?? 'Customer'));
         $parts = preg_split('/\s+/', $name, 2) ?: ['Customer'];
         return [$parts[0] ?? 'Customer', $parts[1] ?? '-'];
+    }
+
+    protected function sendPlacedMailOnce(Order $order): void
+    {
+        try {
+            \Illuminate\Support\Facades\Mail::to($order->email)
+                ->send(new \App\Mail\OrderStatusMail($order->loadMissing('items'), 'placed'));
+        } catch (\Throwable $e) {
+            Log::warning('Order placed mail failed', [
+                'order_id' => $order->id,
+                'err' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    protected function dispatchShipmentIfNeeded(Order $order): void
+    {
+        if (! $order->shipping_carrier_id) {
+            return;
+        }
+
+        try {
+            \App\Jobs\CreateCarrierShipment::dispatch($order->id)->onQueue('shipping');
+        } catch (\Throwable $e) {
+            Log::channel('shipping')->error('Shipment dispatch failed', [
+                'order_id' => $order->id,
+                'error'    => $e->getMessage(),
+            ]);
+        }
     }
 }
