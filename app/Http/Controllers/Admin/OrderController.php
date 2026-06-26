@@ -17,7 +17,12 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $q = Order::query()->with('items:id,order_id')->latest();
+        $visibleToAdmin = fn ($query) => $query->where(function ($w) {
+            $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])
+              ->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']);
+        });
+
+        $q = Order::query()->where($visibleToAdmin)->with('items:id,order_id')->latest();
 
         if ($s = $request->string('q')->trim()->value()) {
             $q->where(function ($w) use ($s) {
@@ -43,11 +48,11 @@ class OrderController extends Controller
 
         $stats = cache()->remember('admin.orders.stats', 60, function () {
             return [
-                'total' => Order::count(),
-                'pending' => Order::where('status', 'pending')->count(),
-                'paid' => Order::where('status', 'paid')->count(),
-                'shipped' => Order::where('status', 'shipped')->count(),
-                'delivered' => Order::where('status', 'delivered')->count(),
+                'total' => Order::where(fn ($w) => $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']))->count(),
+                'pending' => Order::where(fn ($w) => $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']))->where('status', 'pending')->count(),
+                'paid' => Order::where(fn ($w) => $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']))->where('status', 'paid')->count(),
+                'shipped' => Order::where(fn ($w) => $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']))->where('status', 'shipped')->count(),
+                'delivered' => Order::where(fn ($w) => $w->whereIn('payment_status', ['paid', 'cod_pending', 'refunded'])->orWhereIn('status', ['paid', 'shipped', 'delivered', 'refunded']))->where('status', 'delivered')->count(),
                 'revenue' => (float) Order::whereIn('status', ['paid','shipped','delivered'])->sum('total'),
             ];
         });
@@ -57,6 +62,12 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        abort_unless(
+            in_array($order->payment_status, ['paid', 'cod_pending', 'refunded'], true)
+            || in_array($order->status, ['paid', 'shipped', 'delivered', 'refunded'], true),
+            404
+        );
+
         $order->load(['items.product:id,slug,name', 'history', 'user:id,name,email']);
         return view('admin.orders.show', compact('order'));
     }

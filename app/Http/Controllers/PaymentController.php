@@ -30,7 +30,7 @@ class PaymentController extends Controller
                 ->with('error', $result['message'] ?? 'تعذر بدء عملية الدفع. حاول مرة أخرى.');
         }
 
-        if ($gateway->driver === 'cod' || $order->fresh()->payment_status === 'cod_pending') {
+        if (strcasecmp((string) $gateway->driver, 'cod') === 0 || $order->fresh()->payment_status === 'cod_pending') {
             $service->clearCartForOrder($order);
         }
 
@@ -47,6 +47,17 @@ class PaymentController extends Controller
     public function verify(Request $request, ?string $payment = null)
     {
         $result = app(PaymentService::class)->verify($request, $payment);
+
+        if (empty($result['success'])) {
+            return redirect()
+                ->route('checkout')
+                ->with('error', $result['message'] ?? 'لم يتم الدفع. حاول مرة أخرى.');
+        }
+
+        if (! empty($result['order_id'])) {
+            return redirect()->route('checkout.completed', ['order' => $result['order_id']]);
+        }
+
         return view('checkout.verify', compact('result'));
     }
 
