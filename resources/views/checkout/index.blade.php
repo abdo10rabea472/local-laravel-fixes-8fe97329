@@ -258,6 +258,12 @@
         cart.forEach(item => {
             const qty = item.quantity || 1;
             const lineTotal = ((item.price || 0) * qty).toLocaleString();
+            const max = Number(stockMap[item.id] ?? Infinity);
+            const atMax = Number.isFinite(max) && qty >= max;
+            const incClasses = atMax
+                ? 'opacity-40 cursor-not-allowed'
+                : 'text-slate-600 hover:bg-slate-100';
+            const incTitle = atMax ? `الحد الأقصى المتاح: ${max}` : '';
             itemsEl.innerHTML += `
                 <div class="flex gap-4" data-cart-id="${item.id}">
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain bg-slate-50 rounded-xl border border-slate-100 p-1">
@@ -274,7 +280,7 @@
                                     <i class="fa-solid fa-minus text-xs pointer-events-none"></i>
                                 </button>
                                 <span class="h-8 min-w-[2rem] px-2 flex items-center justify-center text-sm font-bold text-slate-800 border-x border-slate-200">${qty}</span>
-                                <button type="button" data-action="inc" data-id="${item.id}" class="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                                <button type="button" data-action="inc" data-id="${item.id}" ${atMax ? 'disabled aria-disabled="true"' : ''} title="${incTitle}" class="h-8 w-8 flex items-center justify-center transition-colors ${incClasses}">
                                     <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
                                 </button>
                             </div>
@@ -286,6 +292,7 @@
         });
         updateTotals();
     }
+
 
     itemsEl.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action]');
@@ -299,15 +306,11 @@
             const current = cart[idx].quantity || 1;
             const max = Number(stockMap[cart[idx].id] ?? Infinity);
             if (Number.isFinite(max) && current >= max) {
-                if (typeof window.toast === 'function') {
-                    window.toast(`الحد الأقصى المتاح في المخزون: ${max}`, 'warning');
-                } else {
-                    alert(`الحد الأقصى المتاح في المخزون: ${max}`);
-                }
-                return;
+                return; // silently cap at stock
             }
             cart[idx].quantity = current + 1;
         } else if (action === 'dec') {
+
 
             const newQty = (cart[idx].quantity || 1) - 1;
             if (newQty <= 0) {
