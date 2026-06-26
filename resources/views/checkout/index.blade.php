@@ -306,15 +306,11 @@
             const current = cart[idx].quantity || 1;
             const max = Number(stockMap[cart[idx].id] ?? Infinity);
             if (Number.isFinite(max) && current >= max) {
-                if (typeof window.toast === 'function') {
-                    window.toast(`الحد الأقصى المتاح في المخزون: ${max}`, 'warning');
-                } else {
-                    alert(`الحد الأقصى المتاح في المخزون: ${max}`);
-                }
-                return;
+                return; // silently cap at stock
             }
             cart[idx].quantity = current + 1;
         } else if (action === 'dec') {
+
 
             const newQty = (cart[idx].quantity || 1) - 1;
             if (newQty <= 0) {
