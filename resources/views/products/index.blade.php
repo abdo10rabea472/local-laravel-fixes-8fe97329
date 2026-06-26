@@ -164,5 +164,69 @@
 document.getElementById('mobile-filter-btn')?.addEventListener('click', () => document.getElementById('filter-drawer')?.classList.remove('hidden'));
 document.getElementById('close-filter')?.addEventListener('click', () => document.getElementById('filter-drawer')?.classList.add('hidden'));
 document.getElementById('filter-backdrop')?.addEventListener('click', () => document.getElementById('filter-drawer')?.classList.add('hidden'));
+
+// ===== AJAX: search / sort / filters / pagination — no page reload =====
+(function () {
+    if (!window.UL) return;
+    const SELECTOR = '#products-results';
+
+    function formToUrl(form) {
+        const action = form.getAttribute('action') || window.location.pathname;
+        const params = new URLSearchParams(new FormData(form));
+        // strip empty values for cleaner URLs
+        for (const [k, v] of [...params.entries()]) {
+            if (v === '' || v === null) params.delete(k);
+        }
+        const qs = params.toString();
+        return qs ? `${action}?${qs}` : action;
+    }
+
+    async function go(url) {
+        try { await window.UL.swap(url, SELECTOR, { scrollTo: SELECTOR }); }
+        catch (_) {}
+    }
+
+    // Intercept ALL GET forms on the page that target products.index
+    document.addEventListener('submit', (e) => {
+        const form = e.target.closest('form');
+        if (!form) return;
+        const method = (form.getAttribute('method') || 'get').toLowerCase();
+        if (method !== 'get') return;
+        const action = form.getAttribute('action') || '';
+        if (!action.includes('/products')) return;
+        e.preventDefault();
+        // Close mobile drawer if open
+        document.getElementById('filter-drawer')?.classList.add('hidden');
+        go(formToUrl(form));
+    });
+
+    // Sort dropdown / sidebar checkboxes already call .form.submit() — that fires submit event, handled above.
+    // But programmatic .submit() does NOT fire the submit event. Replace those onchange handlers via delegation:
+    document.addEventListener('change', (e) => {
+        const el = e.target;
+        if (!el.matches('select[name="sort"], input[form="filter-form"], #filter-form input, #filter-form select')) return;
+        const form = el.form || document.getElementById(el.getAttribute('form')) || el.closest('form');
+        if (!form) return;
+        e.preventDefault();
+        go(formToUrl(form));
+    });
+
+    // Pagination links inside the results container
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest(`${SELECTOR} a[href]`);
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || a.target === '_blank') return;
+        // Only intercept same-origin product listing links (pagination + "clear filters")
+        try {
+            const u = new URL(href, window.location.origin);
+            if (u.origin !== window.location.origin) return;
+            if (!u.pathname.startsWith('/products')) return;
+        } catch (_) { return; }
+        e.preventDefault();
+        go(href);
+    });
+})();
 </script>
 @endpush
+
