@@ -31,6 +31,7 @@ Route::get('/products', [ProductCatalogController::class, 'index'])->name('produ
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
 Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
+Route::get('/checkout/stocks', [CheckoutController::class, 'stocks'])->name('checkout.stocks');
 Route::get('/payment/success', [PageController::class, 'paymentSuccess'])->name('pages.payment-success');
 Route::get('/faqs', [PageController::class, 'faqs'])->name('pages.faqs');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
