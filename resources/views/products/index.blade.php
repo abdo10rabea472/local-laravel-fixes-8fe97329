@@ -33,10 +33,11 @@
             <button type="submit" class="h-11 px-5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl text-sm">Search</button>
         </form>
 
-        <div class="flex gap-8">
+        <div class="flex gap-5">
             {{-- Sidebar --}}
-            <aside id="filter-sidebar" class="hidden lg:block w-72 shrink-0">
-                <div class="sticky top-28 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            <aside id="filter-sidebar" class="hidden lg:block w-60 shrink-0">
+                <div class="sticky top-28 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+
                     <div class="flex items-center gap-2 mb-6">
                         <span class="flex h-7 w-7 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
                             <i class="fa-solid fa-filter text-xs"></i>
