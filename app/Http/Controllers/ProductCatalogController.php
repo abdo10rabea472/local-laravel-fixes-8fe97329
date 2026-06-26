@@ -78,7 +78,7 @@ class ProductCatalogController extends Controller
             default => $productsQuery->orderByDesc('created_at'),
         };
 
-        $products = $productsQuery->paginate(12)->withQueryString();
+        $products = $productsQuery->paginate(36)->withQueryString();
 
         $pageTitle = \App\Models\SiteSetting::get('catalog_page_title', 'All Products');
         $pageSubtitle = \App\Models\SiteSetting::get('catalog_page_subtitle', 'Browse all available products');
