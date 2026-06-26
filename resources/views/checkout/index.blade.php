@@ -48,26 +48,31 @@
                         <i class="fa-solid fa-truck text-violet-600"></i> Shipping Information
                     </h2>
 
+                    @php
+                        $nameParts = preg_split('/\s+/', trim((string)($profile['customer_name'] ?? '')), 2);
+                        $fn = $nameParts[0] ?? '';
+                        $ln = $nameParts[1] ?? '';
+                    @endphp
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-500">First Name</label>
-                            <input type="text" name="first_name" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
+                            <input type="text" name="first_name" value="{{ $fn }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-500">Last Name</label>
-                            <input type="text" name="last_name" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
+                            <input type="text" name="last_name" value="{{ $ln }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
                         </div>
                         <div class="space-y-1.5 sm:col-span-2">
                             <label class="text-xs font-bold text-slate-500">Email</label>
-                            <input type="email" name="email" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
+                            <input type="email" name="email" value="{{ $profile['email'] ?? '' }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
                         </div>
                         <div class="space-y-1.5 sm:col-span-2">
                             <label class="text-xs font-bold text-slate-500">Address</label>
-                            <input type="text" name="address" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
+                            <input type="text" name="address" value="{{ $profile['shipping_address'] ?? '' }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-500">Phone</label>
-                            <input type="tel" name="phone" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
+                            <input type="tel" name="phone" value="{{ $profile['phone'] ?? '' }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-violet-300 focus:bg-white transition-colors">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-500">Country</label>
@@ -108,29 +113,32 @@
                             <i class="fa-solid fa-credit-card text-violet-600"></i> Payment Method
                         </h2>
 
+                        @if($paymentGateways->isEmpty())
+                            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                                لا توجد بوابات دفع مفعّلة حاليًا. يرجى التواصل مع الإدارة.
+                            </div>
+                        @else
                         <div class="space-y-3">
+                            @foreach($paymentGateways as $g)
                             <label class="flex items-start gap-3 p-4 rounded-2xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50/30 cursor-pointer transition-colors has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50/40">
-                                <input type="radio" name="payment_method" value="cod" checked class="mt-1 text-violet-600 focus:ring-violet-500">
-                                <div>
-                                    <p class="font-bold text-slate-900">Cash on Delivery</p>
-                                    <p class="text-xs text-slate-500">Pay when your order arrives</p>
+                                <input type="radio" name="payment_gateway" value="{{ $g->code }}"
+                                       data-fees="{{ (float) $g->extra_fees }}"
+                                       @checked($loop->first)
+                                       class="mt-1 text-violet-600 focus:ring-violet-500">
+                                @if($g->logo)
+                                    <img src="{{ $g->logo }}" alt="{{ $g->name }}" class="h-8 w-auto">
+                                @endif
+                                <div class="flex-1">
+                                    <p class="font-bold text-slate-900">{{ $g->name }}</p>
+                                    @if($g->description)<p class="text-xs text-slate-500">{{ $g->description }}</p>@endif
+                                    @if((float)$g->extra_fees > 0)
+                                        <p class="text-xs text-amber-600 font-semibold mt-1">+ رسوم {{ number_format((float)$g->extra_fees, 2) }} {{ config('app.currency','EGP') }}</p>
+                                    @endif
                                 </div>
                             </label>
-                            <label class="flex items-start gap-3 p-4 rounded-2xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50/30 cursor-pointer transition-colors has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50/40">
-                                <input type="radio" name="payment_method" value="vodafone" class="mt-1 text-violet-600 focus:ring-violet-500">
-                                <div>
-                                    <p class="font-bold text-slate-900">Vodafone Cash</p>
-                                    <p class="text-xs text-slate-500">Pay using your Vodafone Cash wallet</p>
-                                </div>
-                            </label>
-                            <label class="flex items-start gap-3 p-4 rounded-2xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50/30 cursor-pointer transition-colors has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50/40">
-                                <input type="radio" name="payment_method" value="card" class="mt-1 text-violet-600 focus:ring-violet-500">
-                                <div>
-                                    <p class="font-bold text-slate-900">Credit / Debit Card</p>
-                                    <p class="text-xs text-slate-500">Visa, Mastercard, or Meeza</p>
-                                </div>
-                            </label>
+                            @endforeach
                         </div>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -585,6 +593,7 @@
                     shipping_postcode: zipEl?.value || null,
                     shipping_cost: shippingCost,
                     shipping_carrier_id: carrierSel?.value ? parseInt(carrierSel.value, 10) : null,
+                    payment_gateway: (form.querySelector('input[name="payment_gateway"]:checked')?.value) || null,
                 }),
             });
 

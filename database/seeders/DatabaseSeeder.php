@@ -64,5 +64,6 @@ class DatabaseSeeder extends Seeder
 
         // Seed Default Header Menu
         $this->call(HeaderMenuSeeder::class);
+        $this->call(PaymentGatewaySeeder::class);
     }
 }

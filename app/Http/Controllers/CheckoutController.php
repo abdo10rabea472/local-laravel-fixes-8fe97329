@@ -41,10 +41,27 @@ class CheckoutController extends Controller
                 ])->values(),
             ])->values();
 
-        // Currently discounted product IDs (so the UI can warn before user tries a coupon)
         $discountedProductIds = ProductDiscount::active()->pluck('product_id')->map(fn ($id) => (int) $id)->values();
 
-        return view('checkout.index', compact('seo', 'shippingCountries', 'discountedProductIds'));
+        // Pre-fill from the authenticated user's profile.
+        $user = Auth::user();
+        $profile = [
+            'customer_name'     => $user->name,
+            'email'             => $user->email,
+            'phone'             => $user->phone,
+            'shipping_country'  => $user->shipping_country,
+            'shipping_region'   => $user->shipping_region,
+            'shipping_city'     => $user->shipping_city,
+            'shipping_address'  => $user->shipping_address,
+            'shipping_postcode' => $user->shipping_postcode,
+        ];
+
+        // Only enabled gateways; filter by user's country if set.
+        $paymentGateways = \App\Models\PaymentGateway::activeFor($user->shipping_country);
+
+        return view('checkout.index', compact(
+            'seo', 'shippingCountries', 'discountedProductIds', 'profile', 'paymentGateways'
+        ));
     }
 
     /**
@@ -139,7 +156,22 @@ class CheckoutController extends Controller
             'shipping_cost' => 'nullable|numeric|min:0',
             'shipping_carrier_id' => 'nullable|integer|exists:shipping_carriers,id',
             'notes' => 'nullable|string|max:1000',
+            'payment_gateway' => 'required|string|exists:payment_gateways,code',
         ]);
+
+        // Persist shipping defaults onto the user's profile so subsequent
+        // orders pre-fill automatically (no need to re-enter every time).
+        if ($user = Auth::user()) {
+            $user->forceFill(array_filter([
+                'name'              => $data['customer_name'] ?? $user->name,
+                'phone'             => $data['phone'] ?? $user->phone,
+                'shipping_country'  => $data['shipping_country'] ?? null,
+                'shipping_region'   => $data['shipping_region'] ?? null,
+                'shipping_city'     => $data['shipping_city'] ?? null,
+                'shipping_address'  => $data['shipping_address'] ?? null,
+                'shipping_postcode' => $data['shipping_postcode'] ?? null,
+            ], fn ($v) => $v !== null && $v !== ''))->save();
+        }
 
 
         $requested = [];
@@ -235,7 +267,12 @@ class CheckoutController extends Controller
                 }
 
                 $shipping = (float) ($data['shipping_cost'] ?? 0);
-                $total = max(0, round($subtotal - $discount + $shipping, 2));
+
+                // Include payment-gateway extra fees (e.g. COD surcharge).
+                $gateway = \App\Models\PaymentGateway::where('code', $data['payment_gateway'])->first();
+                $payFees = $gateway ? (float) $gateway->extra_fees : 0.0;
+
+                $total = max(0, round($subtotal - $discount + $shipping + $payFees, 2));
 
                 $order = \App\Models\Order::create([
                     'order_number' => \App\Models\Order::generateNumber(),
@@ -254,6 +291,8 @@ class CheckoutController extends Controller
                     'discount_amount' => $discount,
                     'coupon_code' => $couponCode,
                     'shipping_cost' => $shipping,
+                    'payment_fees' => $payFees,
+                    'payment_gateway' => $data['payment_gateway'],
                     'total' => $total,
                     'currency' => 'EGP',
                     'status' => 'pending',
@@ -326,8 +365,11 @@ class CheckoutController extends Controller
 
         return response()->json([
             'ok' => true,
+            'order_id' => $createdOrder->id,
             'order_number' => $createdOrder->order_number,
-            'redirect' => route('pages.payment-success'),
+            'redirect' => route('checkout.pay', ['order' => $createdOrder->id]) . '?gateway=' . urlencode($data['payment_gateway']),
+            'pay_url'  => route('checkout.pay', ['order' => $createdOrder->id]),
+            'gateway'  => $data['payment_gateway'],
         ]);
     }
 

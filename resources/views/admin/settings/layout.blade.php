@@ -29,6 +29,11 @@ $tabs = [
         'icon' => 'fa-truck-fast',
         'route' => route('admin.settings.shipping'),
     ],
+    'payment-gateways' => [
+        'label' => 'بوابات الدفع',
+        'icon' => 'fa-credit-card',
+        'route' => route('admin.settings.payment-gateways.index'),
+    ],
 ];
 
 $seoTabs = [
