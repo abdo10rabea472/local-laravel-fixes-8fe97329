@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:30,1')->name('checkout.aramex-rate');
 
     // Payment lifecycle
-    Route::post('/checkout/{order}/pay', [\App\Http\Controllers\PaymentController::class, 'start'])
+    Route::match(['get','post'], '/checkout/{order}/pay', [\App\Http\Controllers\PaymentController::class, 'start'])
         ->middleware('throttle:30,1')->name('checkout.pay');
     Route::get('/checkout/{order}/completed', [\App\Http\Controllers\PaymentController::class, 'completed'])
         ->name('checkout.completed');
