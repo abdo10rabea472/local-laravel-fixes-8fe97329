@@ -3,8 +3,8 @@
 @php
     $fieldsByDriver = [
         'cod'          => [],
-        'Paymob'       => ['PAYMOB_API_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_IFRAME_ID','PAYMOB_HMAC','PAYMOB_CURRENCY','PAYMOB_WALLET_ENABLED','PAYMOB_WALLET_INTEGRATION_ID'],
-        'PaymobWallet' => ['PAYMOB_API_KEY','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_HMAC','PAYMOB_CURRENCY'],
+        'Paymob'       => ['PAYMOB_API_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_IFRAME_ID','PAYMOB_HMAC','PAYMOB_CURRENCY','PAYMOB_WALLET_ENABLED','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_WALLET_IFRAME_ID'],
+        'PaymobWallet' => ['PAYMOB_API_KEY','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_WALLET_IFRAME_ID','PAYMOB_HMAC','PAYMOB_CURRENCY'],
         'Fawry'        => ['FAWRY_URL','FAWRY_SECRET','FAWRY_MERCHANT'],
         'Kashier'      => ['KASHIER_ACCOUNT_KEY','KASHIER_IFRAME_KEY','KASHIER_TOKEN','KASHIER_URL','KASHIER_MODE','KASHIER_CURRENCY','KASHIER_WEBHOOK_URL'],
         'HyperPay'     => ['HYPERPAY_BASE_URL','HYPERPAY_TOKEN','HYPERPAY_CREDIT_ID','HYPERPAY_MADA_ID','HYPERPAY_APPLE_ID','HYPERPAY_CURRENCY'],
@@ -115,13 +115,15 @@
                                     </select>
                                 @else
                                     <input name="config[{{ $field }}]" value="{{ old('config.'.$field, $gateway->configValue($field)) }}" autocomplete="off"
-                                           placeholder="{{ $field === 'PAYMOB_IFRAME_ID' ? 'اكتب IFRAME ID الخاص ببطاقات Paymob' : ($field === 'PAYMOB_WALLET_INTEGRATION_ID' ? 'Integration ID الخاص بالمحافظ' : '') }}"
+                                           placeholder="{{ $field === 'PAYMOB_IFRAME_ID' ? 'IFRAME ID الخاص ببطاقات Paymob' : ($field === 'PAYMOB_WALLET_INTEGRATION_ID' ? 'Integration ID الخاص بالمحافظ' : ($field === 'PAYMOB_WALLET_IFRAME_ID' ? 'IFRAME ID الخاص بالمحافظ (اختياري)' : '')) }}"
                                            class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                                 @endif
                                 @if($field === 'PAYMOB_IFRAME_ID')
                                     <p class="text-[11px] text-slate-400">هذا هو IFRAME ID الخاص ببطاقات Paymob.</p>
                                 @elseif($field === 'PAYMOB_WALLET_INTEGRATION_ID')
                                     <p class="text-[11px] text-slate-400">يُستخدم فقط عند تفعيل المحافظ.</p>
+                                @elseif($field === 'PAYMOB_WALLET_IFRAME_ID')
+                                    <p class="text-[11px] text-slate-400">عند إدخاله سيتم فتح المحفظة داخل IFRAME بدلًا من إعادة التوجيه.</p>
                                 @endif
                             </div>
                         @endforeach

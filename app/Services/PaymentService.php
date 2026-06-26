@@ -427,20 +427,27 @@ class PaymentService
             }
 
             if ($useWallet) {
-                $walletPay = \Illuminate\Support\Facades\Http::timeout(20)
-                    ->acceptJson()
-                    ->asJson()
-                    ->post('https://accept.paymob.com/api/acceptance/payments/pay', [
-                        'source' => [
-                            'identifier' => preg_replace('/\s+/', '', (string) $order->phone),
-                            'subtype' => 'WALLET',
-                        ],
-                        'payment_token' => $paymentToken,
-                    ]);
+                $walletIframe = trim((string) ($cfg['PAYMOB_WALLET_IFRAME_ID'] ?? ''));
 
-                $redirectUrl = $walletPay->json('redirect_url');
-                if (! $walletPay->successful() || ! $redirectUrl) {
-                    return ['ok' => false, 'message' => 'تعذر بدء دفع محفظة Paymob: ' . $this->paymobError($walletPay->json(), $walletPay->body())];
+                if ($walletIframe !== '') {
+                    // Open the wallet flow inside an IFRAME, same as cards
+                    $redirectUrl = 'https://accept.paymob.com/api/acceptance/iframes/' . rawurlencode($walletIframe) . '?payment_token=' . rawurlencode($paymentToken);
+                } else {
+                    $walletPay = \Illuminate\Support\Facades\Http::timeout(20)
+                        ->acceptJson()
+                        ->asJson()
+                        ->post('https://accept.paymob.com/api/acceptance/payments/pay', [
+                            'source' => [
+                                'identifier' => preg_replace('/\s+/', '', (string) $order->phone),
+                                'subtype' => 'WALLET',
+                            ],
+                            'payment_token' => $paymentToken,
+                        ]);
+
+                    $redirectUrl = $walletPay->json('redirect_url');
+                    if (! $walletPay->successful() || ! $redirectUrl) {
+                        return ['ok' => false, 'message' => 'تعذر بدء دفع محفظة Paymob: ' . $this->paymobError($walletPay->json(), $walletPay->body())];
+                    }
                 }
             } else {
                 $redirectUrl = 'https://accept.paymob.com/api/acceptance/iframes/' . rawurlencode((string) $cfg['PAYMOB_IFRAME_ID']) . '?payment_token=' . rawurlencode($paymentToken);
