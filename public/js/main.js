@@ -2,15 +2,21 @@
 window.cart = window.cart || [];
 
 
-// Mobile menu controls
-const mobileMenu = document.getElementById("mobile-menu");
-const menuBtn = document.getElementById("mobile-menu-btn");
-
-if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
-    });
-}
+// Mobile menu controls (event delegation — works even if script loads before DOM)
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#mobile-menu-btn");
+    if (!btn) return;
+    e.preventDefault();
+    const menu = document.getElementById("mobile-menu");
+    if (!menu) return;
+    const isHidden = menu.classList.toggle("hidden");
+    btn.setAttribute("aria-expanded", String(!isHidden));
+    const icon = btn.querySelector("i");
+    if (icon) {
+        icon.classList.toggle("fa-bars", isHidden);
+        icon.classList.toggle("fa-xmark", !isHidden);
+    }
+});
 
 // Shop by College dropdown (desktop)
 const collegesDropdown = document.getElementById("colleges-dropdown");
