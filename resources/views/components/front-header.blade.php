@@ -394,7 +394,27 @@
 </header>
 
 <script>
-document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
-    document.getElementById('mobile-menu')?.classList.toggle('hidden');
-});
+(function () {
+    function initMobileMenu() {
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('#mobile-menu-btn');
+            if (!btn) return;
+            e.preventDefault();
+            var menu = document.getElementById('mobile-menu');
+            if (!menu) return;
+            var isHidden = menu.classList.toggle('hidden');
+            btn.setAttribute('aria-expanded', String(!isHidden));
+            var icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars', isHidden);
+                icon.classList.toggle('fa-xmark', !isHidden);
+            }
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+    } else {
+        initMobileMenu();
+    }
+})();
 </script>
