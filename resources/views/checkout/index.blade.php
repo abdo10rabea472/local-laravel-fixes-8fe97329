@@ -581,6 +581,16 @@
         if (unsupportedMsg) unsupportedMsg.classList.remove('hidden');
     }
 
+    // Selecting an inner Paymob channel (card/wallet) must also select the outer Paymob gateway radio.
+    document.querySelectorAll('input[name="paymob_channel"]').forEach((el) => {
+        el.addEventListener('change', () => {
+            const parentCode = el.dataset.parentGateway || 'paymob';
+            const outer = document.querySelector('input[name="payment_gateway"][value="' + parentCode + '"]');
+            if (outer) { outer.checked = true; outer.dispatchEvent(new Event('change', { bubbles: true })); }
+        });
+        el.addEventListener('click', (e) => e.stopPropagation());
+    });
+
     confirmBtn.addEventListener('click', async () => {
         const form = document.getElementById('checkout-form');
         if (!form.checkValidity()) {
