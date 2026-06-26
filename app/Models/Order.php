@@ -25,7 +25,10 @@ class Order extends Model
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'refunded_at' => 'datetime',
+        'tracking_last_sync_at' => 'datetime',
+        'tracking_history' => 'array',
     ];
+
 
     public function items(): HasMany
     {
