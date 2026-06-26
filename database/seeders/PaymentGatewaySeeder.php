@@ -11,8 +11,8 @@ class PaymentGatewaySeeder extends Seeder
     {
         $gateways = [
             ['code' => 'cod',           'driver' => 'cod',          'name' => 'الدفع عند الاستلام',  'description' => 'ادفع نقدًا عند استلام الطلب', 'is_active' => true,  'sandbox' => false],
-            ['code' => 'paymob',        'driver' => 'Paymob',       'name' => 'Paymob (بطاقات)',     'description' => 'بطاقات الائتمان عبر Paymob'],
-            ['code' => 'paymob_wallet', 'driver' => 'PaymobWallet', 'name' => 'محافظ Paymob',        'description' => 'فودافون كاش / أورنج / اتصالات / WE / ميزة'],
+            ['code' => 'paymob',        'driver' => 'Paymob',       'name' => 'Paymob',              'description' => 'بطاقات الائتمان ومحافظ Paymob من إعداد واحد'],
+            ['code' => 'paymob_wallet', 'driver' => 'PaymobWallet', 'name' => 'محافظ Paymob',        'description' => 'مدمجة داخل بوابة Paymob الرئيسية'],
             ['code' => 'fawry',         'driver' => 'Fawry',        'name' => 'فوري',                'description' => 'الدفع عبر فوري'],
             ['code' => 'kashier',       'driver' => 'Kashier',      'name' => 'Kashier',             'description' => 'بطاقات عبر Kashier'],
             ['code' => 'hyperpay',      'driver' => 'HyperPay',     'name' => 'HyperPay',            'description' => 'بطاقات / مدى / Apple Pay'],

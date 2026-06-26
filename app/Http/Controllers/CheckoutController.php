@@ -57,7 +57,9 @@ class CheckoutController extends Controller
         ];
 
         // Only enabled gateways; filter by user's country if set.
-        $paymentGateways = \App\Models\PaymentGateway::activeFor($user->shipping_country);
+        $paymentGateways = \App\Models\PaymentGateway::activeFor($user->shipping_country)
+            ->reject(fn ($g) => $g->code === 'paymob_wallet')
+            ->values();
 
         return view('checkout.index', compact(
             'seo', 'shippingCountries', 'discountedProductIds', 'profile', 'paymentGateways'

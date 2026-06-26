@@ -14,12 +14,19 @@ class PaymentGatewayController extends Controller
 {
     public function index(): View
     {
-        $gateways = PaymentGateway::orderBy('position')->get();
+        $gateways = PaymentGateway::where('code', '!=', 'paymob_wallet')->orderBy('position')->get();
         return view('admin.settings.payment-gateways.index', compact('gateways'));
     }
 
     public function edit(PaymentGateway $gateway): View
     {
+        if ($gateway->code === 'paymob_wallet') {
+            $paymob = PaymentGateway::where('code', 'paymob')->first();
+            if ($paymob) {
+                return redirect()->route('admin.settings.payment-gateways.edit', $paymob);
+            }
+        }
+
         return view('admin.settings.payment-gateways.edit', compact('gateway'));
     }
 
