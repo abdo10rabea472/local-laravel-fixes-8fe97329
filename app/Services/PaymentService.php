@@ -256,7 +256,7 @@ class PaymentService
                     // New Paymob unified checkout uses Secret Key as an Authorization token.
                     // Sending an empty intention should authenticate first, then fail validation.
                     // 401/403 means the key itself is invalid.
-                    $resp = \\Illuminate\\Support\\Facades\\Http::timeout(15)
+                    $resp = \Illuminate\Support\Facades\Http::timeout(15)
                         ->acceptJson()
                         ->withHeaders(['Authorization' => 'Token ' . $cfg['PAYMOB_SECRET_KEY']])
                         ->post('https://accept.paymob.com/v1/intention/', []);
