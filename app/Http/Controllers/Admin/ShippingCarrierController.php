@@ -47,6 +47,10 @@ class ShippingCarrierController extends Controller
             'name' => ['required','string','max:120'],
             'code' => ['required','string','max:50', Rule::unique('shipping_carriers','code')->ignore($id)],
             'tracking_url_template' => ['nullable','string','max:500'],
+            'api_endpoint' => ['nullable','string','max:500'],
+            'api_key' => ['nullable','string','max:255'],
+            'webhook_secret' => ['nullable','string','max:100'],
+            'auto_track' => ['nullable','boolean'],
             'contact_phone' => ['nullable','string','max:30'],
             'contact_email' => ['nullable','email','max:120'],
             'default_cost' => ['nullable','numeric','min:0'],
@@ -55,3 +59,4 @@ class ShippingCarrierController extends Controller
         ]);
     }
 }
+

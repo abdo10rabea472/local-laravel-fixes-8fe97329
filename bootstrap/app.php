@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\AjaxResponse::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/shipping/*/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

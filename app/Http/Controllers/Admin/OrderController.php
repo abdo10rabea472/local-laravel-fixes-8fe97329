@@ -158,6 +158,14 @@ class OrderController extends Controller
         return $this->jsonOrBack($request, true, 'تم إرسال البريد للعميل.');
     }
 
+    /** Pull live tracking from carrier API. */
+    public function refreshTracking(Request $request, Order $order, \App\Services\ShippingTrackingService $tracker)
+    {
+        $res = $tracker->refresh($order);
+        return $this->jsonOrBack($request, (bool) $res['ok'], $res['message']);
+    }
+
+
     public function invoice(Order $order)
     {
         $order->load('items.product:id,slug,name');

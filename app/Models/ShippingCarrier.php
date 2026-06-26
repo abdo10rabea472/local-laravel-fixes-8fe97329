@@ -11,8 +11,12 @@ class ShippingCarrier extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'auto_track' => 'boolean',
         'default_cost' => 'decimal:2',
     ];
+
+    protected $hidden = ['api_key', 'webhook_secret'];
+
 
     public function orders(): HasMany
     {

@@ -215,7 +215,26 @@
                 <span>المرتجعات</span>
             </a>
 
-            <div class="pt-4 mt-2 border-t border-slate-800/60"></div>
+            <div class="pt-4 mt-2 border-t border-slate-800/60">
+                <p class="px-4 pb-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">التحليلات والتقارير</p>
+            </div>
+
+            <a href="{{ route('admin.reports.analytics') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.reports.analytics') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-chart-pie text-lg group-hover:scale-110 transition-transform"></i>
+                <span>تحليلات المبيعات</span>
+            </a>
+            <a href="{{ route('admin.reports.inventory') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.reports.inventory') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-boxes-stacked text-lg group-hover:scale-110 transition-transform"></i>
+                <span>تقارير المخزون</span>
+            </a>
+            <a href="{{ route('admin.reports.coupons') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.reports.coupons') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-ticket text-lg group-hover:scale-110 transition-transform"></i>
+                <span>تقارير الكوبونات</span>
+            </a>
+
 
             <a 
                 href="{{ route('admin.settings.index') }}" 
