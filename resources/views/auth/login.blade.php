@@ -1,65 +1,56 @@
 <x-guest-layout :authTitle="'تسجيل الدخول'">
 
-    <div class="mb-8">
-        <h2 class="text-3xl font-extrabold text-slate-900">مرحبًا بعودتك 👋</h2>
-        <p class="text-slate-500 mt-2 text-sm">سجّل دخولك للوصول إلى حسابك ومتابعة طلباتك.</p>
+    <div class="mb-7">
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">تسجيل الدخول</h2>
+        <p class="text-slate-500 mt-1.5 text-sm">أدخل بياناتك للوصول إلى حسابك</p>
     </div>
 
     @if(session('status'))
-        <div class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
-            <i class="fa-solid fa-circle-check ml-1"></i> {{ session('status') }}
+        <div class="mb-5 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm">
+            <i class="fa-solid fa-circle-check ml-1.5"></i>{{ session('status') }}
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" data-ajax data-success-toast="تم تسجيل الدخول بنجاح" class="space-y-5">
+    <form method="POST" action="{{ route('login') }}" data-ajax data-success-toast="تم تسجيل الدخول بنجاح" class="space-y-4">
         @csrf
 
-        <div>
-            <label for="email" class="auth-label">البريد الإلكتروني</label>
-            <div class="relative">
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                       class="auth-input @error('email') has-error @enderror" placeholder="you@example.com">
-                <i class="fa-solid fa-envelope auth-icon"></i>
-            </div>
-            @error('email')<p class="auth-error">{{ $message }}</p>@enderror
+        <div class="field">
+            <label for="email" class="field-label">البريد الإلكتروني</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                   class="field-input @error('email') has-error @enderror" placeholder="you@example.com">
+            @error('email')<p class="field-error">{{ $message }}</p>@enderror
         </div>
 
-        <div>
-            <label for="password" class="auth-label">كلمة المرور</label>
+        <div class="field">
+            <div class="flex items-center justify-between mb-1.5">
+                <label for="password" class="field-label !mb-0">كلمة المرور</label>
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="text-xs link">نسيت كلمة المرور؟</a>
+                @endif
+            </div>
             <div class="relative">
                 <input id="password" type="password" name="password" required autocomplete="current-password"
-                       class="auth-input @error('password') has-error @enderror" placeholder="••••••••">
-                <i class="fa-solid fa-lock auth-icon"></i>
-                <button type="button" class="toggle-pwd" data-toggle-password="#password"><i class="fa-solid fa-eye"></i></button>
+                       class="field-input has-toggle @error('password') has-error @enderror" placeholder="••••••••">
+                <button type="button" class="field-toggle" data-toggle-password="#password" aria-label="إظهار كلمة المرور">
+                    <i class="fa-solid fa-eye text-sm"></i>
+                </button>
             </div>
-            @error('password')<p class="auth-error">{{ $message }}</p>@enderror
+            @error('password')<p class="field-error">{{ $message }}</p>@enderror
         </div>
 
-        <div class="flex items-center justify-between">
-            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                <span class="text-sm text-slate-600">تذكّرني</span>
-            </label>
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800">
-                    نسيت كلمة المرور؟
-                </a>
-            @endif
-        </div>
+        <label class="inline-flex items-center gap-2 cursor-pointer select-none pt-1">
+            <input type="checkbox" name="remember" class="checkbox">
+            <span class="text-sm text-slate-600">تذكّرني على هذا الجهاز</span>
+        </label>
 
-        <button type="submit" class="auth-btn-primary">
-            <i class="fa-solid fa-right-to-bracket"></i>
+        <button type="submit" class="btn-primary !mt-6">
             تسجيل الدخول
+            <i class="fa-solid fa-arrow-left text-xs"></i>
         </button>
 
-        <div class="relative my-2">
-            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
-            <div class="relative flex justify-center"><span class="bg-white px-3 text-xs text-slate-400">أو</span></div>
-        </div>
-
-        <p class="text-center text-sm text-slate-600">
+        <p class="text-center text-sm text-slate-600 !mt-6">
             ليس لديك حساب؟
-            <a href="{{ route('register') }}" class="font-bold text-blue-600 hover:text-blue-800">أنشئ حسابًا جديدًا</a>
+            <a href="{{ route('register') }}" class="link">أنشئ حسابًا جديدًا</a>
         </p>
     </form>
 </x-guest-layout>
