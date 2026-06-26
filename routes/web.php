@@ -95,11 +95,17 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::delete('/settings/header-menu/{item}', [HeaderMenuController::class, 'destroy'])->name('settings.header-menu.destroy');
     Route::post('/settings/header-menu/reorder', [HeaderMenuController::class, 'reorder'])->name('settings.header-menu.reorder');
 
-    // Shipping Rates
+    // Shipping (Countries + Regions + Free shipping settings)
     Route::get('/settings/shipping', [ShippingRateController::class, 'index'])->name('settings.shipping');
-    Route::post('/settings/shipping', [ShippingRateController::class, 'store'])->name('settings.shipping.store');
-    Route::put('/settings/shipping/{rate}', [ShippingRateController::class, 'update'])->name('settings.shipping.update');
-    Route::delete('/settings/shipping/{rate}', [ShippingRateController::class, 'destroy'])->name('settings.shipping.destroy');
+    // Countries
+    Route::post('/settings/shipping/countries', [ShippingRateController::class, 'storeCountry'])->name('settings.shipping.countries.store');
+    Route::put('/settings/shipping/countries/{country}', [ShippingRateController::class, 'updateCountry'])->name('settings.shipping.countries.update');
+    Route::delete('/settings/shipping/countries/{country}', [ShippingRateController::class, 'destroyCountry'])->name('settings.shipping.countries.destroy');
+    // Regions
+    Route::post('/settings/shipping/regions', [ShippingRateController::class, 'storeRegion'])->name('settings.shipping.regions.store');
+    Route::put('/settings/shipping/regions/{region}', [ShippingRateController::class, 'updateRegion'])->name('settings.shipping.regions.update');
+    Route::delete('/settings/shipping/regions/{region}', [ShippingRateController::class, 'destroyRegion'])->name('settings.shipping.regions.destroy');
+    // Free shipping settings
     Route::put('/settings/shipping-threshold', [ShippingRateController::class, 'updateThreshold'])->name('settings.shipping.threshold');
 
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
