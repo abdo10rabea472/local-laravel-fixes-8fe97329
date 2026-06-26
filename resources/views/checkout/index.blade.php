@@ -154,7 +154,9 @@
 @push('scripts')
 <script>
 (function () {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    // السلة تأتي من الخادم عبر main.js (window.cart). نحافظ على مرجع محلي للقراءة فقط.
+    let cart = Array.isArray(window.cart) ? window.cart : [];
+
     const emptyEl = document.getElementById('checkout-empty');
     const contentEl = document.getElementById('checkout-content');
     const itemsEl = document.getElementById('checkout-items');
@@ -201,9 +203,11 @@
     }
 
     function saveCart() {
-        localStorage.setItem('cart', JSON.stringify(cart));
+        // الكتابة تتم على الخادم عبر دوال main.js (addToCart/changeQuantity/removeFromCart).
+        // هنا نُذكِّر فقط بتحديث الواجهة.
         document.dispatchEvent(new CustomEvent('cart:updated'));
     }
+
 
     // Map of productId -> stock fetched from server
     const stockMap = {};
