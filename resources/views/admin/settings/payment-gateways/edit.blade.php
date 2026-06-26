@@ -21,7 +21,10 @@
         'Payeer'       => ['PAYEER_MERCHANT_ID','PAYEER_API_KEY','PAYEER_ADDITIONAL_API_KEY'],
         'PerfectMoney' => ['PERFECT_MONEY_ID','PERFECT_MONEY_PASSPHRASE'],
     ];
-    $fields = $fieldsByDriver[$gateway->driver] ?? [];
+    // Case-insensitive driver lookup (DB may store 'paymob' or 'Paymob')
+    $driverKey = collect(array_keys($fieldsByDriver))
+        ->first(fn($k) => strcasecmp($k, (string) $gateway->driver) === 0);
+    $fields = $driverKey ? $fieldsByDriver[$driverKey] : [];
 @endphp
 
 @section('settings-content')
