@@ -138,6 +138,22 @@
             </a>
 
             <a 
+                href="{{ route('admin.product-discounts.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.product-discounts.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+            >
+                <i class="fa-solid fa-percent text-lg group-hover:scale-110 transition-transform"></i>
+                <span>خصومات المنتجات</span>
+            </a>
+
+            <a 
+                href="{{ route('admin.coupons.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.coupons.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+            >
+                <i class="fa-solid fa-ticket text-lg group-hover:scale-110 transition-transform"></i>
+                <span>أكواد الخصم</span>
+            </a>
+
+            <a 
                 href="{{ route('admin.settings.index') }}" 
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.settings.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
             >
