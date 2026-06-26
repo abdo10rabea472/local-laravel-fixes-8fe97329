@@ -140,25 +140,133 @@ class PaymentService
     }
 
     /**
-     * Test connectivity by attempting a tiny no-op verification check (best-effort).
+     * Test connectivity:
+     *  1) verify required config keys are present for this driver
+     *  2) load the driver via the Nafezly factory
+     *  3) where possible (Paymob), make a real authenticated call to validate the credentials
      */
     public function testConnection(PaymentGateway $gateway): array
     {
         if ($gateway->driver === 'cod') {
-            return ['ok' => true, 'message' => 'COD لا يحتاج اتصال خارجي.'];
+            return ['ok' => true, 'message' => '✓ الدفع عند الاستلام (COD) جاهز — لا يحتاج إلى اتصال خارجي.'];
         }
 
+        // 1) Required config keys per driver
+        $required = $this->requiredKeysFor($gateway->driver);
+        $cfg = array_change_key_case((array) $gateway->config, CASE_UPPER);
+        $missing = [];
+        foreach ($required as $key) {
+            if (empty($cfg[strtoupper($key)])) {
+                $missing[] = $key;
+            }
+        }
+        if (! empty($missing)) {
+            return [
+                'ok' => false,
+                'message' => "⚠ يجب إدخال المفاتيح التالية أولًا:\n• " . implode("\n• ", $missing),
+            ];
+        }
+
+        // 2) Load the driver
         if (! class_exists(\Nafezly\Payments\Factories\PaymentFactory::class)) {
-            return ['ok' => false, 'message' => 'المكتبة غير مثبتة.'];
+            return ['ok' => false, 'message' => '❌ مكتبة Nafezly غير مثبتة. شغّل: composer require nafezly/payments dev-master'];
         }
 
         try {
             $this->applyRuntimeConfig($gateway);
             $driver = (new \Nafezly\Payments\Factories\PaymentFactory())->get($gateway->driver);
-            return ['ok' => true, 'message' => 'تم تحميل الـ driver: ' . get_class($driver)];
         } catch (\Throwable $e) {
-            return ['ok' => false, 'message' => $e->getMessage()];
+            return ['ok' => false, 'message' => '❌ تعذر تحميل البوابة: ' . $e->getMessage()];
         }
+
+        // 3) Driver-specific live credential check (best-effort)
+        $live = $this->liveCredentialCheck($gateway, $cfg);
+        if ($live !== null) {
+            return $live;
+        }
+
+        // Fallback: keys present + driver loaded — we couldn't ping the gateway live
+        return [
+            'ok' => true,
+            'message' => "✓ جميع المفاتيح المطلوبة مُدخلة والبوابة جاهزة (" . count($required) . " مفتاح).\nℹ ملاحظة: لا يوجد اختبار اتصال مباشر لهذه البوابة — صحّة المفاتيح تظهر عند أول عملية دفع.",
+        ];
+    }
+
+    /** Map of required config keys per driver. */
+    protected function requiredKeysFor(string $driver): array
+    {
+        return [
+            'Paymob'       => ['PAYMOB_API_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_IFRAME_ID','PAYMOB_HMAC'],
+            'PaymobWallet' => ['PAYMOB_API_KEY','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_HMAC'],
+            'Fawry'        => ['FAWRY_URL','FAWRY_SECRET','FAWRY_MERCHANT'],
+            'Kashier'      => ['KASHIER_ACCOUNT_KEY','KASHIER_IFRAME_KEY','KASHIER_TOKEN','KASHIER_URL'],
+            'HyperPay'     => ['HYPERPAY_BASE_URL','HYPERPAY_TOKEN','HYPERPAY_CREDIT_ID'],
+            'PayPal'       => ['PAYPAL_CLIENT_ID','PAYPAL_SECRET'],
+            'Stripe'       => ['STRIPE_SECRET_KEY','STRIPE_PUBLIC_KEY'],
+            'Tap'          => ['TAP_SECRET_KEY','TAP_PUBLIC_KEY'],
+            'Opay'         => ['OPAY_SECRET_KEY','OPAY_PUBLIC_KEY','OPAY_MERCHANT_ID'],
+            'PayTabs'      => ['PAYTABS_PROFILE_ID','PAYTABS_SERVER_KEY'],
+            'Thawani'      => ['THAWANI_API_KEY','THAWANI_URL','THAWANI_PUBLISHABLE_KEY'],
+            'Telr'         => ['TELR_MERCHANT_ID','TELR_API_KEY'],
+            'ClickPay'     => ['CLICKPAY_SERVER_KEY','CLICKPAY_PROFILE_ID'],
+            'Binance'      => ['BINANCE_API','BINANCE_SECRET'],
+            'NowPayments'  => ['NOWPAYMENTS_API_KEY'],
+            'Payeer'       => ['PAYEER_MERCHANT_ID','PAYEER_API_KEY'],
+            'PerfectMoney' => ['PERFECT_MONEY_ID','PERFECT_MONEY_PASSPHRASE'],
+        ][$driver] ?? [];
+    }
+
+    /**
+     * Real network call against the gateway to validate the API key.
+     * Returns ['ok'=>bool,'message'=>string] for supported drivers, or null when
+     * a live check isn't implemented for this driver.
+     */
+    protected function liveCredentialCheck(PaymentGateway $gateway, array $cfg): ?array
+    {
+        try {
+            switch ($gateway->driver) {
+                // Paymob: POST /api/auth/tokens with api_key → returns { token: "..." }
+                case 'Paymob':
+                case 'PaymobWallet':
+                    $resp = \Illuminate\Support\Facades\Http::timeout(15)
+                        ->acceptJson()
+                        ->post('https://accept.paymob.com/api/auth/tokens', [
+                            'api_key' => $cfg['PAYMOB_API_KEY'],
+                        ]);
+                    if ($resp->successful() && $resp->json('token')) {
+                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ Paymob بنجاح والتحقق من API Key.'];
+                    }
+                    return ['ok' => false, 'message' => '❌ Paymob رفض المفاتيح: ' . ($resp->json('detail') ?? $resp->body())];
+
+                // Stripe: GET /v1/balance with Bearer secret key
+                case 'Stripe':
+                    $resp = \Illuminate\Support\Facades\Http::timeout(15)
+                        ->withToken($cfg['STRIPE_SECRET_KEY'])
+                        ->get('https://api.stripe.com/v1/balance');
+                    if ($resp->successful()) {
+                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ Stripe والتحقق من Secret Key.'];
+                    }
+                    return ['ok' => false, 'message' => '❌ Stripe رفض المفتاح: ' . ($resp->json('error.message') ?? $resp->status())];
+
+                // PayPal: OAuth token
+                case 'PayPal':
+                    $base = (($cfg['PAYPAL_MODE'] ?? 'sandbox') === 'live')
+                        ? 'https://api-m.paypal.com'
+                        : 'https://api-m.sandbox.paypal.com';
+                    $resp = \Illuminate\Support\Facades\Http::timeout(15)
+                        ->asForm()
+                        ->withBasicAuth($cfg['PAYPAL_CLIENT_ID'], $cfg['PAYPAL_SECRET'])
+                        ->post("$base/v1/oauth2/token", ['grant_type' => 'client_credentials']);
+                    if ($resp->successful() && $resp->json('access_token')) {
+                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ PayPal والتحقق من المفاتيح.'];
+                    }
+                    return ['ok' => false, 'message' => '❌ PayPal رفض المفاتيح: ' . ($resp->json('error_description') ?? $resp->status())];
+            }
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => '❌ فشل الاتصال بالبوابة: ' . $e->getMessage()];
+        }
+
+        return null; // No live check for this driver
     }
 
     /** Push gateway config into the runtime nafezly-payments config. */
