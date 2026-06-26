@@ -41,7 +41,7 @@
                     </div>
                     <input type="hidden" name="rating" :value="rating">
                 </div>
-                <input type="text" name="title" value="{{ $userReview->title }}" placeholder="عنوان المراجعة (اختياري)" class="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm mb-3">
+                <input type="text" name="title" value="{{ $userReview->title ?? '' }}" placeholder="عنوان المراجعة (اختياري)" class="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm mb-3">
                 <textarea name="body" rows="4" required class="w-full p-3 border border-slate-200 rounded-xl text-sm mb-3" placeholder="شاركنا رأيك في المنتج...">{{ $userReview->body ?? '' }}</textarea>
                 <button class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl">{{ $userReview ? 'تحديث المراجعة' : 'إرسال المراجعة' }}</button>
             </form>
