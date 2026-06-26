@@ -102,11 +102,31 @@
             </div>
 
             <!-- Shipping -->
+            @php $carriers = \App\Models\ShippingCarrier::active()->orderBy('sort_order')->get(['id','name','default_cost']); @endphp
             <div class="bg-white rounded-2xl border border-slate-200 p-4">
                 <h3 class="font-bold mb-3">معلومات الشحن</h3>
-                <input type="text" x-model="carrier" placeholder="شركة الشحن" class="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm mb-2">
+                <label class="block text-xs text-slate-500 mb-1">شركة الشحن</label>
+                <select x-model="carrierId" @change="onCarrierChange()" class="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm mb-2">
+                    <option value="">— اختر —</option>
+                    @foreach($carriers as $c)
+                        <option value="{{ $c->id }}" data-cost="{{ $c->default_cost }}">{{ $c->name }}</option>
+                    @endforeach
+                </select>
+                <label class="block text-xs text-slate-500 mb-1">رقم التتبع</label>
                 <input type="text" x-model="tracking" placeholder="رقم التتبع" class="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm mb-2">
+                <label class="block text-xs text-slate-500 mb-1">التكلفة الفعلية</label>
+                <input type="number" step="0.01" x-model="actualCost" placeholder="0.00" class="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm mb-2">
+                <label class="block text-xs text-slate-500 mb-1">ملاحظات الشحن</label>
+                <textarea x-model="shipNotes" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm mb-2"></textarea>
                 <button @click="updateShipping()" :disabled="busy" class="w-full h-10 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm">حفظ بيانات الشحن</button>
+                @if($order->tracking_number && $order->carrier)
+                    @php $trackUrl = $order->carrier->buildTrackingUrl($order->tracking_number); @endphp
+                    @if($trackUrl)
+                        <a href="{{ $trackUrl }}" target="_blank" class="block text-center mt-2 text-violet-600 text-xs font-semibold hover:underline">
+                            <i class="fa-solid fa-truck-fast ml-1"></i> فتح صفحة تتبع الشركة
+                        </a>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
@@ -118,7 +138,10 @@ function orderShow(id, currentStatus){
         id, busy:false,
         newStatus: currentStatus, note:'', notify:true,
         carrier: @json($order->shipping_carrier),
+        carrierId: @json($order->shipping_carrier_id),
         tracking: @json($order->tracking_number),
+        actualCost: @json($order->actual_shipping_cost),
+        shipNotes: @json($order->shipped_notes),
         async req(url, method, body){
             this.busy = true;
             try{
@@ -140,8 +163,18 @@ function orderShow(id, currentStatus){
             t.textContent = msg; document.body.appendChild(t);
             setTimeout(()=>t.remove(), 2500);
         },
+        onCarrierChange(){
+            const opt = event.target.selectedOptions[0];
+            if(opt && opt.dataset.cost && !this.actualCost) this.actualCost = opt.dataset.cost;
+        },
         updateStatus(){ this.req(`/admin/orders/${this.id}/status`, 'PATCH', { status: this.newStatus, note: this.note, notify: this.notify }); },
-        updateShipping(){ this.req(`/admin/orders/${this.id}/shipping`, 'PATCH', { shipping_carrier: this.carrier, tracking_number: this.tracking }); },
+        updateShipping(){ this.req(`/admin/orders/${this.id}/shipping`, 'PATCH', {
+            shipping_carrier_id: this.carrierId || null,
+            shipping_carrier: this.carrier,
+            tracking_number: this.tracking,
+            actual_shipping_cost: this.actualCost || null,
+            shipped_notes: this.shipNotes,
+        }); },
         resendEmail(){ this.req(`/admin/orders/${this.id}/resend-email`, 'POST', {}); }
     }
 }
