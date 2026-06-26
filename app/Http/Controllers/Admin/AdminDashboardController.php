@@ -68,20 +68,31 @@ class AdminDashboardController extends Controller
                 ->limit(6)
                 ->get(['id', 'order_number', 'user_id', 'total', 'status', 'created_at']);
 
-            // Last 7 days revenue series
-            $start = now()->subDays(6)->startOfDay();
-            $daily = Order::whereIn('status', $paidStatuses)
-                ->where('created_at', '>=', $start)
-                ->selectRaw('DATE(created_at) as d, SUM(total) as t')
-                ->groupBy('d')
-                ->pluck('t', 'd');
+            // آخر 6 أشهر: الأرباح المحققة + الطلبات المحجوزة
+            $monthsStart = now()->startOfMonth()->subMonths(5);
+            $revRows = Order::whereIn('status', $paidStatuses)
+                ->where('created_at', '>=', $monthsStart)
+                ->selectRaw("DATE_FORMAT(created_at,'%Y-%m') as m, SUM(total) as t")
+                ->groupBy('m')->pluck('t', 'm');
+            $ordRows = Order::where('created_at', '>=', $monthsStart)
+                ->selectRaw("DATE_FORMAT(created_at,'%Y-%m') as m, COUNT(*) as c")
+                ->groupBy('m')->pluck('c', 'm');
 
-            for ($i = 0; $i < 7; $i++) {
-                $day = $start->copy()->addDays($i);
-                $key = $day->toDateString();
-                $revenueSeries[$i] = (float) ($daily[$key] ?? 0);
-                $revenueLabels[]   = $day->translatedFormat('D');
+            $revenueSeries = [];
+            $ordersSeries  = [];
+            $revenueLabels = [];
+            $arMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+            for ($i = 0; $i < 6; $i++) {
+                $d = $monthsStart->copy()->addMonths($i);
+                $k = $d->format('Y-m');
+                $revenueSeries[] = (float) ($revRows[$k] ?? 0);
+                $ordersSeries[]  = (int)   ($ordRows[$k] ?? 0);
+                $revenueLabels[] = $arMonths[(int)$d->format('n') - 1];
             }
+        } else {
+            $ordersSeries = array_fill(0, 6, 0);
+            $revenueSeries = array_fill(0, 6, 0);
+            $revenueLabels = ['يناير','فبراير','مارس','أبريل','مايو','يونيو'];
         }
 
         if (Schema::hasTable('users')) {
