@@ -304,7 +304,7 @@
     }
 
 
-    itemsEl.addEventListener('click', (e) => {
+    itemsEl.addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
         const id = btn.getAttribute('data-id');
@@ -312,29 +312,32 @@
         const idx = cart.findIndex(i => String(i.id) === String(id));
         if (idx === -1) return;
 
-        if (action === 'inc') {
-            const current = cart[idx].quantity || 1;
-            const max = Number(stockMap[cart[idx].id] ?? Infinity);
-            if (Number.isFinite(max) && current >= max) {
-                return; // silently cap at stock
+        btn.disabled = true;
+        try {
+            if (action === 'inc') {
+                const current = cart[idx].quantity || 1;
+                const max = Number(stockMap[cart[idx].id] ?? Infinity);
+                if (Number.isFinite(max) && current >= max) return;
+                await window.changeQuantity(id, +1);
+            } else if (action === 'dec') {
+                await window.changeQuantity(id, -1);
+            } else if (action === 'remove') {
+                await window.removeFromCart(id);
             }
-            cart[idx].quantity = current + 1;
-        } else if (action === 'dec') {
-
-
-            const newQty = (cart[idx].quantity || 1) - 1;
-            if (newQty <= 0) {
-                cart.splice(idx, 1);
-            } else {
-                cart[idx].quantity = newQty;
-            }
-        } else if (action === 'remove') {
-            cart.splice(idx, 1);
+        } finally {
+            btn.disabled = false;
         }
-
-        saveCart();
+        // window.cart مُحدّث الآن من السيرفر؛ زامن المرجع المحلي ثم أعد الرسم.
+        cart = window.cart;
         refreshView();
     });
+
+    // التزامن اللحظي: لو السلة الجانبية أو تبويب آخر عدّل السلة، أعد رسم Checkout مباشرة.
+    document.addEventListener('cart:updated', () => {
+        cart = window.cart || [];
+        refreshView();
+    });
+
 
 
 
