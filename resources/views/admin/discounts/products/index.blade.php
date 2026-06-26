@@ -64,9 +64,9 @@
                     </td>
                     <td class="p-3 text-center">
                         <button @click='edit = @json($d); openForm = true' class="text-violet-600 hover:underline text-xs font-bold">تعديل</button>
-                        <form action="{{ route('admin.product-discounts.toggle', $d) }}" method="POST" class="inline">
+                        <form action="{{ route('admin.product-discounts.toggle', $d) }}" method="POST" class="inline" data-ajax-toggle>
                             @csrf @method('PATCH')
-                            <button class="text-amber-600 hover:underline text-xs font-bold mx-2">{{ $d->is_active ? 'تعطيل' : 'تفعيل' }}</button>
+                            <button data-toggle-state="{{ $d->is_active ? 'on' : 'off' }}" data-toggle-on="تعطيل" data-toggle-off="تفعيل" class="text-amber-600 hover:underline text-xs font-bold mx-2">{{ $d->is_active ? 'تعطيل' : 'تفعيل' }}</button>
                         </form>
                         <form action="{{ route('admin.product-discounts.destroy', $d) }}" method="POST" class="inline" data-ajax-confirm="حذف الخصم؟" data-ajax-remove>
                             @csrf @method('DELETE')
@@ -86,7 +86,7 @@
     <div x-show="openForm" x-cloak class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4" @click.self="openForm = false">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6">
             <h3 class="text-lg font-bold mb-4" x-text="edit ? 'تعديل خصم' : 'إضافة خصم'"></h3>
-            <form :action="edit ? `{{ url('admin/product-discounts') }}/${edit.id}` : `{{ route('admin.product-discounts.store') }}`" method="POST" class="space-y-3">
+            <form :action="edit ? `{{ url('admin/product-discounts') }}/${edit.id}` : `{{ route('admin.product-discounts.store') }}`" method="POST" class="space-y-3" data-ajax data-success-toast="تم الحفظ بنجاح">
                 @csrf
                 <template x-if="edit">@method('PUT')</template>
                 <input type="hidden" name="_method" :value="edit ? 'PUT' : 'POST'">

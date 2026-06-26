@@ -265,63 +265,148 @@
 
     <script src="{{ asset('js/ajax.js') }}"></script>
     <script>
-        // Admin AJAX wiring: handles forms with data-ajax-confirm (delete/toggle)
-        document.addEventListener('submit', async function (e) {
-            const form = e.target.closest('form[data-ajax-confirm], form[data-ajax]');
-            if (!form) return;
-            e.preventDefault();
+        /**
+         * Admin AJAX wiring with optimistic UI + rollback.
+         * Attributes:
+         *   data-ajax-confirm="msg"   → confirm() before submit
+         *   data-ajax-remove          → optimistic remove closest [data-row]/tr; restore on failure
+         *   data-ajax-toggle          → toggle button label/style optimistically; restore on failure
+         *   data-toggle-on="نشط"      → label when active
+         *   data-toggle-off="معطل"    → label when inactive
+         *   data-ajax                 → generic AJAX submit (uses window.UL.submitForm if available)
+         */
+        (function () {
+            const csrf = () => document.querySelector('meta[name=csrf-token]')?.content || '';
+            const toast = (m, t = 'info') => window.UL ? window.UL.toast(m, t) : console.log(m);
 
-            const msg = form.getAttribute('data-ajax-confirm');
-            if (msg && !confirm(msg)) return;
+            function setLoading(btn, on) {
+                if (!btn) return;
+                if (on) {
+                    btn.dataset._origHtml = btn.innerHTML;
+                    btn.dataset._origDisabled = btn.disabled ? '1' : '';
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                } else {
+                    btn.disabled = btn.dataset._origDisabled === '1';
+                    if (btn.dataset._origHtml) btn.innerHTML = btn.dataset._origHtml;
+                    delete btn.dataset._origHtml;
+                    delete btn.dataset._origDisabled;
+                }
+            }
 
-            const btn = form.querySelector('button[type=submit], button:not([type])');
-            try {
-                if (btn) { btn.disabled = true; btn.dataset._origHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
-
+            async function sendForm(form) {
                 const fd = new FormData(form);
                 const method = (fd.get('_method') || form.method || 'POST').toString().toUpperCase();
-                const headers = { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content };
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf(),
+                };
                 let url = form.action;
                 let body = fd;
                 if (method === 'GET') {
-                    const params = new URLSearchParams(fd).toString();
-                    url += (url.includes('?') ? '&' : '?') + params;
+                    url += (url.includes('?') ? '&' : '?') + new URLSearchParams(fd).toString();
                     body = undefined;
                 }
-
-                const res = await fetch(url, { method: method === 'GET' ? 'GET' : 'POST', headers, body, credentials: 'same-origin' });
-
-                if (res.redirected || res.headers.get('content-type')?.includes('text/html')) {
-                    // Server returned redirect/HTML → reload to honor flash session
-                    window.location.reload();
-                    return;
-                }
-
+                const res = await fetch(url, {
+                    method: method === 'GET' ? 'GET' : 'POST',
+                    headers,
+                    body,
+                    credentials: 'same-origin',
+                });
                 let data = {};
                 try { data = await res.json(); } catch (_) {}
-
-                if (!res.ok) {
-                    window.UL?.toast(data.message || 'حدث خطأ', 'error');
-                    return;
-                }
-
-                // Success — if it's a destroy action, remove the closest row
-                if (form.dataset.ajaxRemove !== undefined || form.querySelector('input[name=_method][value=DELETE]')) {
-                    const row = form.closest('tr, [data-row]');
-                    if (row) row.remove();
-                }
-                window.UL?.toast(data.message || 'تم بنجاح', 'success');
-
-                // Reload after toggle to refresh state labels
-                if (form.dataset.ajaxReload !== undefined) {
-                    setTimeout(() => window.location.reload(), 600);
-                }
-            } catch (err) {
-                window.UL?.toast('فشل الاتصال بالخادم', 'error');
-            } finally {
-                if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset._origHtml || btn.innerHTML; }
+                return { res, data };
             }
-        });
+
+            document.addEventListener('submit', async function (e) {
+                const form = e.target.closest(
+                    'form[data-ajax-confirm], form[data-ajax-remove], form[data-ajax-toggle], form[data-ajax-simple]'
+                );
+                if (!form) return;
+                // Forms using data-ajax (UL.submitForm) are handled in ajax.js — don't intercept.
+                if (form.hasAttribute('data-ajax')) return;
+                e.preventDefault();
+
+                const msg = form.getAttribute('data-ajax-confirm');
+                if (msg && !confirm(msg)) return;
+
+                const btn = form.querySelector('button[type=submit], button:not([type])');
+                const isRemove = form.hasAttribute('data-ajax-remove');
+                const isToggle = form.hasAttribute('data-ajax-toggle');
+
+                const row = isRemove ? form.closest('tr, [data-row]') : null;
+                let removedAnchor = null;
+                let removedRow = null;
+
+                // --- Optimistic UI ---
+                if (isRemove && row) {
+                    removedAnchor = row.nextSibling;
+                    removedRow = row.parentNode;
+                    row.style.transition = 'opacity .2s';
+                    row.style.opacity = '0.4';
+                }
+
+                let prevToggleState = null;
+                if (isToggle && btn) {
+                    const isOn = btn.dataset.toggleState === 'on';
+                    prevToggleState = {
+                        state: btn.dataset.toggleState,
+                        html: btn.innerHTML,
+                        cls: btn.className,
+                    };
+                    const onLabel = btn.dataset.toggleOn || 'تعطيل';
+                    const offLabel = btn.dataset.toggleOff || 'تفعيل';
+                    btn.dataset.toggleState = isOn ? 'off' : 'on';
+                    btn.innerHTML = isOn ? offLabel : onLabel;
+                }
+
+                setLoading(btn, true);
+
+                try {
+                    const { res, data } = await sendForm(form);
+
+                    if (!res.ok) {
+                        // Rollback
+                        if (isRemove && row) row.style.opacity = '1';
+                        if (isToggle && btn && prevToggleState) {
+                            btn.dataset.toggleState = prevToggleState.state || '';
+                            btn.innerHTML = prevToggleState.html;
+                            btn.className = prevToggleState.cls;
+                        }
+                        if (res.status === 422 && data.errors) {
+                            const first = Object.values(data.errors)[0];
+                            toast(Array.isArray(first) ? first[0] : (data.message || 'خطأ في البيانات'), 'error');
+                        } else {
+                            toast(data.message || `حدث خطأ (${res.status})`, 'error');
+                        }
+                        return;
+                    }
+
+                    // Success
+                    if (isRemove && row) {
+                        row.style.height = row.offsetHeight + 'px';
+                        requestAnimationFrame(() => {
+                            row.style.height = '0px';
+                            row.style.overflow = 'hidden';
+                            setTimeout(() => row.remove(), 200);
+                        });
+                    }
+                    toast(data.message || 'تم بنجاح', 'success');
+                } catch (err) {
+                    // Network/parse failure → rollback
+                    if (isRemove && row) row.style.opacity = '1';
+                    if (isToggle && btn && prevToggleState) {
+                        btn.dataset.toggleState = prevToggleState.state || '';
+                        btn.innerHTML = prevToggleState.html;
+                        btn.className = prevToggleState.cls;
+                    }
+                    toast('فشل الاتصال بالخادم. تمت استعادة الحالة.', 'error');
+                } finally {
+                    setLoading(btn, false);
+                }
+            });
+        })();
     </script>
     @stack('scripts')
     <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>

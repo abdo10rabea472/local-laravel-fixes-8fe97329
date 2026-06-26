@@ -151,18 +151,34 @@
 
     // ---------- AJAX form submission (handles Laravel 422 validation + redirects) ----------
     function renderFormErrors(form, errors) {
-        // Clear previous AJAX errors
+        // Clear previous AJAX errors + invalid styles
         form.querySelectorAll('[data-ul-error]').forEach((el) => el.remove());
+        form.querySelectorAll('[data-ul-invalid]').forEach((el) => {
+            el.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+            delete el.dataset.ulInvalid;
+        });
         Object.entries(errors || {}).forEach(([field, messages]) => {
             const input = form.querySelector(`[name="${field}"], [name="${field}[]"]`);
             if (!input) return;
             const msg = Array.isArray(messages) ? messages[0] : String(messages);
+            input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+            input.dataset.ulInvalid = '1';
+            const onFocus = () => {
+                input.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                const sib = input.parentElement?.querySelector('[data-ul-error]');
+                if (sib) sib.remove();
+                input.removeEventListener('focus', onFocus);
+            };
+            input.addEventListener('focus', onFocus);
             const span = document.createElement('p');
             span.setAttribute('data-ul-error', '1');
             span.className = 'text-sm text-red-600 dark:text-red-400 mt-1';
             span.textContent = msg;
             (input.parentElement || form).appendChild(span);
         });
+        // Focus first invalid
+        const firstInvalid = form.querySelector('[data-ul-invalid]');
+        if (firstInvalid) firstInvalid.focus({ preventScroll: false });
     }
 
     async function submitForm(form, { onSuccess, onError, successToast } = {}) {
@@ -172,7 +188,6 @@
         const url = form.action;
         const method = (form.getAttribute('method') || 'POST').toUpperCase();
         const fd = new FormData(form);
-        // Laravel method spoofing → real verb is in _method, fetch must POST
         const realMethod = (fd.get('_method') || method).toString().toUpperCase();
         const fetchMethod = ['GET', 'HEAD'].includes(realMethod) ? realMethod : 'POST';
 
@@ -192,29 +207,35 @@
                     const data = await res.json().catch(() => ({}));
                     renderFormErrors(form, data.errors || {});
                     toast(data.message || 'يرجى مراجعة الحقول.', 'error');
+                    form.dispatchEvent(new CustomEvent('ul:error', { bubbles: true, detail: data }));
                     onError && onError(data);
-                    return;
-                }
-                if (res.redirected) {
-                    if (successToast) toast(successToast, 'success');
-                    if (onSuccess) onSuccess({ redirect: res.url });
-                    else window.location.href = res.url;
                     return;
                 }
                 let data = null;
                 try { data = await res.json(); } catch (_) {}
+                if (res.redirected && !data) {
+                    if (successToast) toast(successToast, 'success');
+                    form.dispatchEvent(new CustomEvent('ul:success', { bubbles: true, detail: { redirect: res.url } }));
+                    if (onSuccess) onSuccess({ redirect: res.url });
+                    else window.location.href = res.url;
+                    return;
+                }
                 if (!res.ok) {
                     const msg = (data && (data.message || data.error)) || `Error (${res.status})`;
                     toast(msg, 'error');
+                    form.dispatchEvent(new CustomEvent('ul:error', { bubbles: true, detail: data }));
                     onError && onError(data);
                     return;
                 }
                 if (successToast) toast(successToast, 'success');
+                else if (data && data.message) toast(data.message, 'success');
+                form.dispatchEvent(new CustomEvent('ul:success', { bubbles: true, detail: data || {} }));
                 if (onSuccess) onSuccess(data || {});
                 else if (data && data.redirect) window.location.href = data.redirect;
             } catch (e) {
                 console.error('submitForm failed', e);
                 toast('تعذّر الاتصال بالخادم.', 'error');
+                form.dispatchEvent(new CustomEvent('ul:error', { bubbles: true, detail: { message: e.message } }));
                 onError && onError({ message: e.message });
             }
         };

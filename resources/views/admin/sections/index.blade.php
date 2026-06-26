@@ -84,7 +84,7 @@
     <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6">
             <h4 class="text-lg font-bold mb-4" x-text="isEdit ? 'تعديل قسم' : 'إضافة قسم'"></h4>
-            <form :action="isEdit ? '{{ url('admin/sections') }}/' + form.id : '{{ route('admin.sections.store') }}'" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form :action="isEdit ? '{{ url('admin/sections') }}/' + form.id : '{{ route('admin.sections.store') }}'" method="POST" enctype="multipart/form-data" class="space-y-4" data-ajax data-success-toast="تم الحفظ بنجاح">
                 @csrf
                 <template x-if="isEdit"><input type="hidden" name="_method" value="PUT"></template>
 

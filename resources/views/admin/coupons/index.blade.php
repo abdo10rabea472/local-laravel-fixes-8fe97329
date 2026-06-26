@@ -59,9 +59,9 @@
                     </td>
                     <td class="p-3 text-center">
                         <a href="{{ route('admin.coupons.edit', $c) }}" class="text-violet-600 hover:underline text-xs font-bold">تعديل</a>
-                        <form action="{{ route('admin.coupons.toggle', $c) }}" method="POST" class="inline">
+                        <form action="{{ route('admin.coupons.toggle', $c) }}" method="POST" class="inline" data-ajax-toggle>
                             @csrf @method('PATCH')
-                            <button class="text-amber-600 hover:underline text-xs font-bold mx-2">{{ $c->is_active ? 'تعطيل' : 'تفعيل' }}</button>
+                            <button data-toggle-state="{{ $c->is_active ? 'on' : 'off' }}" data-toggle-on="تعطيل" data-toggle-off="تفعيل" class="text-amber-600 hover:underline text-xs font-bold mx-2">{{ $c->is_active ? 'تعطيل' : 'تفعيل' }}</button>
                         </form>
                         <form action="{{ route('admin.coupons.destroy', $c) }}" method="POST" class="inline" data-ajax-confirm="حذف الكود؟" data-ajax-remove>
                             @csrf @method('DELETE')
