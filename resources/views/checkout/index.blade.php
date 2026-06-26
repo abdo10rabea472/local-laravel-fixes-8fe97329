@@ -456,11 +456,13 @@
                 appliedCouponCode = code;
                 couponMsg.textContent = `تم تطبيق الكود ${code} — خصم ${discountAmount.toLocaleString()} EGP`;
                 couponMsg.className = 'text-xs mt-2 text-emerald-600 font-bold';
+                window.UL?.toast(`✅ تم تطبيق الكوبون`, 'success');
             } else {
                 discountAmount = 0;
                 appliedCouponCode = null;
                 couponMsg.textContent = json.message || 'كود غير صالح.';
                 couponMsg.className = 'text-xs mt-2 text-rose-600 font-bold';
+                window.UL?.toast(json.message || 'كود غير صالح.', 'error');
             }
             couponMsg.classList.remove('hidden');
             updateTotals();
@@ -530,10 +532,12 @@
                 couponMsg.textContent = json.message || 'تعذّر إتمام الطلب.';
                 couponMsg.className = 'text-xs mt-2 text-rose-600 font-bold';
                 couponMsg.classList.remove('hidden');
+                window.UL?.toast(json.message || 'تعذّر إتمام الطلب.', 'error');
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = 'Confirm Order';
                 return;
             }
+            window.UL?.toast('✅ تم تأكيد الطلب بنجاح', 'success');
             localStorage.removeItem('cart');
             window.location.href = json.redirect;
         } catch (e) {
