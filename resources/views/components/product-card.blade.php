@@ -3,17 +3,16 @@
     $imageUrl = $primaryImage
         ? $primaryImage->getUrl('medium')
         : site_setting_url('default_product_image', asset('imges/products/default.jpg'));
-    $hasDiscount = $product->sale_price && $product->sale_price < $product->price;
-    $discountPercent = $hasDiscount
-        ? round((($product->price - $product->sale_price) / $product->price) * 100)
-        : 0;
     $displayPrice = $product->effective_price;
+    $compareAt = $product->compare_at_price;
+    $hasDiscount = $compareAt !== null && $compareAt > $displayPrice;
+    $discountPercent = $product->discount_percent;
     $inStock = $product->stock > 0;
 @endphp
 
 <article class="group flex flex-col rounded-2xl bg-white border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300" data-id="{{ $product->id }}">
     <a href="{{ route('product.show', $product->slug) }}" class="relative aspect-square bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
-        @if($hasDiscount)
+        @if($hasDiscount && $discountPercent > 0)
             <span class="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">-{{ $discountPercent }}%</span>
         @endif
         @if($product->featured ?? false)
@@ -35,7 +34,7 @@
         <div class="mt-auto pt-4 flex items-end justify-between gap-2 border-t border-slate-100 mt-3">
             <div>
                 @if($hasDiscount)
-                    <del class="text-xs text-slate-400 block">{{ number_format($product->price, 2) }} EGP</del>
+                    <del class="text-xs text-slate-400 block">{{ number_format($compareAt, 2) }} EGP</del>
                 @endif
                 <span class="text-lg font-black text-slate-900">{{ number_format($displayPrice, 2) }} <span class="text-xs font-bold text-slate-500">EGP</span></span>
             </div>
