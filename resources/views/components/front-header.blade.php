@@ -333,25 +333,26 @@
             @endguest
 
             @auth('web')
-                <div class="rounded-2xl border border-slate-100 bg-slate-50/60 overflow-hidden">
-                    <div class="flex items-center gap-3 px-3 py-3 border-b border-slate-100 bg-white">
+                <details class="group rounded-2xl border border-slate-100 bg-white overflow-hidden">
+                    <summary class="flex items-center gap-3 px-3 py-3 cursor-pointer list-none hover:bg-slate-50">
                         <span class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center text-sm font-black shrink-0">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
-                        <div class="min-w-0">
+                        <div class="min-w-0 flex-1">
                             <div class="text-sm font-black text-slate-900 truncate">{{ auth()->user()->name }}</div>
                             <div class="text-[11px] text-slate-500 truncate">{{ auth()->user()->email }}</div>
                         </div>
-                    </div>
-                    <div class="p-2 space-y-1">
-                        <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> Dashboard</a>
-                        <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> My Orders</a>
-                        <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> Returns</a>
-                        <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> Reviews</a>
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> Profile</a>
+                        <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-2 space-y-1 border-t border-slate-100 bg-slate-50/50">
+                        <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> Dashboard</a>
+                        <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> My Orders</a>
+                        <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> Returns</a>
+                        <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> Reviews</a>
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> Profile</a>
                         <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 mt-1 pt-1">@csrf
                             <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Logout</button>
                         </form>
                     </div>
-                </div>
+                </details>
             @endauth
 
             <nav class="space-y-1">
