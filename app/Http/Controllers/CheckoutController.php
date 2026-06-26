@@ -62,6 +62,16 @@ class CheckoutController extends Controller
             return response()->json(['ok' => false, 'message' => 'كود الخصم غير موجود.'], 200);
         }
 
+        // Prevent stacking: if any cart item already has an active product discount, block the coupon.
+        $cartIds = collect($data['cart'])->pluck('id')->map(fn ($i) => (int) $i)->all();
+        $discountedInCart = ProductDiscount::active()->whereIn('product_id', $cartIds)->exists();
+        if ($discountedInCart) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'لديك بالفعل منتجات عليها خصم في السلة، لا يمكن استخدام كود الخصم مع منتجات مخفّضة.',
+            ], 200);
+        }
+
         $userId = Auth::id();
         $result = $coupon->validateFor($data['cart'], $userId, $data['email'] ?? null, $data['phone'] ?? null);
 
