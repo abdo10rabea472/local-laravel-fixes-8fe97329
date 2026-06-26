@@ -560,6 +560,15 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = '...';
         try {
+            const carrierSel = document.getElementById('shipping-carrier');
+            const countrySel = document.getElementById('shipping-country');
+            const countryOpt = countrySel?.options[countrySel.selectedIndex];
+            const regionSel  = document.getElementById('shipping-region');
+            const regionOpt  = regionSel?.options[regionSel.selectedIndex];
+            const cityEl     = document.querySelector('[name="city"], #shipping-city');
+            const addrEl     = document.querySelector('[name="address"], #shipping-address');
+            const zipEl      = document.querySelector('[name="postcode"], [name="postal_code"], #shipping-postcode');
+
             const res = await fetch(placeOrderUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
@@ -568,8 +577,17 @@
                     cart: cart.map(i => ({ id: i.id, price: i.price, quantity: i.quantity || 1 })),
                     email: form.email.value,
                     phone: form.phone.value,
+                    customer_name: form.full_name?.value || form.name?.value || null,
+                    shipping_country: countryOpt?.textContent?.trim() || null,
+                    shipping_region: regionOpt?.textContent?.trim() || null,
+                    shipping_address: addrEl?.value || null,
+                    shipping_city: cityEl?.value || null,
+                    shipping_postcode: zipEl?.value || null,
+                    shipping_cost: shippingCost,
+                    shipping_carrier_id: carrierSel?.value ? parseInt(carrierSel.value, 10) : null,
                 }),
             });
+
             const json = await res.json();
             if (!json.ok) {
                 couponMsg.textContent = json.message || 'تعذّر إتمام الطلب.';
