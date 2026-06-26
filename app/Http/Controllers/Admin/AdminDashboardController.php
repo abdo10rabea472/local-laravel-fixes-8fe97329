@@ -50,8 +50,9 @@ class AdminDashboardController extends Controller
         $completedOrders = 0;
         $totalCustomers  = 0;
         $recentOrders    = collect();
-        $revenueSeries   = array_fill(0, 7, 0);
-        $revenueLabels   = [];
+        $revenueSeries   = array_fill(0, 6, 0);
+        $ordersSeries    = array_fill(0, 6, 0);
+        $revenueLabels   = ['يناير','فبراير','مارس','أبريل','مايو','يونيو'];
 
         if (Schema::hasTable('orders')) {
             $paidStatuses = ['paid', 'shipped', 'delivered'];
