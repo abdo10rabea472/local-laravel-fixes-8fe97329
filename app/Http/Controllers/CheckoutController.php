@@ -39,7 +39,10 @@ class CheckoutController extends Controller
                 ])->values(),
             ])->values();
 
-        return view('checkout.index', compact('seo', 'shippingCountries'));
+        // Currently discounted product IDs (so the UI can warn before user tries a coupon)
+        $discountedProductIds = ProductDiscount::active()->pluck('product_id')->map(fn ($id) => (int) $id)->values();
+
+        return view('checkout.index', compact('seo', 'shippingCountries', 'discountedProductIds'));
     }
 
     public function applyCoupon(Request $request): JsonResponse
