@@ -148,7 +148,7 @@
 @push('scripts')
 <script>
 (function () {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const emptyEl = document.getElementById('checkout-empty');
     const contentEl = document.getElementById('checkout-content');
     const itemsEl = document.getElementById('checkout-items');
@@ -170,29 +170,84 @@
     let discountPercent = 0;
     let shippingCost = 0;
 
-    if (cart.length === 0) {
-        emptyEl.classList.remove('hidden');
-        contentEl.classList.add('hidden');
-    } else {
-        renderItems();
+    function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        document.dispatchEvent(new CustomEvent('cart:updated'));
     }
+
+    function refreshView() {
+        if (cart.length === 0) {
+            emptyEl.classList.remove('hidden');
+            contentEl.classList.add('hidden');
+        } else {
+            emptyEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+            renderItems();
+        }
+    }
+
+    refreshView();
 
     function renderItems() {
         itemsEl.innerHTML = '';
         cart.forEach(item => {
+            const qty = item.quantity || 1;
+            const lineTotal = ((item.price || 0) * qty).toLocaleString();
             itemsEl.innerHTML += `
-                <div class="flex gap-4">
+                <div class="flex gap-4" data-cart-id="${item.id}">
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain bg-slate-50 rounded-xl border border-slate-100 p-1">
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-sm text-slate-900 truncate">${item.name}</h4>
-                        <p class="text-xs text-slate-500 mt-0.5">Qty: ${item.quantity || 1}</p>
-                        <p class="text-sm font-bold text-violet-600 mt-1">${((item.price || 0) * (item.quantity || 1)).toLocaleString()} EGP</p>
+                        <div class="flex items-start justify-between gap-2">
+                            <h4 class="font-bold text-sm text-slate-900 truncate">${item.name}</h4>
+                            <button type="button" data-action="remove" data-id="${item.id}" class="text-slate-400 hover:text-rose-600 transition-colors" title="Remove">
+                                <i class="fa-solid fa-trash-can text-sm pointer-events-none"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between gap-3 mt-2">
+                            <div class="inline-flex items-center border border-slate-200 rounded-xl overflow-hidden">
+                                <button type="button" data-action="dec" data-id="${item.id}" class="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                                    <i class="fa-solid fa-minus text-xs pointer-events-none"></i>
+                                </button>
+                                <span class="h-8 min-w-[2rem] px-2 flex items-center justify-center text-sm font-bold text-slate-800 border-x border-slate-200">${qty}</span>
+                                <button type="button" data-action="inc" data-id="${item.id}" class="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                                    <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
+                                </button>
+                            </div>
+                            <p class="text-sm font-bold text-violet-600">${lineTotal} EGP</p>
+                        </div>
                     </div>
                 </div>
             `;
         });
         updateTotals();
     }
+
+    itemsEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        const idx = cart.findIndex(i => String(i.id) === String(id));
+        if (idx === -1) return;
+
+        if (action === 'inc') {
+            cart[idx].quantity = (cart[idx].quantity || 1) + 1;
+        } else if (action === 'dec') {
+            const newQty = (cart[idx].quantity || 1) - 1;
+            if (newQty <= 0) {
+                cart.splice(idx, 1);
+            } else {
+                cart[idx].quantity = newQty;
+            }
+        } else if (action === 'remove') {
+            cart.splice(idx, 1);
+        }
+
+        saveCart();
+        refreshView();
+    });
+
+
 
     function subtotal() {
         return cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
