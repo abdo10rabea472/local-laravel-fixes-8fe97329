@@ -2,8 +2,8 @@
 
 @section('content')
 @php
-    $primary = $themeCategory?->primary_color ?? '#10b981';   // emerald-500
-    $secondary = $themeCategory?->secondary_color ?? '#22d3ee'; // cyan-400
+    $primary = $themeCategory?->primary_color ?? '#7c3aed';   // emerald-500
+    $secondary = $themeCategory?->secondary_color ?? '#6366f1'; // cyan-400
     $college = $isCollege ? $category : $category->parent;
     $totalProducts = $products->total();
 

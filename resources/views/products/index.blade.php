@@ -28,7 +28,7 @@
             </select>
             <button type="button" id="mobile-filter-btn"
                 class="lg:hidden flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold">
-                <i class="fa-solid fa-sliders text-cyan-600"></i> Filters
+                <i class="fa-solid fa-sliders text-violet-600"></i> Filters
             </button>
             <button type="submit" class="h-11 px-5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl text-sm">Search</button>
         </form>
@@ -39,7 +39,7 @@
                 <div class="sticky top-28 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
 
                     <div class="flex items-center gap-2 mb-6">
-                        <span class="flex h-7 w-7 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
                             <i class="fa-solid fa-filter text-xs"></i>
                         </span>
                         <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Filters</h3>
@@ -49,12 +49,12 @@
                         <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">College</label>
                         <div class="space-y-1">
                             <a href="{{ route('products.index', request()->except(['college', 'department', 'page'])) }}"
-                               class="block px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ !$activeCollege ? 'bg-cyan-50 border border-cyan-100 text-cyan-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                               class="block px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ !$activeCollege ? 'bg-violet-50 border border-violet-200 text-violet-700' : 'text-slate-600 hover:bg-slate-50' }}">
                                 All Colleges
                             </a>
                             @foreach($colleges as $college)
                             <a href="{{ route('products.index', array_merge(request()->except(['department', 'page']), ['college' => $college->slug])) }}"
-                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ ($activeCollege?->id ?? null) === $college->id ? 'bg-cyan-50 border border-cyan-100 text-cyan-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ ($activeCollege?->id ?? null) === $college->id ? 'bg-violet-50 border border-violet-200 text-violet-700' : 'text-slate-600 hover:bg-slate-50' }}">
                                 @if($college->icon_url)
                                     <img src="{{ $college->icon_url }}" alt="" class="h-5 w-5 object-contain">
                                 @endif
@@ -116,7 +116,7 @@
                     </span>
                     @endif
                     @if($activeCollege)
-                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-bold">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-bold">
                         {{ $activeCollege->name }}
                         <a href="{{ route('products.index', request()->except(['college', 'department', 'page'])) }}"><i class="fa-solid fa-xmark"></i></a>
                     </span>
