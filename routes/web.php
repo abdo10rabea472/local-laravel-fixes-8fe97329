@@ -59,6 +59,13 @@ Route::get('/returns-refunds', [PageController::class, 'returns'])->name('pages.
 Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('category.show');
 Route::get('/product/{slug}', [FrontProductController::class, 'show'])->name('product.show');
 
+// Public shipping webhook (carriers POST status updates here)
+Route::post('/api/shipping/{code}/webhook', \App\Http\Controllers\ShippingWebhookController::class)
+    ->middleware('throttle:120,1')
+    ->name('shipping.webhook');
+
+
+
 Route::get('/admin', function () {
     if (Auth::guard('admin')->check()) {
         return redirect()->route('admin.dashboard');
@@ -151,7 +158,14 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::patch('/orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.status');
     Route::patch('/orders/{order}/shipping', [\App\Http\Controllers\Admin\OrderController::class, 'updateShipping'])->name('orders.shipping');
     Route::post('/orders/{order}/resend-email', [\App\Http\Controllers\Admin\OrderController::class, 'resendEmail'])->name('orders.resend-email');
+    Route::post('/orders/{order}/refresh-tracking', [\App\Http\Controllers\Admin\OrderController::class, 'refreshTracking'])->name('orders.refresh-tracking');
     Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
+
+    // Reports & Analytics
+    Route::get('/reports/analytics', [\App\Http\Controllers\Admin\ReportController::class, 'analytics'])->name('reports.analytics');
+    Route::get('/reports/inventory', [\App\Http\Controllers\Admin\ReportController::class, 'inventory'])->name('reports.inventory');
+    Route::get('/reports/coupons',   [\App\Http\Controllers\Admin\ReportController::class, 'coupons'])->name('reports.coupons');
+
 
     // Customers
     Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');

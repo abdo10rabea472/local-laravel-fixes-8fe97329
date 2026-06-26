@@ -1,6 +1,6 @@
 @extends('account.layout')
 
-@section('account-content')
+@section('account_content')
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-slate-800">طلب إرجاع للطلب #{{ $order->order_number }}</h1>

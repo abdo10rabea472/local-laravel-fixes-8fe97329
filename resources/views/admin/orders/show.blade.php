@@ -126,11 +126,33 @@
                             <i class="fa-solid fa-truck-fast ml-1"></i> فتح صفحة تتبع الشركة
                         </a>
                     @endif
+                    @if($order->carrier->api_endpoint)
+                        <form method="POST" action="{{ route('admin.orders.refresh-tracking', $order) }}" class="mt-2">@csrf
+                            <button type="submit" class="w-full h-9 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl font-bold text-xs">
+                                <i class="fa-solid fa-arrows-rotate"></i> تحديث التتبع عبر API
+                            </button>
+                        </form>
+                        @if($order->tracking_last_sync_at)
+                            <p class="text-[10px] text-slate-400 text-center mt-1">آخر مزامنة: {{ $order->tracking_last_sync_at->diffForHumans() }} — حالة: <b>{{ $order->tracking_status ?: '—' }}</b></p>
+                        @endif
+                    @endif
+                    @if(!empty($order->tracking_history) && is_array($order->tracking_history))
+                        <div class="mt-3 border-t pt-3 max-h-40 overflow-y-auto">
+                            <p class="text-[10px] font-bold text-slate-500 mb-2">سجل التتبع</p>
+                            @foreach(array_reverse($order->tracking_history) as $ev)
+                                <div class="text-[11px] text-slate-600 border-r-2 border-violet-200 pr-2 py-1 mb-1">
+                                    <div class="font-semibold">{{ $ev['status'] ?? '' }} <span class="text-slate-400">{{ $ev['at'] ?? '' }}</span></div>
+                                    <div class="text-slate-500">{{ $ev['description'] ?? '' }} {{ !empty($ev['location']) ? '— '.$ev['location'] : '' }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 @endif
             </div>
         </div>
     </div>
 </div>
+
 
 <script>
 function orderShow(id, currentStatus){

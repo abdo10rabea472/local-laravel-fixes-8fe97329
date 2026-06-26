@@ -34,6 +34,33 @@
                     <label class="block text-xs font-semibold text-slate-700 mb-1">رابط التتبع (استخدم {tracking} للرقم)</label>
                     <input type="text" name="tracking_url_template" :value="editing?.tracking_url_template" class="w-full rounded-xl border-slate-200" placeholder="https://example.com/track/{tracking}">
                 </div>
+
+                <div class="rounded-xl border border-violet-100 bg-violet-50/40 p-3 space-y-3">
+                    <p class="text-xs font-bold text-violet-700"><i class="fa-solid fa-plug"></i> إعدادات API للتتبع التلقائي</p>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">رابط API للتتبع (يحتوي على {tracking})</label>
+                        <input type="text" name="api_endpoint" :value="editing?.api_endpoint" class="w-full rounded-xl border-slate-200" placeholder="https://api.carrier.com/v1/tracking/{tracking}">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
+                            <input type="text" name="api_key" :value="editing?.api_key" class="w-full rounded-xl border-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Webhook Secret</label>
+                            <input type="text" name="webhook_secret" :value="editing?.webhook_secret" class="w-full rounded-xl border-slate-200" placeholder="اختياري — لتأمين الويب هوك">
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="auto_track" value="1" :checked="editing?.auto_track" class="rounded">
+                        <span class="text-xs font-semibold text-slate-700">تحديث تلقائي عند فتح الطلب</span>
+                    </label>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        رابط الويب هوك للاستقبال من شركة الشحن:<br>
+                        <code class="text-[10px] bg-white px-2 py-1 rounded border" x-text="`{{ url('/api/shipping') }}/${editing?.code ?? '<code>'}/webhook`"></code>
+                    </p>
+                </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">هاتف الاتصال</label>

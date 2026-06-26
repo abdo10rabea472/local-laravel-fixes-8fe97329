@@ -105,12 +105,50 @@
             </div>
 
             {{-- Actions --}}
-            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 @if(auth()->guard('admin')->check())
                     <a href="{{ route('admin.dashboard') }}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-white" style="background: {{ $primaryColor }}">
                         <i class="fa-solid fa-user-shield"></i> Admin
                     </a>
                 @endif
+
+                @guest('web')
+                    @if(!auth()->guard('admin')->check())
+                    <a href="{{ route('login') }}"
+                       class="hidden sm:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-slate-700 border border-slate-200 hover:border-violet-300 hover:text-violet-700 transition-colors">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Sign in</span>
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="hidden md:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
+                       style="background: {{ $primaryColor }}">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Register</span>
+                    </a>
+                    @endif
+                @endguest
+
+                @auth('web')
+                    <div class="relative group hidden sm:block">
+                        <button type="button" class="flex items-center gap-2 h-11 px-3 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors">
+                            <span class="w-7 h-7 rounded-full text-white flex items-center justify-center text-xs font-black" style="background: {{ $primaryColor }}">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
+                            <span class="text-sm font-bold hidden lg:inline max-w-[120px] truncate">{{ auth()->user()->name }}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                        </button>
+                        <div class="absolute right-0 top-full pt-2 z-50 hidden group-hover:block min-w-[220px]">
+                            <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden p-2">
+                                <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5"></i> My Account</a>
+                                <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-receipt w-5"></i> My Orders</a>
+                                <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5"></i> My Returns</a>
+                                <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-star w-5"></i> My Reviews</a>
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-user-pen w-5"></i> Profile</a>
+                                <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 mt-1 pt-1">@csrf
+                                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endauth
 
                 <button type="button" onclick="open_close_cart()" class="relative flex items-center gap-2 h-11 px-3 sm:px-4 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors">
                     <i class="fa-solid fa-cart-shopping text-lg"></i>
