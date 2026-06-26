@@ -20,7 +20,7 @@ class PaymentService
      *
      * @return array{ok:bool, redirect_url?:string, html?:string, payment_id?:string, message?:string}
      */
-    public function pay(Order $order, PaymentGateway $gateway): array
+    public function pay(Order $order, PaymentGateway $gateway, ?string $channel = null): array
     {
         $driverName = $this->canonicalDriver($gateway->driver);
 
@@ -48,6 +48,10 @@ class PaymentService
                 'payment_id'   => 'COD-' . $order->order_number,
                 'redirect_url' => route('checkout.completed', ['order' => $order->id]),
             ];
+        }
+
+        if (in_array($driverName, ['Paymob', 'PaymobWallet'], true)) {
+            return $this->payWithPaymob($order, $gateway, $driverName === 'PaymobWallet' ? 'wallet' : $channel);
         }
 
         if (! class_exists(\Nafezly\Payments\Factories\PaymentFactory::class)) {
@@ -136,6 +140,10 @@ class PaymentService
 
         if ($driverName === 'cod') {
             return ['success' => true, 'message' => 'تم تأكيد الدفع عند الاستلام.'];
+        }
+
+        if (in_array($driverName, ['Paymob', 'PaymobWallet'], true)) {
+            return $this->verifyPaymob($request, $gateway);
         }
 
         if (! class_exists(\Nafezly\Payments\Factories\PaymentFactory::class)) {
@@ -332,6 +340,250 @@ class PaymentService
         }
 
         return null; // No live check for this driver
+    }
+
+    protected function payWithPaymob(Order $order, PaymentGateway $gateway, ?string $channel = null): array
+    {
+        $cfg = array_change_key_case((array) $gateway->config, CASE_UPPER);
+        $useWallet = $channel === 'wallet';
+
+        $missing = [];
+        foreach (['PAYMOB_API_KEY', 'PAYMOB_HMAC'] as $key) {
+            if (empty($cfg[$key])) {
+                $missing[] = $key;
+            }
+        }
+
+        if ($useWallet) {
+            if (($cfg['PAYMOB_WALLET_ENABLED'] ?? '0') !== '1' && $this->canonicalDriver($gateway->driver) !== 'PaymobWallet') {
+                return ['ok' => false, 'message' => 'محافظ Paymob غير مفعّلة من إعدادات البوابة.'];
+            }
+            if (empty($cfg['PAYMOB_WALLET_INTEGRATION_ID'])) {
+                $missing[] = 'PAYMOB_WALLET_INTEGRATION_ID';
+            }
+        } else {
+            foreach (['PAYMOB_INTEGRATION_ID', 'PAYMOB_IFRAME_ID'] as $key) {
+                if (empty($cfg[$key])) {
+                    $missing[] = $key;
+                }
+            }
+        }
+
+        if (! empty($missing)) {
+            return ['ok' => false, 'message' => 'إعدادات Paymob ناقصة: ' . implode(', ', array_unique($missing))];
+        }
+
+        try {
+            $amountCents = (int) round(((float) $order->total) * 100);
+            $reference = $order->order_number ?: ('ORD-' . $order->id);
+            $billing = $this->paymobBillingData($order);
+
+            $auth = \Illuminate\Support\Facades\Http::timeout(20)
+                ->acceptJson()
+                ->asJson()
+                ->post('https://accept.paymob.com/api/auth/tokens', [
+                    'api_key' => $cfg['PAYMOB_API_KEY'],
+                ]);
+
+            $authToken = $auth->json('token');
+            if (! $auth->successful() || ! $authToken) {
+                return ['ok' => false, 'message' => 'Paymob رفض API Key: ' . $this->paymobError($auth->json(), $auth->body())];
+            }
+
+            $paymobOrder = \Illuminate\Support\Facades\Http::timeout(20)
+                ->acceptJson()
+                ->asJson()
+                ->post('https://accept.paymob.com/api/ecommerce/orders', [
+                    'auth_token' => $authToken,
+                    'delivery_needed' => false,
+                    'amount_cents' => $amountCents,
+                    'currency' => $order->currency ?: ($cfg['PAYMOB_CURRENCY'] ?? 'EGP'),
+                    'merchant_order_id' => $reference,
+                    'items' => [],
+                ]);
+
+            $paymobOrderId = $paymobOrder->json('id');
+            if (! $paymobOrder->successful() || ! $paymobOrderId) {
+                return ['ok' => false, 'message' => 'تعذر إنشاء طلب Paymob: ' . $this->paymobError($paymobOrder->json(), $paymobOrder->body())];
+            }
+
+            $paymentKey = \Illuminate\Support\Facades\Http::timeout(20)
+                ->acceptJson()
+                ->asJson()
+                ->post('https://accept.paymob.com/api/acceptance/payment_keys', [
+                    'auth_token' => $authToken,
+                    'expiration' => 3600,
+                    'amount_cents' => $amountCents,
+                    'order_id' => $paymobOrderId,
+                    'billing_data' => $billing,
+                    'currency' => $order->currency ?: ($cfg['PAYMOB_CURRENCY'] ?? 'EGP'),
+                    'integration_id' => $useWallet ? $cfg['PAYMOB_WALLET_INTEGRATION_ID'] : $cfg['PAYMOB_INTEGRATION_ID'],
+                    'lock_order_when_paid' => true,
+                ]);
+
+            $paymentToken = $paymentKey->json('token');
+            if (! $paymentKey->successful() || ! $paymentToken) {
+                return ['ok' => false, 'message' => 'تعذر إنشاء مفتاح دفع Paymob: ' . $this->paymobError($paymentKey->json(), $paymentKey->body())];
+            }
+
+            if ($useWallet) {
+                $walletPay = \Illuminate\Support\Facades\Http::timeout(20)
+                    ->acceptJson()
+                    ->asJson()
+                    ->post('https://accept.paymob.com/api/acceptance/payments/pay', [
+                        'source' => [
+                            'identifier' => preg_replace('/\s+/', '', (string) $order->phone),
+                            'subtype' => 'WALLET',
+                        ],
+                        'payment_token' => $paymentToken,
+                    ]);
+
+                $redirectUrl = $walletPay->json('redirect_url');
+                if (! $walletPay->successful() || ! $redirectUrl) {
+                    return ['ok' => false, 'message' => 'تعذر بدء دفع محفظة Paymob: ' . $this->paymobError($walletPay->json(), $walletPay->body())];
+                }
+            } else {
+                $redirectUrl = 'https://accept.paymob.com/api/acceptance/iframes/' . rawurlencode((string) $cfg['PAYMOB_IFRAME_ID']) . '?payment_token=' . rawurlencode($paymentToken);
+            }
+
+            $order->forceFill([
+                'payment_gateway' => 'paymob',
+                'payment_status' => 'pending',
+                'payment_reference' => $reference,
+                'payment_response' => [
+                    'channel' => $useWallet ? 'wallet' : 'card',
+                    'paymob_order_id' => $paymobOrderId,
+                    'payment_token_created' => true,
+                ],
+            ])->save();
+
+            return [
+                'ok' => true,
+                'payment_id' => $reference,
+                'redirect_url' => $redirectUrl,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('paymob.direct_pay.failed', [
+                'order_id' => $order->id,
+                'channel' => $useWallet ? 'wallet' : 'card',
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['ok' => false, 'message' => 'تعذر الاتصال بـ Paymob: ' . $e->getMessage()];
+        }
+    }
+
+    protected function verifyPaymob(Request $request, PaymentGateway $gateway): array
+    {
+        $cfg = array_change_key_case((array) $gateway->config, CASE_UPPER);
+        $hmac = (string) ($cfg['PAYMOB_HMAC'] ?? '');
+        $reference = $request->input('merchant_order_id')
+            ?: $request->input('payment_id')
+            ?: $request->input('order')
+            ?: $request->input('merchantRefNumber');
+
+        if ($hmac !== '' && $request->filled('hmac')) {
+            $string = $request->input('amount_cents')
+                . $request->input('created_at')
+                . $request->input('currency')
+                . $request->input('error_occured')
+                . $request->input('has_parent_transaction')
+                . $request->input('id')
+                . $request->input('integration_id')
+                . $request->input('is_3d_secure')
+                . $request->input('is_auth')
+                . $request->input('is_capture')
+                . $request->input('is_refunded')
+                . $request->input('is_standalone_payment')
+                . $request->input('is_voided')
+                . $request->input('order')
+                . $request->input('owner')
+                . $request->input('pending')
+                . $request->input('source_data_pan')
+                . $request->input('source_data_sub_type')
+                . $request->input('source_data_type')
+                . $request->input('success');
+
+            if (! hash_equals(hash_hmac('sha512', $string, $hmac), (string) $request->input('hmac'))) {
+                return ['success' => false, 'payment_id' => $reference, 'message' => 'فشل التحقق من توقيع Paymob.'];
+            }
+        }
+
+        $paidNow = in_array((string) $request->input('success'), ['true', '1'], true);
+        $order = null;
+
+        if ($reference) {
+            $order = Order::where('payment_reference', $reference)
+                ->orWhere('order_number', $reference)
+                ->orWhere('payment_response->paymob_order_id', $reference)
+                ->first();
+        }
+
+        if (! $order) {
+            return ['success' => false, 'payment_id' => $reference, 'message' => 'لم يتم العثور على الطلب المرتبط بعملية Paymob.'];
+        }
+
+        $wasPaid = $order->payment_status === 'paid';
+        $result = [
+            'success' => $paidNow,
+            'payment_id' => $order->payment_reference,
+            'order_id' => $order->id,
+            'message' => $paidNow ? 'تم الدفع بنجاح.' : 'لم يتم الدفع.',
+            'process_data' => $request->all(),
+        ];
+
+        if (! $paidNow) {
+            $this->rejectUnpaidOrder($order, $result['message'], $result);
+            return $result;
+        }
+
+        $order->forceFill([
+            'payment_status' => 'paid',
+            'payment_response' => $result,
+            'paid_at' => now(),
+            'status' => 'paid',
+        ])->save();
+
+        if (! $wasPaid) {
+            $this->clearCartForOrder($order);
+            $this->sendPlacedMailOnce($order);
+            $this->dispatchShipmentIfNeeded($order);
+        }
+
+        return $result;
+    }
+
+    protected function paymobBillingData(Order $order): array
+    {
+        [$first, $last] = $this->splitName($order->customer_name);
+
+        return [
+            'apartment' => 'NA',
+            'email' => $order->email,
+            'floor' => 'NA',
+            'first_name' => $first,
+            'street' => $order->shipping_address ?: 'NA',
+            'building' => 'NA',
+            'phone_number' => $order->phone ?: '01000000000',
+            'shipping_method' => 'NA',
+            'postal_code' => $order->shipping_postcode ?: 'NA',
+            'city' => $order->shipping_city ?: ($order->shipping_region ?: 'NA'),
+            'country' => 'EG',
+            'last_name' => $last,
+            'state' => $order->shipping_region ?: 'NA',
+        ];
+    }
+
+    protected function paymobError(mixed $json, string $body): string
+    {
+        if (is_array($json)) {
+            $msg = $json['detail'] ?? $json['message'] ?? $json['error'] ?? null;
+            if ($msg) {
+                return is_string($msg) ? $msg : json_encode($msg, JSON_UNESCAPED_UNICODE);
+            }
+        }
+
+        return trim($body) !== '' ? trim($body) : 'خطأ غير معروف من Paymob';
     }
 
     /** Push gateway config into the runtime nafezly-payments config. */
