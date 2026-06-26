@@ -62,14 +62,9 @@ class HomeController extends Controller
             ];
         });
 
-        // Pre-resolve the small set of settings used below in a single cached lookup
-        $heroSettings = \App\Models\SiteSetting::query()
-            ->whereIn('key', [
-                'hero_title','hero_subtitle','hero_badge','hero_background',
-                'featured_section_title','featured_section_subtitle',
-                'products_section_title','products_section_subtitle',
-                'default_og_image',
-            ])->pluck('value', 'key');
+        // Settings are served from SiteSetting's permanent cache (one query first
+        // time, in-memory thereafter), so individual ::get() calls below are O(1).
+
 
 
         $hero = [
