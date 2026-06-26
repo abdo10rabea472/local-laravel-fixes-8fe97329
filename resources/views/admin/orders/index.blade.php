@@ -2,92 +2,112 @@
 @section('title', 'الطلبات')
 
 @section('content')
-<div class="p-6 max-w-7xl mx-auto" x-data="ordersIndex()">
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl">{{ session('success') }}</div>
-    @endif
-
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-black text-slate-900">إدارة الطلبات</h1>
-            <p class="text-sm text-slate-500 mt-1">عرض وتعديل وتتبع حالة جميع الطلبات.</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
+<x-admin.page title="إدارة الطلبات" subtitle="عرض وتعديل وتتبع حالة جميع الطلبات.">
+    {{-- Stats --}}
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         @php $cards = [
-            ['الكل', $stats['total'], 'slate'],
-            ['قيد الانتظار', $stats['pending'], 'amber'],
-            ['مدفوع', $stats['paid'], 'sky'],
-            ['تم الشحن', $stats['shipped'], 'indigo'],
-            ['تم التوصيل', $stats['delivered'], 'emerald'],
-            ['الإيرادات', number_format($stats['revenue'], 0).' EGP', 'violet'],
+            ['الكل', $stats['total'], 'gray', 'fa-list'],
+            ['قيد الانتظار', $stats['pending'], 'amber', 'fa-clock'],
+            ['مدفوع', $stats['paid'], 'sky', 'fa-credit-card'],
+            ['تم الشحن', $stats['shipped'], 'indigo', 'fa-truck'],
+            ['تم التوصيل', $stats['delivered'], 'emerald', 'fa-check'],
+            ['الإيرادات', number_format($stats['revenue'], 0).' EGP', 'primary', 'fa-coins'],
         ]; @endphp
-        @foreach($cards as [$lbl,$val,$c])
-            <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                <p class="text-xs text-slate-500 mb-1">{{ $lbl }}</p>
-                <p class="text-xl font-black text-{{ $c }}-600">{{ $val }}</p>
+        @foreach($cards as [$lbl,$val,$c,$ic])
+            <div class="bg-white dark:bg-dark-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $lbl }}</p>
+                    <p class="text-lg font-black text-{{ $c }}-600">{{ $val }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-{{ $c }}-50 dark:bg-{{ $c }}-950/30 grid place-items-center">
+                    <i class="fas {{ $ic }} text-{{ $c }}-600"></i>
+                </div>
             </div>
         @endforeach
     </div>
 
-    <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
-        <input type="text" name="q" value="{{ request('q') }}" placeholder="بحث (رقم الطلب / إيميل / هاتف)..." class="h-10 px-3 border border-slate-200 rounded-xl text-sm md:col-span-2">
-        <select name="status" class="h-10 px-3 border border-slate-200 rounded-xl text-sm">
-            <option value="">كل الحالات</option>
-            @foreach(['pending'=>'قيد الانتظار','paid'=>'مدفوع','shipped'=>'تم الشحن','delivered'=>'تم التوصيل','cancelled'=>'ملغي','refunded'=>'مسترد'] as $k=>$v)
-                <option value="{{ $k }}" @selected(request('status')===$k)>{{ $v }}</option>
-            @endforeach
-        </select>
-        <input type="date" name="from" value="{{ request('from') }}" class="h-10 px-3 border border-slate-200 rounded-xl text-sm">
-        <input type="date" name="to" value="{{ request('to') }}" class="h-10 px-3 border border-slate-200 rounded-xl text-sm">
-        <button class="h-10 px-4 bg-slate-900 text-white rounded-xl text-sm font-bold md:col-span-5">فلتر</button>
-    </form>
+    <x-admin.card title="قائمة الطلبات" icon="fa-shopping-cart" padding="p-0">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[800px]">
+                <thead class="bg-gray-50 dark:bg-dark-800 text-gray-500 dark:text-gray-400 text-xs">
+                    <tr>
+                        <th class="p-3 text-right">رقم الطلب</th>
+                        <th class="p-3">العميل</th>
+                        <th class="p-3">العناصر</th>
+                        <th class="p-3">الإجمالي</th>
+                        <th class="p-3">الحالة</th>
+                        <th class="p-3">التاريخ</th>
+                        <th class="p-3">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($orders as $o)
+                    <tr class="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-dark-800/50" data-row="{{ $o->id }}">
+                        <td class="p-3 font-mono font-bold text-primary-600">{{ $o->order_number }}</td>
+                        <td class="p-3 text-center text-xs">
+                            <div class="font-semibold text-gray-800 dark:text-gray-200">{{ $o->customer_name ?: '—' }}</div>
+                            <div class="text-gray-500 dark:text-gray-400">{{ $o->email }}</div>
+                        </td>
+                        <td class="p-3 text-center text-gray-700 dark:text-gray-300">{{ $o->items->count() }}</td>
+                        <td class="p-3 text-center font-bold text-gray-900 dark:text-white">{{ number_format($o->total, 2) }} {{ $o->currency }}</td>
+                        <td class="p-3 text-center">
+                            @php $c = $o->statusBadgeColor(); @endphp
+                            <span class="px-2 py-1 text-xs rounded-full font-bold bg-{{ $c }}-50 dark:bg-{{ $c }}-950/30 text-{{ $c }}-700 dark:text-{{ $c }}-400">{{ $o->statusLabel() }}</span>
+                        </td>
+                        <td class="p-3 text-center text-xs text-gray-500 dark:text-gray-400">{{ $o->created_at->format('Y-m-d H:i') }}</td>
+                        <td class="p-3 text-center whitespace-nowrap">
+                            <a href="{{ route('admin.orders.show', $o) }}" class="text-primary-600 hover:underline font-bold text-xs">عرض</a>
+                            <a href="{{ route('admin.orders.invoice', $o) }}" target="_blank" class="text-gray-600 dark:text-gray-400 hover:underline font-bold text-xs mr-2">فاتورة</a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="7" class="p-12 text-center text-gray-400">
+                        <i class="fas fa-inbox text-3xl mb-3 block"></i>
+                        لا توجد طلبات.
+                    </td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($orders->hasPages())
+        <div class="p-4 border-t border-gray-100 dark:border-gray-800">{{ $orders->links() }}</div>
+        @endif
+    </x-admin.card>
 
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
-        <table class="w-full text-sm min-w-[800px]">
-            <thead class="bg-slate-50 text-slate-600 text-xs">
-                <tr>
-                    <th class="p-3 text-right">رقم الطلب</th>
-                    <th class="p-3">العميل</th>
-                    <th class="p-3">العناصر</th>
-                    <th class="p-3">الإجمالي</th>
-                    <th class="p-3">الحالة</th>
-                    <th class="p-3">التاريخ</th>
-                    <th class="p-3">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($orders as $o)
-                <tr class="border-t border-slate-100" data-row="{{ $o->id }}">
-                    <td class="p-3 font-mono font-bold text-violet-700">{{ $o->order_number }}</td>
-                    <td class="p-3 text-center text-xs">
-                        <div class="font-semibold text-slate-800">{{ $o->customer_name ?: '—' }}</div>
-                        <div class="text-slate-500">{{ $o->email }}</div>
-                    </td>
-                    <td class="p-3 text-center">{{ $o->items->count() }}</td>
-                    <td class="p-3 text-center font-bold">{{ number_format($o->total, 2) }} {{ $o->currency }}</td>
-                    <td class="p-3 text-center">
-                        @php $c = $o->statusBadgeColor(); @endphp
-                        <span class="px-2 py-1 text-xs rounded-full font-bold bg-{{ $c }}-50 text-{{ $c }}-700">{{ $o->statusLabel() }}</span>
-                    </td>
-                    <td class="p-3 text-center text-xs text-slate-500">{{ $o->created_at->format('Y-m-d H:i') }}</td>
-                    <td class="p-3 text-center">
-                        <a href="{{ route('admin.orders.show', $o) }}" class="text-violet-600 hover:underline font-bold text-xs">عرض</a>
-                        <a href="{{ route('admin.orders.invoice', $o) }}" target="_blank" class="text-slate-600 hover:underline font-bold text-xs mr-2">فاتورة</a>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="7" class="p-8 text-center text-slate-400">لا توجد طلبات.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-4">{{ $orders->links() }}</div>
-</div>
-
-<script>
-function ordersIndex(){ return {}; }
-</script>
+    <x-slot:side>
+        <x-admin.card title="تصفية الطلبات" icon="fa-filter">
+            <form method="GET" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">بحث</label>
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="رقم / إيميل / هاتف"
+                           class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">الحالة</label>
+                    <select name="status" class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                        <option value="">كل الحالات</option>
+                        @foreach(['pending'=>'قيد الانتظار','paid'=>'مدفوع','shipped'=>'تم الشحن','delivered'=>'تم التوصيل','cancelled'=>'ملغي','refunded'=>'مسترد'] as $k=>$v)
+                            <option value="{{ $k }}" @selected(request('status')===$k)>{{ $v }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">من</label>
+                        <input type="date" name="from" value="{{ request('from') }}"
+                               class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs focus:border-primary-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">إلى</label>
+                        <input type="date" name="to" value="{{ request('to') }}"
+                               class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs focus:border-primary-500 focus:outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full h-11 bg-gray-900 dark:bg-dark-700 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors">
+                    <i class="fas fa-filter ml-1"></i> تطبيق الفلتر
+                </button>
+            </form>
+        </x-admin.card>
+    </x-slot:side>
+</x-admin.page>
 @endsection
