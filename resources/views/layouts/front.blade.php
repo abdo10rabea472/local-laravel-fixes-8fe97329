@@ -65,9 +65,9 @@
     @include('components.front-footer')
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="{{ asset('js/ajax.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
-    <script defer src="{{ asset('js/swiper.js') }}"></script>
+    <script src="{{ asset('js/ajax.js') }}?v={{ @filemtime(public_path('js/ajax.js')) ?: time() }}"></script>
+    <script src="{{ asset('js/main.js') }}?v={{ @filemtime(public_path('js/main.js')) ?: time() }}"></script>
+    <script defer src="{{ asset('js/swiper.js') }}?v={{ @filemtime(public_path('js/swiper.js')) ?: time() }}"></script>
     {{-- Instant page navigation: prefetches links on hover/touchstart --}}
     <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
     @stack('scripts')
