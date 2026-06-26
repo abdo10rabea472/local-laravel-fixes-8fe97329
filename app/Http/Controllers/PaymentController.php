@@ -23,7 +23,10 @@ class PaymentController extends Controller
         $result  = $service->pay($order, $gateway);
 
         if (! ($result['ok'] ?? false)) {
-            return back()->with('error', $result['message'] ?? 'تعذر بدء عملية الدفع.');
+            // Send user to the order page with a clear failure message + retry option.
+            return redirect()
+                ->route('checkout.completed', ['order' => $order->id])
+                ->with('error', $result['message'] ?? 'تعذر بدء عملية الدفع.');
         }
         if (! empty($result['redirect_url'])) {
             return redirect()->away($result['redirect_url']);
