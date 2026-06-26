@@ -417,7 +417,7 @@ class PaymentService
                     'order_id' => $paymobOrderId,
                     'billing_data' => $billing,
                     'currency' => $order->currency ?: ($cfg['PAYMOB_CURRENCY'] ?? 'EGP'),
-                    'integration_id' => $useWallet ? $cfg['PAYMOB_WALLET_INTEGRATION_ID'] : $cfg['PAYMOB_INTEGRATION_ID'],
+                    'integration_id' => (int) ($useWallet ? $cfg['PAYMOB_WALLET_INTEGRATION_ID'] : $cfg['PAYMOB_INTEGRATION_ID']),
                     'lock_order_when_paid' => true,
                 ]);
 
