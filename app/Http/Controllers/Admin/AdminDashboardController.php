@@ -130,6 +130,7 @@ class AdminDashboardController extends Controller
             'recentOrders',
             'lowStockProducts',
             'revenueSeries',
+            'ordersSeries',
             'revenueLabels'
         ));
     }
