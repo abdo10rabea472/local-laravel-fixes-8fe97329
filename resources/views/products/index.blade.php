@@ -5,13 +5,34 @@
 @endpush
 
 @section('content')
-<section class="products-page bg-slate-50 min-h-screen py-6 sm:py-8">
-    <div class="w-full px-3 sm:px-5 lg:px-8 2xl:px-12">
+<section class="products-page bg-slate-50 min-h-screen">
 
-        <div class="mb-8">
-            <h1 class="text-3xl sm:text-4xl font-black text-slate-900">{{ $pageTitle }}</h1>
-            <p class="text-slate-500 mt-2">{{ $pageSubtitle ?: ($products->total() . ' products across all colleges') }}</p>
+    {{-- Page hero --}}
+    <div class="relative overflow-hidden bg-gradient-to-br from-violet-700 via-indigo-700 to-violet-800 text-white">
+        <div class="absolute -top-24 -right-24 w-80 h-80 bg-amber-400/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
+        <div class="relative w-full px-3 sm:px-5 lg:px-8 2xl:px-12 py-10">
+            <nav class="text-xs font-bold text-violet-100/80 mb-3 flex items-center gap-2">
+                <a href="{{ route('home') }}" class="hover:text-white"><i class="fa-solid fa-house"></i> Home</a>
+                <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                <span class="text-white">Products</span>
+            </nav>
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight">{{ $pageTitle }}</h1>
+                    <p class="text-violet-100 mt-2 max-w-2xl">{{ $pageSubtitle ?: ($products->total() . ' products across all colleges') }}</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold">
+                    <span class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur border border-white/20 px-3 py-1.5 rounded-full"><i class="fa-solid fa-box-open"></i> {{ $products->total() }} items</span>
+                    @if($activeCollege)
+                    <span class="inline-flex items-center gap-1.5 bg-amber-300 text-violet-900 px-3 py-1.5 rounded-full"><i class="fa-solid fa-graduation-cap"></i> {{ $activeCollege->name }}</span>
+                    @endif
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="w-full px-3 sm:px-5 lg:px-8 2xl:px-12 py-8">
 
         <form action="{{ route('products.index') }}" method="get" class="flex flex-wrap gap-3 items-center mb-8">
             <div class="relative flex-1 min-w-[220px]">
