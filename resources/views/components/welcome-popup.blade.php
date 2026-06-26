@@ -1,12 +1,26 @@
 @php
+use App\Models\Coupon;
+
 $enabled = site_setting('welcome_popup_enabled', '1') === '1';
 $title = site_setting('welcome_popup_title', 'Welcome to UNI-LAB MARKET');
 $message = site_setting('welcome_popup_message', 'Get an exclusive discount on your first order. Use the code below at checkout.');
-$code = site_setting('welcome_popup_discount_code', 'WELCOME10');
-$percent = (int) site_setting('welcome_popup_discount_percent', 10);
 $buttonText = site_setting('welcome_popup_button_text', 'Shop Now');
 $image = site_setting_url('welcome_popup_image');
+
+// Pick a random active coupon if any
+$coupon = Coupon::active()->inRandomOrder()->first();
+$code = $coupon?->code ?? site_setting('welcome_popup_discount_code', '');
+$percent = $coupon
+    ? ($coupon->type === 'percent' ? (int) $coupon->value : 0)
+    : (int) site_setting('welcome_popup_discount_percent', 10);
+$fixedAmount = $coupon && $coupon->type === 'fixed' ? (float) $coupon->value : 0;
+$discountLabel = $coupon
+    ? ($coupon->type === 'percent'
+        ? $percent . '% OFF your order'
+        : number_format($fixedAmount, 0) . ' EGP OFF your order')
+    : ($percent > 0 ? $percent . '% OFF your first order' : '');
 @endphp
+
 
 @if($enabled)
 <div id="welcome-popup"
