@@ -69,7 +69,7 @@
                             <div class="flex gap-2">
                                 <a href="{{ route('admin.products.edit', $product) }}" class="text-violet-600"><i class="fa-solid fa-pen"></i></a>
                                 <a href="{{ route('product.show', $product->slug) }}" target="_blank" class="text-slate-500"><i class="fa-solid fa-eye"></i></a>
-                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('حذف المنتج؟')">
+                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}" data-ajax-confirm="حذف المنتج؟" data-ajax-remove>
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500"><i class="fa-solid fa-trash"></i></button>
                                 </form>

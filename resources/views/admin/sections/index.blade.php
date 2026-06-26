@@ -66,7 +66,7 @@
                     <td class="p-4">
                         <div class="flex gap-2">
                             <button @click="openEdit(@js($section))" class="text-violet-600"><i class="fa-solid fa-pen"></i></button>
-                            <form method="POST" action="{{ route('admin.sections.destroy', $section) }}" onsubmit="return confirm('حذف القسم؟')">
+                            <form method="POST" action="{{ route('admin.sections.destroy', $section) }}" data-ajax-confirm="حذف القسم؟" data-ajax-remove>
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500"><i class="fa-solid fa-trash"></i></button>
                             </form>
