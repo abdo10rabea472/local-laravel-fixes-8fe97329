@@ -22,9 +22,9 @@
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto px-4 py-8 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8 lg:items-start" dir="rtl">
         @include('account.partials.sidebar')
-        <div class="lg:mr-72">
+        <div class="min-w-0">
             @yield('account_content')
         </div>
     </div>
