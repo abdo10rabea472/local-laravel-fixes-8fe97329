@@ -3,8 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build && mkdir -p dist && cp -r public/build/* dist/ 2>/dev/null || mkdir -p dist",
-        "build:dev": "vite build --mode development && mkdir -p dist && cp -r public/build/* dist/ 2>/dev/null || mkdir -p dist",
+        "build": "node -e \"require('fs').rmSync('public/hot',{force:true})\" && vite build && node -e \"require('fs').rmSync('public/hot',{force:true})\"",
+        "build:dev": "node -e \"require('fs').rmSync('public/hot',{force:true})\" && vite build --mode development && node -e \"require('fs').rmSync('public/hot',{force:true})\"",
         "dev": "vite"
 
 
