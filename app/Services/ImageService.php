@@ -68,26 +68,42 @@ class ImageService
 
     public function storeCategoryImage(UploadedFile $file, string $type = 'image'): string
     {
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-        $filename = time() . '_' . Str::random(8) . ".{$extension}";
-
-        return $file->storeAs("categories/{$type}", $filename, 'public');
+        return $this->storeOptimized($file, "categories/{$type}");
     }
 
     public function storeSettingImage(UploadedFile $file, string $key): string
     {
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-        $filename = time() . '_' . Str::random(8) . ".{$extension}";
-
-        return $file->storeAs("settings/{$key}", $filename, 'public');
+        return $this->storeOptimized($file, "settings/{$key}");
     }
 
     public function storeSectionBackgroundImage(UploadedFile $file): string
     {
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-        $filename = time() . '_' . Str::random(8) . ".{$extension}";
+        return $this->storeOptimized($file, 'sections/backgrounds');
+    }
 
-        return $file->storeAs('sections/backgrounds', $filename, 'public');
+    /**
+     * يخزّن الصورة بصيغة WebP إن أمكن، وإلا بامتدادها الأصلي.
+     */
+    private function storeOptimized(UploadedFile $file, string $directory): string
+    {
+        $baseName = time() . '_' . Str::random(8);
+        $sourceExt = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+
+        if (! extension_loaded('gd') || ! function_exists('imagewebp')) {
+            return $file->storeAs($directory, "{$baseName}.{$sourceExt}", 'public');
+        }
+
+        $source = $this->createImageResource($file->getRealPath(), $sourceExt);
+        if (! $source) {
+            return $file->storeAs($directory, "{$baseName}.{$sourceExt}", 'public');
+        }
+
+        Storage::disk('public')->makeDirectory($directory);
+        $path = "{$directory}/{$baseName}.webp";
+        $this->saveImage($source, Storage::disk('public')->path($path), 'webp');
+        imagedestroy($source);
+
+        return $path;
     }
 
     public function deletePaths(?string ...$paths): void
