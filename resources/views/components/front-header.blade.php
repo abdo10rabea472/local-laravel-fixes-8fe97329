@@ -73,7 +73,7 @@
                         @endif
                     @endguest
                     @auth('web')
-                        <a href="{{ route('profile.edit') }}" class="hover:text-amber-400 transition-colors">My Account</a>
+                        <a href="{{ route('account.dashboard') }}" class="hover:text-amber-400 transition-colors">My Account</a>
                     @endauth
                 @endif
             </div>
