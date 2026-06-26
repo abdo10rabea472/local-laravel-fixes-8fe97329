@@ -110,4 +110,50 @@ class ReturnRequestController extends Controller
         $return->delete();
         return redirect()->route('admin.returns.index')->with('success', 'تم حذف طلب الإرجاع.');
     }
+
+    /** Schedule an Aramex pickup for this return (collects from the customer). */
+    public function schedulePickup(Request $request, ReturnRequest $return, \App\Services\AramexService $aramex)
+    {
+        $return->loadMissing('order');
+        $order = $return->order;
+        if (!$order) {
+            return back()->with('error', 'لا يوجد طلب مرتبط.');
+        }
+
+        $totalQty = (int) $return->items()->sum('quantity');
+        $weight   = max(0.5, $totalQty * 0.5);
+
+        $res = $aramex->createPickup([
+            'name' => $order->customer_name ?: $order->email,
+            'cell_phone' => $order->phone ?: '+200000000000',
+            'phone' => $order->phone ?: '+200000000000',
+            'email' => $order->email,
+            'country_code' => strtoupper(substr((string) $order->shipping_country, 0, 2) ?: 'EG'),
+            'city' => $order->shipping_city ?: 'Cairo',
+            'zip_code' => $order->shipping_postcode ?: '00000',
+            'line1' => $order->shipping_address ?: 'N/A',
+            'line2' => $order->shipping_region ?: '',
+            'line3' => '',
+            'pickup_date' => time() + 86400,
+            'ready_time' => time() + 86400,
+            'last_pickup_time' => time() + 90000,
+            'closing_time' => time() + 93600,
+            'status' => 'Ready',
+            'pickup_location' => 'Customer Address',
+            'weight' => $weight,
+            'volume' => $totalQty,
+        ]);
+
+        if (!$res['ok']) {
+            return back()->with('error', 'فشل جدولة الاستلام: ' . $res['message']);
+        }
+
+        $return->update([
+            'pickup_guid' => $res['data']['pickup_guid'] ?? null,
+            'pickup_reference' => $res['data']['pickup_id'] ?? null,
+            'pickup_scheduled_at' => now(),
+        ]);
+
+        return back()->with('success', 'تم جدولة استلام Aramex برقم ' . ($res['data']['pickup_id'] ?? '—'));
+    }
 }
