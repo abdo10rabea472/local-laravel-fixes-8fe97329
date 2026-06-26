@@ -313,6 +313,50 @@ class CheckoutController extends Controller
         ]);
     }
 
+    /**
+     * Calculate shipping rate via Aramex API for the user's current address & cart.
+     * POST /checkout/aramex-rate
+     */
+    public function aramexRate(Request $request, \App\Services\AramexService $aramex): JsonResponse
+    {
+        $data = $request->validate([
+            'country_code' => 'required|string|size:2',
+            'city' => 'required|string|max:100',
+            'line1' => 'required|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+            'cart' => 'required|array|min:1',
+            'cart.*.id' => 'required|integer',
+            'cart.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        if (!$aramex->isConfigured()) {
+            return response()->json(['ok' => false, 'message' => 'Aramex غير مهيّأ بعد. أضف بيانات الاعتماد في config/aramex.php'], 422);
+        }
+
+        $totalQty = array_sum(array_column($data['cart'], 'quantity'));
+        $weight = max(0.5, $totalQty * 0.5); // افتراض: 0.5 كجم لكل قطعة
+
+        $origin = config('aramex.shipper_address', [
+            'line1' => 'Origin Address',
+            'city'  => 'Cairo',
+            'country_code' => 'EG',
+        ]);
+        $destination = [
+            'line1' => $data['line1'],
+            'city'  => $data['city'],
+            'country_code' => strtoupper($data['country_code']),
+            'postal_code'  => $data['postal_code'] ?? '',
+        ];
+
+        $res = $aramex->calculateRate($origin, $destination, [
+            'weight' => $weight,
+            'number_of_pieces' => $totalQty,
+        ], 'EGP');
+
+        return response()->json($res, $res['ok'] ? 200 : 422);
+    }
+
+
 
     /**
      * Rebuild the cart using prices read from the database, ignoring any
