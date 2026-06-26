@@ -137,8 +137,10 @@ class CheckoutController extends Controller
             'shipping_city' => 'nullable|string|max:100',
             'shipping_postcode' => 'nullable|string|max:20',
             'shipping_cost' => 'nullable|numeric|min:0',
+            'shipping_carrier_id' => 'nullable|integer|exists:shipping_carriers,id',
             'notes' => 'nullable|string|max:1000',
         ]);
+
 
         $requested = [];
         foreach ($data['cart'] as $line) {
@@ -246,6 +248,7 @@ class CheckoutController extends Controller
                     'shipping_address' => $data['shipping_address'] ?? null,
                     'shipping_city' => $data['shipping_city'] ?? null,
                     'shipping_postcode' => $data['shipping_postcode'] ?? null,
+                    'shipping_carrier_id' => $data['shipping_carrier_id'] ?? null,
                     'notes' => $data['notes'] ?? null,
                     'subtotal' => $subtotal,
                     'discount_amount' => $discount,
@@ -255,7 +258,9 @@ class CheckoutController extends Controller
                     'currency' => 'EGP',
                     'status' => 'pending',
                     'payment_status' => 'unpaid',
+                    'shipping_status' => !empty($data['shipping_carrier_id']) ? 'queued' : 'no_carrier',
                 ]);
+
 
                 foreach ($items as $it) {
                     $order->items()->create($it);
