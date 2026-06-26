@@ -12,6 +12,12 @@ return [
     'testing_mode' => env('ARAMEX_TESTING_MODE', true),
     'environment'  => env('ARAMEX_ENVIRONMENT', 'TEST'), // TEST | LIVE
 
+    // The octw/aramex SDK reads the environment from settings.env
+    'settings' => [
+        'env' => env('ARAMEX_ENVIRONMENT', 'TEST'), // TEST | LIVE
+    ],
+
+
     'ClientInfo' => [
         'UserName'           => env('ARAMEX_USERNAME', 'testingapi@aramex.com'),
         'Password'           => env('ARAMEX_PASSWORD', 'R123456789$r'),
