@@ -61,13 +61,16 @@ class PaymentService
                 ->setCurrency($order->currency ?: 'EGP')
                 ->pay();
 
-            $hasRedirect = ! empty($response['redirect_url']) || ! empty($response['html']);
+            $hasRedirect = ! empty($response['redirect_url']);
+            $hasHtml     = ! empty($response['html']) && ! $this->looksLikeGatewayError($response['html']);
             $explicitOk  = array_key_exists('success', $response) ? (bool) $response['success'] : null;
 
             // The driver returned a response but it neither redirects to the gateway
             // nor returns embeddable HTML — treat this as a failure (e.g. invalid keys).
-            if ($explicitOk === false || ! $hasRedirect) {
-                $msg = $response['message'] ?? 'البوابة لم تُرجع رابط دفع — تحقق من بيانات الاعتماد في إعدادات البوابة.';
+            if ($explicitOk === false || (! $hasRedirect && ! $hasHtml)) {
+                $msg = $response['message']
+                    ?? $this->extractGatewayError($response['html'] ?? null)
+                    ?? 'البوابة لم تُرجع رابط دفع صالح — تحقق من بيانات الاعتماد في إعدادات البوابة.';
                 Log::warning('payment.pay.no_redirect', [
                     'gateway'  => $gateway->code,
                     'order_id' => $order->id,
@@ -101,6 +104,10 @@ class PaymentService
                 'order_id' => $order->id,
                 'error'    => $e->getMessage(),
             ]);
+            $order->forceFill([
+                'payment_gateway' => $gateway->code,
+                'payment_status'  => 'failed',
+            ])->save();
             return ['ok' => false, 'message' => 'تعذر بدء عملية الدفع: ' . $e->getMessage()];
         }
     }
@@ -216,7 +223,7 @@ class PaymentService
     protected function requiredKeysFor(string $driver): array
     {
         return [
-            'Paymob'       => ['PAYMOB_API_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_IFRAME_ID','PAYMOB_HMAC'],
+            'Paymob'       => ['PAYMOB_PUBLIC_KEY','PAYMOB_SECRET_KEY','PAYMOB_INTEGRATION_ID','PAYMOB_HMAC'],
             'PaymobWallet' => ['PAYMOB_API_KEY','PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_HMAC'],
             'Fawry'        => ['FAWRY_URL','FAWRY_SECRET','FAWRY_MERCHANT'],
             'Kashier'      => ['KASHIER_ACCOUNT_KEY','KASHIER_IFRAME_KEY','KASHIER_TOKEN','KASHIER_URL'],
@@ -245,8 +252,21 @@ class PaymentService
     {
         try {
             switch ($gateway->driver) {
-                // Paymob: POST /api/auth/tokens with api_key → returns { token: "..." }
                 case 'Paymob':
+                    // New Paymob unified checkout uses Secret Key as an Authorization token.
+                    // Sending an empty intention should authenticate first, then fail validation.
+                    // 401/403 means the key itself is invalid.
+                    $resp = \Illuminate\Support\Facades\Http::timeout(15)
+                        ->acceptJson()
+                        ->withHeaders(['Authorization' => 'Token ' . $cfg['PAYMOB_SECRET_KEY']])
+                        ->post('https://accept.paymob.com/v1/intention/', []);
+
+                    if (! in_array($resp->status(), [401, 403], true)) {
+                        return ['ok' => true, 'message' => '✓ تم الاتصال بـ Paymob والتحقق من Secret Key.'];
+                    }
+
+                    return ['ok' => false, 'message' => '❌ Paymob رفض Secret Key: ' . ($resp->json('detail') ?? $resp->body())];
+
                 case 'PaymobWallet':
                     $resp = \Illuminate\Support\Facades\Http::timeout(15)
                         ->acceptJson()
@@ -293,12 +313,49 @@ class PaymentService
     protected function applyRuntimeConfig(PaymentGateway $gateway): void
     {
         $cfg = (array) $gateway->config;
+        config()->set('nafezly-payments.VERIFY_ROUTE_NAME', 'verify-payment');
+        config()->set('nafezly-payments.APP_NAME', config('app.name'));
+        config()->set('nafezly-payments.PAYMOB_CURRENCY', config('nafezly-payments.PAYMOB_CURRENCY', 'EGP'));
         if (empty($cfg)) return;
         foreach ($cfg as $key => $value) {
             // Allow the admin to store either short keys (api_key) or full keys (PAYMOB_API_KEY)
             $key = strtoupper($key);
             config()->set("nafezly-payments.$key", $value);
         }
+    }
+
+    protected function looksLikeGatewayError(?string $html): bool
+    {
+        if (! is_string($html) || trim($html) === '') {
+            return false;
+        }
+
+        $body = trim($html);
+        $decoded = json_decode($body, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return isset($decoded['detail']) || isset($decoded['error']) || isset($decoded['message']) || isset($decoded['errors']);
+        }
+
+        return str_contains(strtolower($body), 'unauthorized')
+            || str_contains(strtolower($body), 'invalid')
+            || str_contains(strtolower($body), 'error');
+    }
+
+    protected function extractGatewayError(?string $html): ?string
+    {
+        if (! is_string($html) || trim($html) === '') {
+            return null;
+        }
+
+        $decoded = json_decode(trim($html), true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded['detail']
+                ?? $decoded['message']
+                ?? $decoded['error']
+                ?? (isset($decoded['errors']) ? json_encode($decoded['errors'], JSON_UNESCAPED_UNICODE) : null);
+        }
+
+        return null;
     }
 
     protected function splitName(?string $name): array

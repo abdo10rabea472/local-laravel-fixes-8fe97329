@@ -607,7 +607,7 @@
                 confirmBtn.textContent = 'Confirm Order';
                 return;
             }
-            window.UL?.toast('✅ تم تأكيد الطلب بنجاح', 'success');
+            window.UL?.toast('جاري تحويلك لبوابة الدفع...', 'success');
             if (typeof window.clearCart === 'function') { try { await window.clearCart(); } catch (_) {} }
             window.location.href = json.redirect;
         } catch (e) {

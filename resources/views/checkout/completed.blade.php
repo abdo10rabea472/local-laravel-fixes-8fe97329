@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.front')
+
+@section('title', 'Payment Status')
 
 @section('content')
 @php
@@ -9,71 +11,69 @@
     $payError   = session('error');
 @endphp
 
-<div class="container py-5" style="max-width:720px">
+<div class="min-h-[70vh] bg-slate-50 py-10 px-4">
+<div class="mx-auto w-full max-w-2xl">
 
     @if($payError)
-        <div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
+        <div class="mb-4 flex items-start gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
             <i class="fa-solid fa-circle-exclamation mt-1"></i>
             <div>
-                <strong class="d-block mb-1">فشل بدء عملية الدفع</strong>
-                <small>{{ $payError }}</small>
+                <strong class="mb-1 block">فشل بدء عملية الدفع</strong>
+                <small class="leading-relaxed">{{ $payError }}</small>
             </div>
         </div>
     @endif
 
-    <div class="card shadow-sm border-0 text-center p-4 p-md-5">
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-10">
         @if($isPaid)
-            <div class="mb-3 text-success" style="font-size:48px"><i class="fa-solid fa-circle-check"></i></div>
-            <h1 class="h4 text-success">تم الدفع بنجاح</h1>
-            <p class="text-muted">شكرًا لطلبك! تم استلام دفعتك بنجاح.</p>
+            <div class="mb-3 text-5xl text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>
+            <h1 class="text-2xl font-black text-emerald-700">تم الدفع بنجاح</h1>
+            <p class="mt-2 text-slate-500">شكرًا لطلبك! تم استلام دفعتك بنجاح.</p>
         @elseif($isCod)
-            <div class="mb-3 text-success" style="font-size:48px"><i class="fa-solid fa-circle-check"></i></div>
-            <h1 class="h4 text-success">تم إنشاء طلبك بنجاح</h1>
-            <p class="text-muted">
+            <div class="mb-3 text-5xl text-emerald-600"><i class="fa-solid fa-circle-check"></i></div>
+            <h1 class="text-2xl font-black text-emerald-700">تم إنشاء طلبك بنجاح</h1>
+            <p class="mt-2 text-slate-500">
                 سيتم تحصيل المبلغ
                 <strong>{{ number_format((float)$order->total, 2) }} {{ $order->currency }}</strong>
                 عند الاستلام.
             </p>
         @elseif($isFailed || $payError)
-            <div class="mb-3 text-danger" style="font-size:48px"><i class="fa-solid fa-circle-xmark"></i></div>
-            <h1 class="h4 text-danger">لم يتم الدفع</h1>
-            <p class="text-muted">
+            <div class="mb-3 text-5xl text-rose-600"><i class="fa-solid fa-circle-xmark"></i></div>
+            <h1 class="text-2xl font-black text-rose-700">لم يتم الدفع</h1>
+            <p class="mt-2 text-slate-500">
                 طلبك محفوظ بحالة "بانتظار الدفع" ويمكنك المحاولة مرة أخرى.
             </p>
         @elseif($isPending)
-            <div class="mb-3 text-warning" style="font-size:48px"><i class="fa-solid fa-clock"></i></div>
-            <h1 class="h4 text-warning">بانتظار إتمام الدفع</h1>
-            <p class="text-muted">لم نستلم تأكيد الدفع من بوابة الدفع بعد.</p>
+            <div class="mb-3 text-5xl text-amber-500"><i class="fa-solid fa-clock"></i></div>
+            <h1 class="text-2xl font-black text-amber-600">بانتظار إتمام الدفع</h1>
+            <p class="mt-2 text-slate-500">لم نستلم تأكيد الدفع من بوابة الدفع بعد.</p>
         @else
-            <div class="mb-3 text-primary" style="font-size:48px"><i class="fa-solid fa-receipt"></i></div>
-            <h1 class="h4">تفاصيل الطلب</h1>
+            <div class="mb-3 text-5xl text-violet-600"><i class="fa-solid fa-receipt"></i></div>
+            <h1 class="text-2xl font-black text-slate-900">تفاصيل الطلب</h1>
         @endif
 
-        <hr class="my-4">
+        <hr class="my-6 border-slate-100">
 
-        <dl class="row text-start mb-0 small">
-            <dt class="col-5 text-muted">رقم الطلب</dt>
-            <dd class="col-7 fw-bold">#{{ $order->order_number }}</dd>
+        <dl class="space-y-3 text-start text-sm">
+            <div class="flex justify-between gap-4"><dt class="text-slate-500">رقم الطلب</dt><dd class="font-bold text-slate-900">#{{ $order->order_number }}</dd></div>
 
-            <dt class="col-5 text-muted">طريقة الدفع</dt>
-            <dd class="col-7 fw-bold">{{ $order->payment_gateway ?? '—' }}</dd>
+            <div class="flex justify-between gap-4"><dt class="text-slate-500">طريقة الدفع</dt><dd class="font-bold text-slate-900">{{ $order->payment_gateway ?? '—' }}</dd></div>
 
-            <dt class="col-5 text-muted">حالة الدفع</dt>
-            <dd class="col-7 fw-bold">{{ $order->payment_status ?? '—' }}</dd>
+            <div class="flex justify-between gap-4"><dt class="text-slate-500">حالة الدفع</dt><dd class="font-bold text-slate-900">{{ $order->payment_status ?? '—' }}</dd></div>
 
-            <dt class="col-5 text-muted">الإجمالي</dt>
-            <dd class="col-7 fw-bold">{{ number_format((float)$order->total, 2) }} {{ $order->currency }}</dd>
+            <div class="flex justify-between gap-4"><dt class="text-slate-500">الإجمالي</dt><dd class="font-bold text-slate-900">{{ number_format((float)$order->total, 2) }} {{ $order->currency }}</dd></div>
         </dl>
 
-        <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+        <div class="mt-6 flex flex-wrap justify-center gap-2">
             @if(! $isPaid && ! $isCod && $order->payment_gateway)
                 <a href="{{ route('checkout.pay', $order) }}?gateway={{ urlencode($order->payment_gateway) }}"
-                   class="btn btn-primary">
+                   class="inline-flex h-11 items-center rounded-xl bg-violet-600 px-5 text-sm font-bold text-white transition-colors hover:bg-violet-700">
                     <i class="fa-solid fa-rotate-right ms-1"></i> إعادة محاولة الدفع
                 </a>
             @endif
-            <a href="{{ route('home') }}" class="btn btn-outline-secondary">متابعة التسوق</a>
+            <a href="{{ route('home') }}" class="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50">متابعة التسوق</a>
         </div>
     </div>
+</div>
 </div>
 @endsection
