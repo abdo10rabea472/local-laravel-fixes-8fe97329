@@ -106,10 +106,11 @@
                     <p class="text-xs text-slate-500 mb-4">Paymob الآن كارد واحد: البطاقة تستخدم IFRAME، والمحافظ تظهر فقط عند تفعيلها هنا.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach($fields as $field)
-                            <div class="space-y-2">
+                            @php $isWalletField = in_array($field, ['PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_WALLET_IFRAME_ID'], true); @endphp
+                            <div class="space-y-2 field-wrap" @if($isWalletField) data-wallet-field @endif>
                                 <label class="text-xs font-bold text-slate-500 font-mono">{{ $field }}</label>
                                 @if($field === 'PAYMOB_WALLET_ENABLED')
-                                    <select name="config[{{ $field }}]" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:border-indigo-400 focus:bg-white focus:outline-none transition">
+                                    <select name="config[{{ $field }}]" id="paymob-wallet-enabled" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                                         <option value="0" @selected(old('config.'.$field, $gateway->configValue($field, '0')) !== '1')>إيقاف المحافظ</option>
                                         <option value="1" @selected(old('config.'.$field, $gateway->configValue($field, '0')) === '1')>تفعيل المحافظ</option>
                                     </select>
@@ -156,6 +157,21 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Toggle wallet-only fields based on PAYMOB_WALLET_ENABLED
+    const walletSelect = document.getElementById('paymob-wallet-enabled');
+    const walletFields = document.querySelectorAll('[data-wallet-field]');
+    function syncWalletFields() {
+        const on = walletSelect && walletSelect.value === '1';
+        walletFields.forEach(el => {
+            el.classList.toggle('hidden', !on);
+            el.querySelectorAll('input').forEach(i => { i.disabled = !on; });
+        });
+    }
+    if (walletSelect) {
+        walletSelect.addEventListener('change', syncWalletFields);
+        syncWalletFields();
+    }
+
     const btn = document.getElementById('btn-test-gateway');
     const box = document.getElementById('test-result');
     if (!btn) return;
