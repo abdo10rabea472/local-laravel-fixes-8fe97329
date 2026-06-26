@@ -263,6 +263,66 @@
         </main>
     </div>
 
+    <script src="{{ asset('js/ajax.js') }}"></script>
+    <script>
+        // Admin AJAX wiring: handles forms with data-ajax-confirm (delete/toggle)
+        document.addEventListener('submit', async function (e) {
+            const form = e.target.closest('form[data-ajax-confirm], form[data-ajax]');
+            if (!form) return;
+            e.preventDefault();
+
+            const msg = form.getAttribute('data-ajax-confirm');
+            if (msg && !confirm(msg)) return;
+
+            const btn = form.querySelector('button[type=submit], button:not([type])');
+            try {
+                if (btn) { btn.disabled = true; btn.dataset._origHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+
+                const fd = new FormData(form);
+                const method = (fd.get('_method') || form.method || 'POST').toString().toUpperCase();
+                const headers = { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content };
+                let url = form.action;
+                let body = fd;
+                if (method === 'GET') {
+                    const params = new URLSearchParams(fd).toString();
+                    url += (url.includes('?') ? '&' : '?') + params;
+                    body = undefined;
+                }
+
+                const res = await fetch(url, { method: method === 'GET' ? 'GET' : 'POST', headers, body, credentials: 'same-origin' });
+
+                if (res.redirected || res.headers.get('content-type')?.includes('text/html')) {
+                    // Server returned redirect/HTML → reload to honor flash session
+                    window.location.reload();
+                    return;
+                }
+
+                let data = {};
+                try { data = await res.json(); } catch (_) {}
+
+                if (!res.ok) {
+                    window.UL?.toast(data.message || 'حدث خطأ', 'error');
+                    return;
+                }
+
+                // Success — if it's a destroy action, remove the closest row
+                if (form.dataset.ajaxRemove !== undefined || form.querySelector('input[name=_method][value=DELETE]')) {
+                    const row = form.closest('tr, [data-row]');
+                    if (row) row.remove();
+                }
+                window.UL?.toast(data.message || 'تم بنجاح', 'success');
+
+                // Reload after toggle to refresh state labels
+                if (form.dataset.ajaxReload !== undefined) {
+                    setTimeout(() => window.location.reload(), 600);
+                }
+            } catch (err) {
+                window.UL?.toast('فشل الاتصال بالخادم', 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset._origHtml || btn.innerHTML; }
+            }
+        });
+    </script>
     @stack('scripts')
     <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
 </body>
