@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:dev": "vite build --mode development",
         "dev": "vite"
+
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
