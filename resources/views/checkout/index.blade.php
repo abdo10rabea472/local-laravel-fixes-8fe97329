@@ -129,10 +129,16 @@
                     <div class="mt-5">
                         <label class="text-xs font-bold text-slate-500 mb-1.5 block">Promo code</label>
                         <div class="flex gap-2">
-                            <input type="text" id="coupon-code" class="flex-1 h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm uppercase focus:border-violet-300 focus:bg-white outline-none transition-colors" placeholder="Enter code">
-                            <button type="button" id="apply-coupon-btn" class="h-11 px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-colors text-sm">Apply</button>
+                            <input type="text" id="coupon-code" class="flex-1 h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm uppercase focus:border-violet-300 focus:bg-white outline-none transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed" placeholder="Enter code">
+                            <button type="button" id="apply-coupon-btn" class="h-11 px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-colors text-sm disabled:bg-slate-300 disabled:cursor-not-allowed">Apply</button>
                         </div>
                         <p id="coupon-message" class="text-xs mt-2 hidden"></p>
+                        <div id="coupon-discount-notice" class="hidden mt-2 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                            <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                لديك بالفعل منتجات عليها خصم في السلة، لذلك لا يمكن استخدام كود الخصم مع هذه الطلبية.
+                            </p>
+                        </div>
                     </div>
 
                     <button type="button" id="confirm-btn" class="w-full mt-6 h-12 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-violet-500/20">
@@ -169,10 +175,30 @@
     const applyCouponUrl = @json(route('checkout.apply-coupon'));
     const placeOrderUrl = @json(route('checkout.place-order'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const discountedProductIds = @json($discountedProductIds).map(String);
+    const discountNoticeEl = document.getElementById('coupon-discount-notice');
 
     let discountAmount = 0;
     let appliedCouponCode = null;
     let shippingCost = 0;
+
+    function cartHasDiscountedItem() {
+        return cart.some(i => discountedProductIds.includes(String(i.id)));
+    }
+
+    function syncCouponAvailability() {
+        const blocked = cartHasDiscountedItem();
+        discountNoticeEl.classList.toggle('hidden', !blocked);
+        applyCouponBtn.disabled = blocked;
+        couponInput.disabled = blocked;
+        if (blocked && appliedCouponCode) {
+            // Auto-remove any previously applied coupon
+            discountAmount = 0;
+            appliedCouponCode = null;
+            couponMsg.classList.add('hidden');
+            updateTotals();
+        }
+    }
 
     function saveCart() {
         localStorage.setItem('cart', JSON.stringify(cart));
@@ -188,6 +214,7 @@
             contentEl.classList.remove('hidden');
             renderItems();
         }
+        syncCouponAvailability();
     }
 
     refreshView();

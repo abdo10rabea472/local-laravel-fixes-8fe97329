@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Coupon;
+use App\Models\ProductDiscount;
 use App\Models\CouponRedemption;
 use App\Models\ShippingCountry;
 use Illuminate\Http\JsonResponse;
@@ -38,7 +39,10 @@ class CheckoutController extends Controller
                 ])->values(),
             ])->values();
 
-        return view('checkout.index', compact('seo', 'shippingCountries'));
+        // Currently discounted product IDs (so the UI can warn before user tries a coupon)
+        $discountedProductIds = ProductDiscount::active()->pluck('product_id')->map(fn ($id) => (int) $id)->values();
+
+        return view('checkout.index', compact('seo', 'shippingCountries', 'discountedProductIds'));
     }
 
     public function applyCoupon(Request $request): JsonResponse
@@ -56,6 +60,16 @@ class CheckoutController extends Controller
         $coupon = Coupon::where('code', strtoupper($data['code']))->first();
         if (! $coupon) {
             return response()->json(['ok' => false, 'message' => 'كود الخصم غير موجود.'], 200);
+        }
+
+        // Prevent stacking: if any cart item already has an active product discount, block the coupon.
+        $cartIds = collect($data['cart'])->pluck('id')->map(fn ($i) => (int) $i)->all();
+        $discountedInCart = ProductDiscount::active()->whereIn('product_id', $cartIds)->exists();
+        if ($discountedInCart) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'لديك بالفعل منتجات عليها خصم في السلة، لا يمكن استخدام كود الخصم مع منتجات مخفّضة.',
+            ], 200);
         }
 
         $userId = Auth::id();
