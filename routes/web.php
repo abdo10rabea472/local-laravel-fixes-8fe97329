@@ -153,18 +153,47 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::post('/orders/{order}/resend-email', [\App\Http\Controllers\Admin\OrderController::class, 'resendEmail'])->name('orders.resend-email');
     Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
 
+    // Customers
+    Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [\App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
+    Route::put('/customers/{customer}', [\App\Http\Controllers\Admin\CustomerController::class, 'update'])->name('customers.update');
+    Route::patch('/customers/{customer}/toggle-active', [\App\Http\Controllers\Admin\CustomerController::class, 'toggleActive'])->name('customers.toggle-active');
+    Route::post('/customers/{customer}/send-email', [\App\Http\Controllers\Admin\CustomerController::class, 'sendEmail'])->name('customers.send-email');
+
+    // Customer Groups
+    Route::get('/customer-groups', [\App\Http\Controllers\Admin\CustomerGroupController::class, 'index'])->name('customer-groups.index');
+    Route::post('/customer-groups', [\App\Http\Controllers\Admin\CustomerGroupController::class, 'store'])->name('customer-groups.store');
+    Route::put('/customer-groups/{group}', [\App\Http\Controllers\Admin\CustomerGroupController::class, 'update'])->name('customer-groups.update');
+    Route::delete('/customer-groups/{group}', [\App\Http\Controllers\Admin\CustomerGroupController::class, 'destroy'])->name('customer-groups.destroy');
+
+    // Reviews
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{review}/status', [\App\Http\Controllers\Admin\ReviewController::class, 'updateStatus'])->name('reviews.status');
+    Route::post('/reviews/{review}/reply', [\App\Http\Controllers\Admin\ReviewController::class, 'reply'])->name('reviews.reply');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
+
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('account.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Customer account area
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AccountController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders', [\App\Http\Controllers\AccountController::class, 'orders'])->name('orders');
+        Route::get('/orders/{order}', [\App\Http\Controllers\AccountController::class, 'order'])->name('orders.show');
+        Route::get('/reviews', [\App\Http\Controllers\AccountController::class, 'reviews'])->name('reviews');
+        Route::post('/reviews', [\App\Http\Controllers\AccountController::class, 'storeReview'])->name('reviews.store');
+    });
 });
+
 
 require __DIR__.'/auth.php';
