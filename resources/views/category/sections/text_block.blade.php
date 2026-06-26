@@ -1,18 +1,16 @@
 @php
-    $bgUrl = $section->background_image
-        ? asset('storage/' . $section->background_image)
-        : $college?->banner_url;
+    $body = is_array($section->content ?? null) ? ($section->content['body'] ?? null) : null;
+    $primary = $primary ?? '#10b981';
 @endphp
-@if($section->title || ($section->content['body'] ?? null))
-<section class="relative rounded-3xl overflow-hidden {{ $bgUrl ? '' : 'bg-white border border-slate-200' }}"
-    @if($bgUrl) style="background-image: url('{{ $bgUrl }}'); background-size: cover; background-position: center;" @endif>
-    @if($bgUrl)
-        <div class="absolute inset-0 bg-slate-900/50"></div>
-    @endif
-    <div class="relative z-10 p-6 sm:p-8">
-        @if($section->title)<h3 class="text-xl font-bold mb-3 {{ $bgUrl ? 'text-white' : 'text-slate-900' }}">{{ $section->title }}</h3>@endif
-        @if($section->content['body'] ?? false)
-            <div class="prose max-w-none {{ $bgUrl ? 'text-white/90' : 'text-slate-700' }}">{!! nl2br(e($section->content['body'])) !!}</div>
+@if($section->title || $body)
+<section class="relative rounded-3xl overflow-hidden bg-white border border-slate-200/70 shadow-[0_10px_30px_-15px_rgba(15,23,42,0.1)]">
+    <span class="absolute left-0 top-0 h-full w-1.5" style="background: linear-gradient(180deg, {{ $primary }}, {{ $secondary ?? $primary }});"></span>
+    <div class="relative z-10 p-6 sm:p-8 pl-8 sm:pl-10">
+        @if($section->title)
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3 tracking-tight">{{ $section->title }}</h3>
+        @endif
+        @if($body)
+            <div class="text-slate-600 leading-relaxed">{!! nl2br(e($body)) !!}</div>
         @endif
     </div>
 </section>
