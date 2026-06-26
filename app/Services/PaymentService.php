@@ -61,6 +61,26 @@ class PaymentService
                 ->setCurrency($order->currency ?: 'EGP')
                 ->pay();
 
+            $hasRedirect = ! empty($response['redirect_url']) || ! empty($response['html']);
+            $explicitOk  = array_key_exists('success', $response) ? (bool) $response['success'] : null;
+
+            // The driver returned a response but it neither redirects to the gateway
+            // nor returns embeddable HTML — treat this as a failure (e.g. invalid keys).
+            if ($explicitOk === false || ! $hasRedirect) {
+                $msg = $response['message'] ?? 'البوابة لم تُرجع رابط دفع — تحقق من بيانات الاعتماد في إعدادات البوابة.';
+                Log::warning('payment.pay.no_redirect', [
+                    'gateway'  => $gateway->code,
+                    'order_id' => $order->id,
+                    'response' => $response,
+                ]);
+                $order->forceFill([
+                    'payment_gateway'  => $gateway->code,
+                    'payment_status'   => 'failed',
+                    'payment_response' => $response,
+                ])->save();
+                return ['ok' => false, 'message' => $msg];
+            }
+
             // Persist reference for later verification
             $order->forceFill([
                 'payment_gateway'   => $gateway->code,
