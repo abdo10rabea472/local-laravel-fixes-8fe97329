@@ -1,29 +1,94 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('account.layout')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
+@section('account_content')
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="bg-gradient-to-l from-violet-600 via-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-violet-500/20 relative overflow-hidden">
+        <div class="absolute -left-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -right-10 -bottom-10 w-56 h-56 bg-amber-400/10 rounded-full blur-3xl"></div>
+        <div class="relative flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center text-4xl font-black shrink-0">
+                {{ mb_substr(auth()->user()->name, 0, 1) }}
             </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xs uppercase tracking-widest text-white/70 font-bold mb-1">بيانات الحساب</p>
+                <h1 class="text-2xl sm:text-3xl font-black truncate">{{ auth()->user()->name }}</h1>
+                <p class="text-white/80 text-sm truncate mt-1">
+                    <i class="fa-regular fa-envelope ml-1"></i> {{ auth()->user()->email }}
+                </p>
             </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
+            <a href="{{ route('account.dashboard') }}" class="hidden sm:inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur px-4 py-2 rounded-xl text-sm font-bold transition">
+                <i class="fa-solid fa-gauge-high"></i> لوحة التحكم
+            </a>
         </div>
     </div>
-</x-app-layout>
+
+    {{-- Tabs nav --}}
+    <div class="bg-white rounded-2xl border border-slate-200 p-1.5 flex flex-wrap gap-1 sticky top-4 z-10 shadow-sm">
+        <a href="#info" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-user-pen ml-1"></i> المعلومات الشخصية
+        </a>
+        <a href="#password" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-lock ml-1"></i> تغيير كلمة المرور
+        </a>
+        <a href="#danger" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition">
+            <i class="fa-solid fa-triangle-exclamation ml-1"></i> حذف الحساب
+        </a>
+    </div>
+
+    {{-- Info card --}}
+    <section id="info" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden scroll-mt-24">
+        <header class="px-6 sm:px-8 py-5 bg-gradient-to-l from-slate-50 to-white border-b border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                <i class="fa-solid fa-id-card"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-slate-900">المعلومات الشخصية</h2>
+                <p class="text-xs text-slate-500">حدّث اسمك وبريدك الإلكتروني</p>
+            </div>
+        </header>
+        <div class="p-6 sm:p-8">
+            @include('profile.partials.update-profile-information-form')
+        </div>
+    </section>
+
+    {{-- Password card --}}
+    <section id="password" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden scroll-mt-24">
+        <header class="px-6 sm:px-8 py-5 bg-gradient-to-l from-slate-50 to-white border-b border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-slate-900">كلمة المرور</h2>
+                <p class="text-xs text-slate-500">استخدم كلمة مرور قوية لتأمين حسابك</p>
+            </div>
+        </header>
+        <div class="p-6 sm:p-8">
+            @include('profile.partials.update-password-form')
+        </div>
+    </section>
+
+    {{-- Danger card --}}
+    <section id="danger" class="bg-white rounded-2xl border-2 border-rose-200 shadow-sm overflow-hidden scroll-mt-24">
+        <header class="px-6 sm:px-8 py-5 bg-rose-50 border-b border-rose-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-rose-900">منطقة الخطر</h2>
+                <p class="text-xs text-rose-600">حذف الحساب نهائي ولا يمكن التراجع عنه</p>
+            </div>
+        </header>
+        <div class="p-6 sm:p-8">
+            @include('profile.partials.delete-user-form')
+        </div>
+    </section>
+</div>
+
+<script>
+document.querySelectorAll('.profile-tab').forEach(t => t.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(t.getAttribute('href'))?.scrollIntoView({behavior:'smooth', block:'start'});
+}));
+</script>
+@endsection
