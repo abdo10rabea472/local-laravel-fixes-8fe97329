@@ -144,11 +144,11 @@
                                     @if($g->code === 'paymob' && $g->configValue('PAYMOB_WALLET_ENABLED') === '1')
                                         <div class="mt-3 grid grid-cols-2 gap-2 text-xs font-bold" data-paymob-channels>
                                             <label class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50 has-[:checked]:text-violet-700">
-                                                <input type="radio" name="paymob_channel" value="card" checked class="text-violet-600 focus:ring-violet-500">
+                                                <input type="radio" name="paymob_channel" value="card" checked data-parent-gateway="paymob" class="text-violet-600 focus:ring-violet-500">
                                                 <span>بطاقة</span>
                                             </label>
                                             <label class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 cursor-pointer has-[:checked]:border-violet-600 has-[:checked]:bg-violet-50 has-[:checked]:text-violet-700">
-                                                <input type="radio" name="paymob_channel" value="wallet" class="text-violet-600 focus:ring-violet-500">
+                                                <input type="radio" name="paymob_channel" value="wallet" data-parent-gateway="paymob" class="text-violet-600 focus:ring-violet-500">
                                                 <span>محفظة</span>
                                             </label>
                                         </div>
@@ -580,6 +580,16 @@
         regionSelect.disabled = true;
         if (unsupportedMsg) unsupportedMsg.classList.remove('hidden');
     }
+
+    // Selecting an inner Paymob channel (card/wallet) must also select the outer Paymob gateway radio.
+    document.querySelectorAll('input[name="paymob_channel"]').forEach((el) => {
+        el.addEventListener('change', () => {
+            const parentCode = el.dataset.parentGateway || 'paymob';
+            const outer = document.querySelector('input[name="payment_gateway"][value="' + parentCode + '"]');
+            if (outer) { outer.checked = true; outer.dispatchEvent(new Event('change', { bubbles: true })); }
+        });
+        el.addEventListener('click', (e) => e.stopPropagation());
+    });
 
     confirmBtn.addEventListener('click', async () => {
         const form = document.getElementById('checkout-form');
