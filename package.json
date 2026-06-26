@@ -3,9 +3,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "build:dev": "vite build --mode development",
+        "build": "vite build && mkdir -p dist && cp -r public/build/* dist/ 2>/dev/null || mkdir -p dist",
+        "build:dev": "vite build --mode development && mkdir -p dist && cp -r public/build/* dist/ 2>/dev/null || mkdir -p dist",
         "dev": "vite"
+
 
     },
     "devDependencies": {
