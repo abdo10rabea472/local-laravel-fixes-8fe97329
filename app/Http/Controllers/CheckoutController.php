@@ -95,28 +95,71 @@ class CheckoutController extends Controller
             'phone' => 'nullable|string',
         ]);
 
-        if (! empty($data['code'])) {
-            $coupon = Coupon::where('code', strtoupper($data['code']))->first();
-            if ($coupon) {
-                $result = $coupon->validateFor($data['cart'], Auth::id(), $data['email'], $data['phone'] ?? null);
-                if (! $result['ok']) {
-                    return response()->json(['ok' => false, 'message' => $result['message']], 422);
+        // Aggregate quantities per product (defends against duplicate lines in cart)
+        $requested = [];
+        foreach ($data['cart'] as $line) {
+            $pid = (int) $line['id'];
+            $qty = (int) $line['quantity'];
+            if ($pid <= 0 || $qty <= 0) {
+                continue;
+            }
+            $requested[$pid] = ($requested[$pid] ?? 0) + $qty;
+        }
+
+        if (empty($requested)) {
+            return response()->json(['ok' => false, 'message' => 'Cart is empty.'], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($requested, $data) {
+                // Lock product rows to prevent race conditions / overselling
+                $products = Product::whereIn('id', array_keys($requested))
+                    ->lockForUpdate()
+                    ->get(['id', 'name', 'stock']);
+
+                if ($products->count() !== count($requested)) {
+                    throw new \RuntimeException('One or more products are no longer available.');
                 }
 
-                DB::transaction(function () use ($coupon, $result, $data) {
-                    CouponRedemption::create([
-                        'coupon_id' => $coupon->id,
-                        'user_id' => Auth::id(),
-                        'email' => strtolower(trim($data['email'])),
-                        'phone' => $data['phone'] ?? null,
-                        'order_total' => $result['subtotal'] ?? 0,
-                        'discount_amount' => $result['discount'] ?? 0,
-                        'used_at' => now(),
-                    ]);
-                    $coupon->increment('used_count');
-                });
-            }
+                foreach ($products as $product) {
+                    $need = $requested[$product->id];
+                    if ((int) $product->stock < $need) {
+                        throw new \RuntimeException("Insufficient stock for: {$product->name}.");
+                    }
+                }
+
+                // Atomic decrement
+                foreach ($products as $product) {
+                    Product::where('id', $product->id)
+                        ->where('stock', '>=', $requested[$product->id])
+                        ->update(['stock' => DB::raw('stock - ' . (int) $requested[$product->id])]);
+                }
+
+                // Coupon redemption (kept inside same transaction for consistency)
+                if (! empty($data['code'])) {
+                    $coupon = Coupon::where('code', strtoupper($data['code']))->first();
+                    if ($coupon) {
+                        $result = $coupon->validateFor($data['cart'], Auth::id(), $data['email'], $data['phone'] ?? null);
+                        if (! $result['ok']) {
+                            throw new \RuntimeException($result['message']);
+                        }
+                        CouponRedemption::create([
+                            'coupon_id' => $coupon->id,
+                            'user_id' => Auth::id(),
+                            'email' => strtolower(trim($data['email'])),
+                            'phone' => $data['phone'] ?? null,
+                            'order_total' => $result['subtotal'] ?? 0,
+                            'discount_amount' => $result['discount'] ?? 0,
+                            'used_at' => now(),
+                        ]);
+                        $coupon->increment('used_count');
+                    }
+                }
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 422);
         }
+
 
         return response()->json([
             'ok' => true,
