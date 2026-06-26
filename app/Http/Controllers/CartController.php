@@ -154,12 +154,9 @@ class CartController extends Controller
     {
         $p = $item->product;
         $price = (float) ($p->sale_price ?? $p->price);
-        $image = optional($p->images->first())->url ?? optional($p->images->first())->image_path ?? '';
-        // Fallback for image url accessor variants
-        if (! $image && $p->images->first()) {
-            $first = $p->images->first();
-            $image = $first->image_url ?? '';
-        }
+        $firstImg = $p->images->first();
+        $image = $firstImg ? $firstImg->getUrl('thumb') : '';
+
         return [
             'id' => (int) $p->id,
             'name' => $p->name,
