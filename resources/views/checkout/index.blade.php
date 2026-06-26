@@ -327,7 +327,8 @@
     function updateTotals() {
         calculateShipping();
         const st = subtotal();
-        const discount = Math.round(st * (discountPercent / 100));
+        // Re-cap discount in case cart shrank
+        const discount = Math.min(discountAmount, st);
         const total = Math.max(0, st + shippingCost - discount);
         subtotalEl.textContent = st.toLocaleString() + ' EGP';
         totalEl.textContent = total.toLocaleString() + ' EGP';
@@ -349,20 +350,47 @@
         }
     }
 
-    function applyCoupon() {
+    async function applyCoupon() {
         const code = couponInput.value.trim().toUpperCase();
         if (!code) return;
-        if (code === welcomeCode.toUpperCase()) {
-            discountPercent = welcomePercent;
-            couponMsg.textContent = `Coupon applied: ${welcomePercent}% OFF`;
-            couponMsg.className = 'text-xs mt-2 text-emerald-600 font-bold';
-        } else {
-            discountPercent = 0;
-            couponMsg.textContent = 'Invalid coupon code.';
+        const emailInput = document.querySelector('input[name="email"]');
+        const phoneInput = document.querySelector('input[name="phone"]');
+
+        applyCouponBtn.disabled = true;
+        applyCouponBtn.textContent = '...';
+        try {
+            const res = await fetch(applyCouponUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({
+                    code,
+                    cart: cart.map(i => ({ id: i.id, price: i.price, quantity: i.quantity || 1 })),
+                    email: emailInput?.value || null,
+                    phone: phoneInput?.value || null,
+                }),
+            });
+            const json = await res.json();
+            if (json.ok) {
+                discountAmount = parseFloat(json.discount) || 0;
+                appliedCouponCode = code;
+                couponMsg.textContent = `تم تطبيق الكود ${code} — خصم ${discountAmount.toLocaleString()} EGP`;
+                couponMsg.className = 'text-xs mt-2 text-emerald-600 font-bold';
+            } else {
+                discountAmount = 0;
+                appliedCouponCode = null;
+                couponMsg.textContent = json.message || 'كود غير صالح.';
+                couponMsg.className = 'text-xs mt-2 text-rose-600 font-bold';
+            }
+            couponMsg.classList.remove('hidden');
+            updateTotals();
+        } catch (e) {
+            couponMsg.textContent = 'تعذّر التحقق من الكود. حاول مرة أخرى.';
             couponMsg.className = 'text-xs mt-2 text-rose-600 font-bold';
+            couponMsg.classList.remove('hidden');
+        } finally {
+            applyCouponBtn.disabled = false;
+            applyCouponBtn.textContent = 'Apply';
         }
-        couponMsg.classList.remove('hidden');
-        updateTotals();
     }
 
     applyCouponBtn.addEventListener('click', applyCoupon);
@@ -397,14 +425,41 @@
         if (unsupportedMsg) unsupportedMsg.classList.remove('hidden');
     }
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
         const form = document.getElementById('checkout-form');
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
         }
-        localStorage.removeItem('cart');
-        window.location.href = @json(route('pages.payment-success'));
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '...';
+        try {
+            const res = await fetch(placeOrderUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({
+                    code: appliedCouponCode,
+                    cart: cart.map(i => ({ id: i.id, price: i.price, quantity: i.quantity || 1 })),
+                    email: form.email.value,
+                    phone: form.phone.value,
+                }),
+            });
+            const json = await res.json();
+            if (!json.ok) {
+                couponMsg.textContent = json.message || 'تعذّر إتمام الطلب.';
+                couponMsg.className = 'text-xs mt-2 text-rose-600 font-bold';
+                couponMsg.classList.remove('hidden');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Confirm Order';
+                return;
+            }
+            localStorage.removeItem('cart');
+            window.location.href = json.redirect;
+        } catch (e) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Confirm Order';
+            alert('تعذّر إتمام الطلب. حاول لاحقاً.');
+        }
     });
 })();
 </script>
