@@ -101,10 +101,109 @@
                 </button>
             </div>
 
-            <!-- Shipping -->
+            <!-- Shipment (carrier API) -->
+            @if($order->carrier)
+            <div class="bg-white rounded-2xl border border-slate-200 p-4">
+                <h3 class="font-bold mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-truck-fast text-violet-600"></i> الشحنة
+                    @if($order->shipping_status)
+                        <span class="text-[10px] px-2 py-1 rounded-full bg-violet-100 text-violet-700">{{ $order->shipping_status }}</span>
+                    @endif
+                </h3>
+
+                @if($order->shipping_error)
+                    <div class="mb-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                        <p class="font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> فشل إنشاء الشحنة</p>
+                        <p class="break-words">{{ $order->shipping_error }}</p>
+                        <p class="mt-1 text-[10px] opacity-70">عدد المحاولات: {{ $order->shipping_attempts }}</p>
+                    </div>
+                @endif
+
+                <div class="text-xs space-y-1 mb-3">
+                    <p><b>الشركة:</b> {{ $order->carrier->name }}</p>
+                    @if($order->shipment_number)
+                        <p><b>رقم الشحنة:</b> <span class="font-mono">{{ $order->shipment_number }}</span></p>
+                    @endif
+                    @if($order->tracking_number)
+                        <p><b>رقم التتبع:</b> <span class="font-mono">{{ $order->tracking_number }}</span></p>
+                    @endif
+                    @if($order->shipment_created_at)
+                        <p><b>أنشئت في:</b> {{ $order->shipment_created_at->format('Y-m-d H:i') }}</p>
+                    @endif
+                </div>
+
+                @if($order->barcode)
+                    <div class="mb-3 p-2 bg-white rounded-lg border border-slate-200 text-center">
+                        <p class="text-[10px] text-slate-500 mb-1">الباركود</p>
+                        <img src="https://barcode.tec-it.com/barcode.ashx?data={{ urlencode($order->barcode) }}&code=Code128&dpi=96"
+                             alt="Barcode" class="mx-auto h-12">
+                        <p class="text-[10px] font-mono mt-1">{{ $order->barcode }}</p>
+                    </div>
+                @endif
+
+                @if($order->pickup_address)
+                    <div class="mb-3 p-2 rounded-lg bg-slate-50 text-xs">
+                        <p class="font-bold mb-1">عنوان الاستلام</p>
+                        @foreach((array) $order->pickup_address as $k => $v)
+                            @if(!is_array($v))<p><span class="text-slate-500">{{ $k }}:</span> {{ $v }}</p>@endif
+                        @endforeach
+                        @if($order->pickup_datetime)
+                            <p class="mt-1"><b>موعد الاستلام:</b> {{ $order->pickup_datetime->format('Y-m-d H:i') }}</p>
+                        @endif
+                    </div>
+                @endif
+
+                <div class="grid grid-cols-2 gap-2">
+                    @if($order->label_url)
+                        <a href="{{ $order->label_url }}" target="_blank" rel="noopener"
+                           class="h-9 inline-flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-xs">
+                            <i class="fa-solid fa-print ml-1"></i> طباعة البوليصة
+                        </a>
+                        <a href="{{ $order->label_url }}" download
+                           class="h-9 inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs">
+                            <i class="fa-solid fa-download ml-1"></i> تحميل
+                        </a>
+                    @endif
+                    @if($order->tracking_url)
+                        <a href="{{ $order->tracking_url }}" target="_blank" rel="noopener"
+                           class="col-span-2 h-9 inline-flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs">
+                            <i class="fa-solid fa-location-arrow ml-1"></i> صفحة التتبع لدى الشركة
+                        </a>
+                    @endif
+                    @if($order->shipment_number)
+                        <form method="POST" action="{{ route('admin.orders.shipment.sync', $order) }}" class="col-span-2">@csrf
+                            <button type="submit" class="w-full h-9 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl font-bold text-xs">
+                                <i class="fa-solid fa-arrows-rotate ml-1"></i> مزامنة حالة الشحنة
+                            </button>
+                        </form>
+                    @endif
+                    @if(!$order->shipment_number && $order->shipping_carrier_id)
+                        <form method="POST" action="{{ route('admin.orders.shipment.retry', $order) }}" class="col-span-2">@csrf
+                            <button type="submit" class="w-full h-9 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs">
+                                <i class="fa-solid fa-rotate ml-1"></i> إعادة محاولة إنشاء الشحنة
+                            </button>
+                        </form>
+                    @endif
+                </div>
+
+                @if(!empty($order->tracking_history) && is_array($order->tracking_history))
+                    <div class="mt-3 border-t pt-3 max-h-40 overflow-y-auto">
+                        <p class="text-[10px] font-bold text-slate-500 mb-2">سجل التتبع</p>
+                        @foreach(array_reverse($order->tracking_history) as $ev)
+                            <div class="text-[11px] text-slate-600 border-r-2 border-violet-200 pr-2 py-1 mb-1">
+                                <div class="font-semibold">{{ $ev['status'] ?? '' }} <span class="text-slate-400">{{ $ev['at'] ?? '' }}</span></div>
+                                <div class="text-slate-500">{{ $ev['description'] ?? '' }} {{ !empty($ev['location']) ? '— '.$ev['location'] : '' }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            @endif
+
+            <!-- Manual shipping override -->
             @php $carriers = \App\Models\ShippingCarrier::active()->orderBy('sort_order')->get(['id','name','default_cost']); @endphp
             <div class="bg-white rounded-2xl border border-slate-200 p-4">
-                <h3 class="font-bold mb-3">معلومات الشحن</h3>
+                <h3 class="font-bold mb-3">تعديل يدوي للشحن</h3>
                 <label class="block text-xs text-slate-500 mb-1">شركة الشحن</label>
                 <select x-model="carrierId" @change="onCarrierChange()" class="w-full h-10 px-3 border border-slate-200 rounded-xl text-sm mb-2">
                     <option value="">— اختر —</option>
@@ -119,36 +218,8 @@
                 <label class="block text-xs text-slate-500 mb-1">ملاحظات الشحن</label>
                 <textarea x-model="shipNotes" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm mb-2"></textarea>
                 <button @click="updateShipping()" :disabled="busy" class="w-full h-10 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm">حفظ بيانات الشحن</button>
-                @if($order->tracking_number && $order->carrier)
-                    @php $trackUrl = $order->carrier->buildTrackingUrl($order->tracking_number); @endphp
-                    @if($trackUrl)
-                        <a href="{{ $trackUrl }}" target="_blank" class="block text-center mt-2 text-violet-600 text-xs font-semibold hover:underline">
-                            <i class="fa-solid fa-truck-fast ml-1"></i> فتح صفحة تتبع الشركة
-                        </a>
-                    @endif
-                    @if($order->carrier->api_endpoint)
-                        <form method="POST" action="{{ route('admin.orders.refresh-tracking', $order) }}" class="mt-2">@csrf
-                            <button type="submit" class="w-full h-9 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl font-bold text-xs">
-                                <i class="fa-solid fa-arrows-rotate"></i> تحديث التتبع عبر API
-                            </button>
-                        </form>
-                        @if($order->tracking_last_sync_at)
-                            <p class="text-[10px] text-slate-400 text-center mt-1">آخر مزامنة: {{ $order->tracking_last_sync_at->diffForHumans() }} — حالة: <b>{{ $order->tracking_status ?: '—' }}</b></p>
-                        @endif
-                    @endif
-                    @if(!empty($order->tracking_history) && is_array($order->tracking_history))
-                        <div class="mt-3 border-t pt-3 max-h-40 overflow-y-auto">
-                            <p class="text-[10px] font-bold text-slate-500 mb-2">سجل التتبع</p>
-                            @foreach(array_reverse($order->tracking_history) as $ev)
-                                <div class="text-[11px] text-slate-600 border-r-2 border-violet-200 pr-2 py-1 mb-1">
-                                    <div class="font-semibold">{{ $ev['status'] ?? '' }} <span class="text-slate-400">{{ $ev['at'] ?? '' }}</span></div>
-                                    <div class="text-slate-500">{{ $ev['description'] ?? '' }} {{ !empty($ev['location']) ? '— '.$ev['location'] : '' }}</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                @endif
             </div>
+
         </div>
     </div>
 </div>
