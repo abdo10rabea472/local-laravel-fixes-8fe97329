@@ -130,9 +130,16 @@ class CheckoutController extends Controller
             'cart.*.quantity' => 'required|integer|min:1',
             'email' => 'required|email',
             'phone' => 'nullable|string',
+            'customer_name' => 'nullable|string|max:150',
+            'shipping_country' => 'nullable|string|max:100',
+            'shipping_region' => 'nullable|string|max:100',
+            'shipping_address' => 'nullable|string|max:255',
+            'shipping_city' => 'nullable|string|max:100',
+            'shipping_postcode' => 'nullable|string|max:20',
+            'shipping_cost' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Aggregate quantities per product (defends against duplicate lines in cart)
         $requested = [];
         foreach ($data['cart'] as $line) {
             $pid = (int) $line['id'];
@@ -147,9 +154,10 @@ class CheckoutController extends Controller
             return response()->json(['ok' => false, 'message' => 'Cart is empty.'], 422);
         }
 
+        $createdOrder = null;
+
         try {
-            DB::transaction(function () use ($requested, $data) {
-                // Lock product rows to prevent race conditions / overselling
+            $createdOrder = DB::transaction(function () use ($requested, $data) {
                 $products = Product::whereIn('id', array_keys($requested))
                     ->lockForUpdate()
                     ->get(['id', 'name', 'stock', 'price', 'sale_price']);
@@ -159,20 +167,36 @@ class CheckoutController extends Controller
                 }
 
                 foreach ($products as $product) {
-                    $need = $requested[$product->id];
-                    if ((int) $product->stock < $need) {
+                    if ((int) $product->stock < $requested[$product->id]) {
                         throw new \RuntimeException("Insufficient stock for: {$product->name}.");
                     }
                 }
 
-                // Atomic decrement (avoids brittle DB::raw string concat).
                 foreach ($products as $product) {
                     Product::where('id', $product->id)
                         ->where('stock', '>=', $requested[$product->id])
                         ->decrement('stock', (int) $requested[$product->id]);
                 }
 
-                // Coupon redemption — rebuild cart with DB-trusted prices, never client prices.
+                // Build server-trusted items + totals
+                $items = [];
+                $subtotal = 0.0;
+                foreach ($products as $p) {
+                    $price = (float) ($p->sale_price ?? $p->price);
+                    $qty = (int) $requested[$p->id];
+                    $line = round($price * $qty, 2);
+                    $subtotal += $line;
+                    $items[] = [
+                        'product_id' => $p->id,
+                        'product_name' => $p->name,
+                        'unit_price' => $price,
+                        'quantity' => $qty,
+                        'line_total' => $line,
+                    ];
+                }
+
+                $discount = 0.0;
+                $couponCode = null;
                 if (! empty($data['code'])) {
                     $coupon = Coupon::where('code', strtoupper($data['code']))->first();
                     if ($coupon) {
@@ -186,18 +210,67 @@ class CheckoutController extends Controller
                         if (! $result['ok']) {
                             throw new \RuntimeException($result['message']);
                         }
+                        $discount = (float) ($result['discount'] ?? 0);
+                        $couponCode = $coupon->code;
+
                         CouponRedemption::create([
                             'coupon_id' => $coupon->id,
                             'user_id' => Auth::id(),
                             'email' => strtolower(trim($data['email'])),
                             'phone' => $data['phone'] ?? null,
                             'order_total' => $result['subtotal'] ?? 0,
-                            'discount_amount' => $result['discount'] ?? 0,
+                            'discount_amount' => $discount,
                             'used_at' => now(),
                         ]);
                         $coupon->increment('used_count');
                     }
                 }
+
+                $shipping = (float) ($data['shipping_cost'] ?? 0);
+                $total = max(0, round($subtotal - $discount + $shipping, 2));
+
+                $order = \App\Models\Order::create([
+                    'order_number' => \App\Models\Order::generateNumber(),
+                    'user_id' => Auth::id(),
+                    'customer_name' => $data['customer_name'] ?? null,
+                    'email' => strtolower(trim($data['email'])),
+                    'phone' => $data['phone'] ?? null,
+                    'shipping_country' => $data['shipping_country'] ?? null,
+                    'shipping_region' => $data['shipping_region'] ?? null,
+                    'shipping_address' => $data['shipping_address'] ?? null,
+                    'shipping_city' => $data['shipping_city'] ?? null,
+                    'shipping_postcode' => $data['shipping_postcode'] ?? null,
+                    'notes' => $data['notes'] ?? null,
+                    'subtotal' => $subtotal,
+                    'discount_amount' => $discount,
+                    'coupon_code' => $couponCode,
+                    'shipping_cost' => $shipping,
+                    'total' => $total,
+                    'currency' => 'EGP',
+                    'status' => 'pending',
+                    'payment_status' => 'unpaid',
+                ]);
+
+                foreach ($items as $it) {
+                    $order->items()->create($it);
+                }
+
+                \App\Models\OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'from_status' => null,
+                    'to_status' => 'pending',
+                    'note' => 'Order placed',
+                    'changed_by_type' => Auth::id() ? 'user' : 'guest',
+                    'changed_by_id' => Auth::id(),
+                ]);
+
+                // Clear cart
+                \App\Models\CartItem::query()
+                    ->when(Auth::id(), fn ($q) => $q->where('user_id', Auth::id()))
+                    ->when(! Auth::id(), fn ($q) => $q->where('session_id', session()->getId()))
+                    ->delete();
+
+                return $order;
             });
         } catch (\Throwable $e) {
             AuditLog::record('checkout.order.failed', [
@@ -209,17 +282,31 @@ class CheckoutController extends Controller
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 422);
         }
 
+        // Send confirmation email (non-blocking failure)
+        try {
+            \Illuminate\Support\Facades\Mail::to($createdOrder->email)
+                ->send(new \App\Mail\OrderStatusMail($createdOrder->load('items'), 'placed'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Order placed mail failed', ['err' => $e->getMessage()]);
+        }
+
+        cache()->forget('admin.orders.stats');
+
         AuditLog::record('checkout.order.placed', [
+            'order_id' => $createdOrder->id,
+            'order_number' => $createdOrder->order_number,
             'items' => array_sum($requested),
-            'distinct' => count($requested),
-            'coupon' => ! empty($data['code']) ? strtoupper($data['code']) : null,
+            'total' => (float) $createdOrder->total,
+            'coupon' => $createdOrder->coupon_code,
         ], Auth::id() ? 'user' : 'guest', Auth::id());
 
         return response()->json([
             'ok' => true,
+            'order_number' => $createdOrder->order_number,
             'redirect' => route('pages.payment-success'),
         ]);
     }
+
 
     /**
      * Rebuild the cart using prices read from the database, ignoring any
