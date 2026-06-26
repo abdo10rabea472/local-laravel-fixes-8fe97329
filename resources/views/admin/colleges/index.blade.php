@@ -71,7 +71,7 @@
                                 <a href="{{ route('category.show', $college->slug) }}" target="_blank" class="text-slate-500 hover:text-slate-700" title="معاينة">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <form method="POST" action="{{ route('admin.colleges.destroy', $college) }}" onsubmit="return confirm('حذف الكلية؟')">
+                                <form method="POST" action="{{ route('admin.colleges.destroy', $college) }}" data-ajax-confirm="حذف الكلية؟" data-ajax-remove>
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
                                 </form>

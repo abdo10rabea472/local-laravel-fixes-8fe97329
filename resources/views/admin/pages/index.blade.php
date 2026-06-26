@@ -41,7 +41,7 @@
                             <a href="{{ route('admin.pages.edit', $page) }}" class="text-violet-600 hover:text-violet-800">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <form method="POST" action="{{ route('admin.pages.destroy', $page) }}" onsubmit="return confirm('حذف الصفحة؟')">
+                            <form method="POST" action="{{ route('admin.pages.destroy', $page) }}" data-ajax-confirm="حذف الصفحة؟" data-ajax-remove>
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500 hover:text-rose-700">
                                     <i class="fa-solid fa-trash"></i>

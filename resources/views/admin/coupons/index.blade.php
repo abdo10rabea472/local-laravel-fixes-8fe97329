@@ -63,7 +63,7 @@
                             @csrf @method('PATCH')
                             <button class="text-amber-600 hover:underline text-xs font-bold mx-2">{{ $c->is_active ? 'تعطيل' : 'تفعيل' }}</button>
                         </form>
-                        <form action="{{ route('admin.coupons.destroy', $c) }}" method="POST" class="inline" onsubmit="return confirm('حذف الكود؟')">
+                        <form action="{{ route('admin.coupons.destroy', $c) }}" method="POST" class="inline" data-ajax-confirm="حذف الكود؟" data-ajax-remove>
                             @csrf @method('DELETE')
                             <button class="text-rose-600 hover:underline text-xs font-bold">حذف</button>
                         </form>

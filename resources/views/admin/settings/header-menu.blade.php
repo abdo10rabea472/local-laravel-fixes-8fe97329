@@ -72,7 +72,7 @@
                             <button @click="openEdit(@js($item))" class="text-violet-600 hover:text-violet-800">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $item) }}" onsubmit="return confirm('حذف العنصر؟')" class="inline">
+                            <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $item) }}" data-ajax-confirm="حذف العنصر؟" data-ajax-remove class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500 hover:text-rose-700">
                                     <i class="fa-solid fa-trash"></i>
@@ -106,7 +106,7 @@
                                 <button @click="openEdit(@js($child))" class="text-violet-600 hover:text-violet-800 text-sm">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $child) }}" onsubmit="return confirm('حذف العنصر الفرعي؟')" class="inline">
+                                <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $child) }}" data-ajax-confirm="حذف العنصر الفرعي؟" data-ajax-remove class="inline">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700 text-sm">
                                         <i class="fa-solid fa-trash"></i>

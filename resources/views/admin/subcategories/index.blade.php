@@ -68,7 +68,7 @@
                         <div class="flex gap-2">
                             <a href="{{ route('admin.subcategories.edit', $sub) }}" class="text-violet-600"><i class="fa-solid fa-pen"></i></a>
                             <a href="{{ route('category.show', $sub->slug) }}" target="_blank" class="text-slate-500"><i class="fa-solid fa-eye"></i></a>
-                            <form method="POST" action="{{ route('admin.subcategories.destroy', $sub) }}" onsubmit="return confirm('حذف التصنيف؟')">
+                            <form method="POST" action="{{ route('admin.subcategories.destroy', $sub) }}" data-ajax-confirm="حذف التصنيف؟" data-ajax-remove>
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500"><i class="fa-solid fa-trash"></i></button>
                             </form>

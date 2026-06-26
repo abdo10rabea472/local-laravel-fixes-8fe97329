@@ -175,7 +175,7 @@
                         <button @click="openEditCountry(@js($country))" class="h-9 w-9 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-600 flex items-center justify-center">
                             <i class="fa-solid fa-pen text-xs"></i>
                         </button>
-                        <form method="POST" action="{{ route('admin.settings.shipping.countries.destroy', $country) }}" onsubmit="return confirm('حذف الدولة وجميع مناطقها؟')" class="inline">
+                        <form method="POST" action="{{ route('admin.settings.shipping.countries.destroy', $country) }}" data-ajax-confirm="حذف الدولة وجميع مناطقها؟" data-ajax-remove class="inline">
                             @csrf @method('DELETE')
                             <button type="submit" class="h-9 w-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center">
                                 <i class="fa-solid fa-trash text-xs"></i>
@@ -227,7 +227,7 @@
                                                 <button @click="openEditRegion(@js($region))" class="text-violet-600 hover:text-violet-800">
                                                     <i class="fa-solid fa-pen"></i>
                                                 </button>
-                                                <form method="POST" action="{{ route('admin.settings.shipping.regions.destroy', $region) }}" onsubmit="return confirm('حذف المنطقة؟')" class="inline">
+                                                <form method="POST" action="{{ route('admin.settings.shipping.regions.destroy', $region) }}" data-ajax-confirm="حذف المنطقة؟" data-ajax-remove class="inline">
                                                     @csrf @method('DELETE')
                                                     <button type="submit" class="text-rose-500 hover:text-rose-700">
                                                         <i class="fa-solid fa-trash"></i>
