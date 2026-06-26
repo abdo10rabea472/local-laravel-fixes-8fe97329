@@ -86,7 +86,7 @@
     <div x-show="openForm" x-cloak class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4" @click.self="openForm = false">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6">
             <h3 class="text-lg font-bold mb-4" x-text="edit ? 'تعديل خصم' : 'إضافة خصم'"></h3>
-            <form :action="edit ? `{{ url('admin/product-discounts') }}/${edit.id}` : `{{ route('admin.product-discounts.store') }}`" method="POST" class="space-y-3" data-ajax data-success-toast="تم الحفظ بنجاح" @ul:success.window="openForm = false; setTimeout(()=>window.location.reload(), 400)">
+            <form :action="edit ? `{{ url('admin/product-discounts') }}/${edit.id}` : `{{ route('admin.product-discounts.store') }}`" method="POST" class="space-y-3" data-ajax data-success-toast="تم الحفظ بنجاح">
                 @csrf
                 <template x-if="edit">@method('PUT')</template>
                 <input type="hidden" name="_method" :value="edit ? 'PUT' : 'POST'">
