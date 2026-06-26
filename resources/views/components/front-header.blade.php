@@ -46,9 +46,12 @@
                 </a>
                 @endif
             </div>
+            @if(site_setting('free_shipping_enabled', '1') === '1' && site_setting('free_shipping_show_in_header', '1') === '1')
             <p class="font-semibold text-amber-400 text-center">
-            Free shipping on orders over {{ number_format((float) site_setting('free_shipping_threshold', 2000), 0) }} EGP
-        </p>
+                Free shipping on orders over {{ number_format((float) site_setting('free_shipping_threshold', 2000), 0) }} EGP
+            </p>
+            @endif
+
             <div class="flex items-center gap-4">
                 @if(($navTopMenu ?? collect())->isNotEmpty())
                     @foreach($navTopMenu as $item)
