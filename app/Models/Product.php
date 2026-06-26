@@ -82,6 +82,17 @@ class Product extends Model
         return $this->hasMany(ProductDiscount::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviewsAvgAttribute()
+    {
+        return $this->reviews()->approved()->avg('rating');
+    }
+
+
     public function activeDiscount(): HasOne
     {
         return $this->hasOne(ProductDiscount::class)->active()->latestOfMany();

@@ -117,5 +117,7 @@
         </div>
         @endif
     </div>
+@include('product.partials.reviews', ['product' => $product])
 </main>
+
 @endsection
