@@ -67,6 +67,8 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ asset('js/main.js') }}"></script>
     <script defer src="{{ asset('js/swiper.js') }}"></script>
+    {{-- Instant page navigation: prefetches links on hover/touchstart --}}
+    <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"></script>
     @stack('scripts')
 </body>
 </html>
