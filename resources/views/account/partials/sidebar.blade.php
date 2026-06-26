@@ -14,6 +14,7 @@
         @php $items = [
             ['account.dashboard','fa-gauge-high','لوحة التحكم'],
             ['account.orders','fa-receipt','طلباتي'],
+            ['account.returns.index','fa-rotate-left','مرتجعاتي'],
             ['account.reviews','fa-star','مراجعاتي'],
             ['profile.edit','fa-user-pen','بيانات الحساب'],
         ]; @endphp
