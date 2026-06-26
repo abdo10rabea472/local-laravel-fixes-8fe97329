@@ -350,3 +350,52 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    if (!window.UL) return;
+    const SELECTOR = '#products-results';
+    const BASE = @json(route('category.show', $category->slug));
+
+    function formToUrl(form) {
+        const action = (form.getAttribute('action') || BASE).split('#')[0];
+        const params = new URLSearchParams(new FormData(form));
+        for (const [k, v] of [...params.entries()]) if (v === '' || v === null) params.delete(k);
+        const qs = params.toString();
+        return qs ? `${action}?${qs}` : action;
+    }
+    async function go(url) { try { await window.UL.swap(url, SELECTOR, { scrollTo: '#products' }); } catch (_) {} }
+
+    document.addEventListener('submit', (e) => {
+        const form = e.target.closest('form');
+        if (!form) return;
+        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get') return;
+        const action = form.getAttribute('action') || '';
+        if (!action.startsWith(BASE)) return;
+        e.preventDefault();
+        go(formToUrl(form));
+    });
+    document.addEventListener('change', (e) => {
+        if (!e.target.matches('select[name="sort"]')) return;
+        const form = e.target.form;
+        if (!form || !(form.getAttribute('action') || '').startsWith(BASE)) return;
+        e.preventDefault();
+        go(formToUrl(form));
+    });
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest(`${SELECTOR} a[href]`);
+        if (!a || a.target === '_blank') return;
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        try {
+            const u = new URL(href, window.location.origin);
+            if (u.origin !== window.location.origin) return;
+            if (!u.pathname.startsWith(new URL(BASE).pathname)) return;
+        } catch (_) { return; }
+        e.preventDefault();
+        go(href);
+    });
+})();
+</script>
+@endpush
