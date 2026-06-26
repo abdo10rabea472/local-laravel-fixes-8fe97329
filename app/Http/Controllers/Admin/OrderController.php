@@ -165,6 +165,27 @@ class OrderController extends Controller
         return $this->jsonOrBack($request, (bool) $res['ok'], $res['message']);
     }
 
+    /** Retry shipment creation for orders where it previously failed. */
+    public function retryShipment(Request $request, Order $order, \App\Services\ShippingDispatchService $dispatcher)
+    {
+        if ($order->shipment_number) {
+            return $this->jsonOrBack($request, false, 'الشحنة موجودة بالفعل، لا حاجة لإعادة الإنشاء.');
+        }
+        if (!$order->shipping_carrier_id) {
+            return $this->jsonOrBack($request, false, 'حدّد شركة الشحن أولاً.');
+        }
+        $res = $dispatcher->createForOrder($order->fresh());
+        return $this->jsonOrBack($request, (bool) $res['ok'], $res['message'] ?? ($res['ok'] ? 'تم إنشاء الشحنة.' : 'فشل إنشاء الشحنة.'));
+    }
+
+    /** Resync live shipment status from carrier. */
+    public function syncShipment(Request $request, Order $order, \App\Services\ShippingDispatchService $dispatcher)
+    {
+        $res = $dispatcher->syncStatus($order);
+        return $this->jsonOrBack($request, (bool) $res['ok'], $res['message'] ?? 'تمت المزامنة.');
+    }
+
+
 
     public function invoice(Order $order)
     {

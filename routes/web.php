@@ -162,7 +162,10 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::patch('/orders/{order}/shipping', [\App\Http\Controllers\Admin\OrderController::class, 'updateShipping'])->name('orders.shipping');
     Route::post('/orders/{order}/resend-email', [\App\Http\Controllers\Admin\OrderController::class, 'resendEmail'])->name('orders.resend-email');
     Route::post('/orders/{order}/refresh-tracking', [\App\Http\Controllers\Admin\OrderController::class, 'refreshTracking'])->name('orders.refresh-tracking');
+    Route::post('/orders/{order}/shipment/retry', [\App\Http\Controllers\Admin\OrderController::class, 'retryShipment'])->name('orders.shipment.retry');
+    Route::post('/orders/{order}/shipment/sync',  [\App\Http\Controllers\Admin\OrderController::class, 'syncShipment'])->name('orders.shipment.sync');
     Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
+
 
     // Reports & Analytics
     Route::get('/reports/analytics', [\App\Http\Controllers\Admin\ReportController::class, 'analytics'])->name('reports.analytics');
