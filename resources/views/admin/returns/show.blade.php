@@ -114,6 +114,32 @@
                 </ul>
             </div>
 
+            {{-- Aramex pickup --}}
+            <div class="bg-white rounded-2xl shadow-sm border p-6">
+                <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs font-bold">A</span>
+                    استلام Aramex
+                </h3>
+                @if($return->pickup_guid)
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs space-y-1">
+                        <p class="font-bold text-emerald-700">✓ تمت جدولة الاستلام</p>
+                        <p>رقم: <span class="font-mono font-bold">{{ $return->pickup_reference }}</span></p>
+                        <p>الوقت: {{ $return->pickup_scheduled_at?->format('Y-m-d H:i') }}</p>
+                    </div>
+                @else
+                    <p class="text-xs text-slate-500 mb-3">جدولة استلام الشحنة من العميل عبر Aramex.</p>
+                    <form method="POST" action="{{ route('admin.returns.aramex-pickup', $return) }}" onsubmit="return confirm('جدولة استلام Aramex الآن؟')">
+                        @csrf
+                        <button class="w-full px-4 py-2 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 text-sm">
+                            <i class="fa-solid fa-truck-pickup ml-2"></i> جدولة استلام
+                        </button>
+                    </form>
+                @endif
+                @if(session('error'))
+                    <p class="mt-3 text-xs text-rose-600">{{ session('error') }}</p>
+                @endif
+            </div>
+
             <form method="POST" action="{{ route('admin.returns.destroy', $return) }}" onsubmit="return confirm('حذف نهائي؟')">
                 @csrf @method('DELETE')
                 <button class="w-full px-4 py-2 rounded-xl bg-rose-50 text-rose-700 font-semibold hover:bg-rose-100">
