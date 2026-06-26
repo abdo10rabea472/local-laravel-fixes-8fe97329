@@ -545,7 +545,7 @@
                 return;
             }
             window.UL?.toast('✅ تم تأكيد الطلب بنجاح', 'success');
-            localStorage.removeItem('cart');
+            if (typeof window.clearCart === 'function') { try { await window.clearCart(); } catch (_) {} }
             window.location.href = json.redirect;
         } catch (e) {
             confirmBtn.disabled = false;
