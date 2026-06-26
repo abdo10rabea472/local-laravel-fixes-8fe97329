@@ -40,13 +40,10 @@ class ProductCatalogController extends Controller
         }
 
         $productsQuery = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'featured', 'category_id', 'short_description'])
+            ->forListing()
             ->active()
             ->with([
-                'category:id,name,slug,parent_id',
                 'category.parent:id,name,slug',
-                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
-                'activeDiscount',
             ]);
 
 

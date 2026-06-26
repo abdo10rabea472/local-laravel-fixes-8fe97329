@@ -40,14 +40,9 @@ class CategoryController extends Controller
             : [$category->id];
 
         $productsQuery = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'featured', 'category_id', 'short_description'])
+            ->forListing()
             ->whereIn('category_id', $categoryIds)
-            ->active()
-            ->with([
-                'category:id,name,slug',
-                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
-                'activeDiscount',
-            ]);
+            ->active();
 
 
         if ($request->filled('search')) {
