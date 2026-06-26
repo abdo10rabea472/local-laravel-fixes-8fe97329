@@ -201,11 +201,13 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::put('/shipping-carriers/{carrier}', [\App\Http\Controllers\Admin\ShippingCarrierController::class, 'update'])->name('shipping-carriers.update');
     Route::patch('/shipping-carriers/{carrier}/toggle', [\App\Http\Controllers\Admin\ShippingCarrierController::class, 'toggle'])->name('shipping-carriers.toggle');
     Route::delete('/shipping-carriers/{carrier}', [\App\Http\Controllers\Admin\ShippingCarrierController::class, 'destroy'])->name('shipping-carriers.destroy');
+    Route::post('/shipping-carriers/install-aramex', [\App\Http\Controllers\Admin\ShippingCarrierController::class, 'installAramex'])->name('shipping-carriers.install-aramex');
 
     // Returns (RMA)
     Route::get('/returns', [\App\Http\Controllers\Admin\ReturnRequestController::class, 'index'])->name('returns.index');
     Route::get('/returns/{return}', [\App\Http\Controllers\Admin\ReturnRequestController::class, 'show'])->name('returns.show');
     Route::patch('/returns/{return}/status', [\App\Http\Controllers\Admin\ReturnRequestController::class, 'updateStatus'])->name('returns.status');
+    Route::post('/returns/{return}/aramex-pickup', [\App\Http\Controllers\Admin\ReturnRequestController::class, 'schedulePickup'])->name('returns.aramex-pickup');
     Route::delete('/returns/{return}', [\App\Http\Controllers\Admin\ReturnRequestController::class, 'destroy'])->name('returns.destroy');
 
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
