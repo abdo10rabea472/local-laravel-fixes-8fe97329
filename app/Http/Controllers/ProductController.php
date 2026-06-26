@@ -15,17 +15,22 @@ class ProductController extends Controller
             ->with([
                 'category:id,name,slug',
                 'images' => fn ($q) => $q->orderBy('sort_order'),
+                'activeDiscount',
             ])
             ->firstOrFail();
 
         $relatedProducts = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'category_id'])
+            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()
-            ->with(['images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order')])
+            ->with([
+                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
+            ])
             ->limit(4)
             ->get();
+
 
         $primaryImage = $product->images->first();
         $ogImage = $product->og_image ?: ($primaryImage ? $primaryImage->getUrl('large') : null);

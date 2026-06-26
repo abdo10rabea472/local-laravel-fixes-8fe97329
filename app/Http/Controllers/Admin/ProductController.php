@@ -23,7 +23,12 @@ class ProductController extends Controller
     {
         $query = Product::query()
             ->select(['id', 'name', 'slug', 'sku', 'category_id', 'price', 'sale_price', 'stock', 'featured', 'status', 'created_at'])
-            ->with(['category:id,name', 'images:id,product_id,thumb,medium,image']);
+            ->with([
+                'category:id,name',
+                'images:id,product_id,thumb,medium,image',
+                'activeDiscount',
+            ]);
+
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {

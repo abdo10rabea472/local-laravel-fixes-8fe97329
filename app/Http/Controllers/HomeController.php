@@ -17,6 +17,7 @@ class HomeController extends Controller
             ->with([
                 'category:id,name,slug',
                 'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
             ])
             ->limit((int) \App\Models\SiteSetting::get('featured_limit', 8))
             ->get();
@@ -27,7 +28,9 @@ class HomeController extends Controller
             ->with([
                 'category:id,name,slug',
                 'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
             ]);
+
 
         if (request()->filled('search')) {
             $search = request('search');
@@ -58,6 +61,16 @@ class HomeController extends Controller
                 'departments' => Category::whereNotNull('parent_id')->active()->count(),
             ];
         });
+
+        // Pre-resolve the small set of settings used below in a single cached lookup
+        $heroSettings = \App\Models\SiteSetting::query()
+            ->whereIn('key', [
+                'hero_title','hero_subtitle','hero_badge','hero_background',
+                'featured_section_title','featured_section_subtitle',
+                'products_section_title','products_section_subtitle',
+                'default_og_image',
+            ])->pluck('value', 'key');
+
 
         $hero = [
             'title' => \App\Models\SiteSetting::get('hero_title', 'Professional Tools for Future Professionals'),

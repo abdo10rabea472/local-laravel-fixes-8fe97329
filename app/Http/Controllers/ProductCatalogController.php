@@ -46,7 +46,9 @@ class ProductCatalogController extends Controller
                 'category:id,name,slug,parent_id',
                 'category.parent:id,name,slug',
                 'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
             ]);
+
 
         if ($categoryIds !== null) {
             $productsQuery->whereIn('category_id', $categoryIds);

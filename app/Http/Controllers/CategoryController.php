@@ -46,7 +46,9 @@ class CategoryController extends Controller
             ->with([
                 'category:id,name,slug',
                 'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
             ]);
+
 
         if ($request->filled('search')) {
             $search = $request->search;
