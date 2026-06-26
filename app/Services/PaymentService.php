@@ -682,7 +682,7 @@ class PaymentService
                         $stockService->apply(
                             $product,
                             (int) $item->quantity,
-                            'payment_failed',
+                            'order_cancel',
                             'Order',
                             $order->id,
                             'فشل/إلغاء الدفع للطلب ' . $order->order_number
