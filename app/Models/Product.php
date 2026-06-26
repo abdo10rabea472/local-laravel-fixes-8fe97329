@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+
 
 class Product extends Model
 {
@@ -75,9 +77,65 @@ class Product extends Model
         return $query->where('stock', '>', 0);
     }
 
+    public function discounts(): HasMany
+    {
+        return $this->hasMany(ProductDiscount::class);
+    }
+
+    public function activeDiscount(): HasOne
+    {
+        return $this->hasOne(ProductDiscount::class)->active()->latestOfMany();
+    }
+
+    public function scopeWithActiveDiscount($query)
+    {
+        return $query->whereHas('discounts', fn ($q) => $q->active());
+    }
+
     public function getEffectivePriceAttribute(): float
     {
-        return (float) ($this->sale_price ?? $this->price);
+        $base = (float) ($this->sale_price ?? $this->price);
+        $discount = $this->resolveActiveDiscount();
+        return $discount ? $discount->applyTo($base) : $base;
+    }
+
+    public function getOriginalPriceAttribute(): float
+    {
+        return (float) $this->price;
+    }
+
+    public function getCompareAtPriceAttribute(): ?float
+    {
+        $base = (float) ($this->sale_price ?? $this->price);
+        $final = $this->effective_price;
+        if ($final < $base) {
+            return $base;
+        }
+        if ($this->sale_price && $this->sale_price < $this->price) {
+            return (float) $this->price;
+        }
+        return null;
+    }
+
+    public function getDiscountPercentAttribute(): int
+    {
+        $base = (float) $this->price;
+        $final = $this->effective_price;
+        if ($base <= 0 || $final >= $base) return 0;
+        return (int) round((($base - $final) / $base) * 100);
+    }
+
+    public function getHasActiveDiscountAttribute(): bool
+    {
+        return $this->discount_percent > 0;
+    }
+
+    protected function resolveActiveDiscount(): ?ProductDiscount
+    {
+        if ($this->relationLoaded('activeDiscount')) {
+            return $this->getRelation('activeDiscount');
+        }
+        return $this->activeDiscount()->first();
     }
 
     public function getPrimaryImageAttribute(): ?ProductImage
