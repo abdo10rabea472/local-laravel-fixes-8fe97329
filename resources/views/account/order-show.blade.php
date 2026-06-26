@@ -39,7 +39,19 @@
             <span class="px-3 py-1.5 rounded-full bg-{{ $order->statusBadgeColor() }}-50 text-{{ $order->statusBadgeColor() }}-700 font-bold text-sm">{{ $order->statusLabel() }}</span>
             @if($order->tracking_number)
             <p class="mt-3 text-xs">رقم التتبع: <b>{{ $order->tracking_number }}</b></p>
-            <p class="text-xs">شركة الشحن: {{ $order->shipping_carrier ?: '—' }}</p>
+            @php $carrier = $order->relationLoaded('carrier') ? $order->carrier : null; $trackUrl = $carrier?->buildTrackingUrl($order->tracking_number); @endphp
+            <p class="text-xs">شركة الشحن: {{ $carrier?->name ?? $order->shipping_carrier ?: '—' }}</p>
+            @if($trackUrl)
+                <a href="{{ $trackUrl }}" target="_blank" class="inline-block mt-2 text-violet-600 text-xs font-semibold hover:underline">
+                    <i class="fa-solid fa-truck-fast ml-1"></i> تتبع الشحنة
+                </a>
+            @endif
+            @endif
+
+            @if(in_array($order->status, ['paid','shipped','delivered']))
+                <a href="{{ route('account.returns.create', $order) }}" class="mt-4 block text-center px-4 py-2 rounded-xl bg-amber-50 text-amber-700 font-semibold text-xs hover:bg-amber-100">
+                    <i class="fa-solid fa-rotate-left ml-1"></i> طلب إرجاع
+                </a>
             @endif
             <hr class="my-3">
             <h4 class="font-bold text-xs mb-2">السجل</h4>
