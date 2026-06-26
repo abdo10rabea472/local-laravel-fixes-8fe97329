@@ -309,4 +309,3 @@ window.open_close_cart = open_close_cart;
 window.renderCart = renderCart;
 window.loadCart = loadCart;
 
-});
