@@ -1,27 +1,30 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+<x-guest-layout :authTitle="'تأكيد كلمة المرور'">
+
+    <div class="mb-8">
+        <div class="inline-flex h-14 w-14 rounded-2xl bg-amber-50 items-center justify-center text-amber-600 mb-4">
+            <i class="fa-solid fa-shield-halved text-xl"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold text-slate-900">منطقة آمنة</h2>
+        <p class="text-slate-500 mt-2 text-sm">من فضلك أكّد كلمة المرور قبل المتابعة.</p>
     </div>
 
-    <form method="POST" action="{{ route('password.confirm') }}" data-ajax>
+    <form method="POST" action="{{ route('password.confirm') }}" data-ajax class="space-y-5">
         @csrf
 
-        <!-- Password -->
         <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <label for="password" class="auth-label">كلمة المرور</label>
+            <div class="relative">
+                <input id="password" type="password" name="password" required autocomplete="current-password" autofocus
+                       class="auth-input @error('password') has-error @enderror" placeholder="••••••••">
+                <i class="fa-solid fa-lock auth-icon"></i>
+                <button type="button" class="toggle-pwd" data-toggle-password="#password"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            @error('password')<p class="auth-error">{{ $message }}</p>@enderror
         </div>
 
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
+        <button type="submit" class="auth-btn-primary">
+            <i class="fa-solid fa-check"></i>
+            تأكيد
+        </button>
     </form>
 </x-guest-layout>
