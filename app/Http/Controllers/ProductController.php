@@ -3,33 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
     public function show(string $slug): View
     {
-        $product = Product::query()
-            ->where('slug', $slug)
-            ->active()
-            ->with([
-                'category:id,name,slug',
-                'images' => fn ($q) => $q->orderBy('sort_order'),
-                'activeDiscount',
-            ])
-            ->firstOrFail();
+        $product = Cache::remember("product.show.{$slug}", 600, function () use ($slug) {
+            return Product::query()
+                ->where('slug', $slug)
+                ->active()
+                ->with([
+                    'category:id,name,slug',
+                    'images' => fn ($q) => $q->orderBy('sort_order'),
+                    'activeDiscount',
+                ])
+                ->firstOrFail();
+        });
 
-        $relatedProducts = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id'])
-            ->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->active()
-            ->with([
-                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
-                'activeDiscount',
-            ])
-            ->limit(4)
-            ->get();
+        $relatedProducts = Cache::remember("product.related.{$product->id}", 1800, function () use ($product) {
+            return Product::query()
+                ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id'])
+                ->where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->active()
+                ->with([
+                    'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                    'activeDiscount',
+                ])
+                ->limit(4)
+                ->get();
+        });
 
 
         $primaryImage = $product->images->first();

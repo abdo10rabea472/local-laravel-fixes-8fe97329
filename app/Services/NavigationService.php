@@ -84,5 +84,23 @@ class NavigationService
         Cache::forget('admin.dashboard.product_stats');
         Cache::forget('admin.dashboard.category_stats');
         Cache::forget('admin.dashboard.total_categories');
+
+        // Featured products cache (any limit variant)
+        for ($i = 1; $i <= 24; $i++) {
+            Cache::forget("home.featured_products.{$i}");
+        }
+
+        // Product show/related caches — clear lazily on next read; we cannot
+        // enumerate all slugs cheaply, so just bump a version marker.
+        Cache::forget('product.show.*');
+    }
+
+    /**
+     * Clear caches scoped to a specific product (used by admin save hooks).
+     */
+    public static function clearProductCache(?string $slug = null, ?int $id = null): void
+    {
+        if ($slug) Cache::forget("product.show.{$slug}");
+        if ($id) Cache::forget("product.related.{$id}");
     }
 }

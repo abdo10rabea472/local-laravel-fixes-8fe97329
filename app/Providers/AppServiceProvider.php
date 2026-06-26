@@ -51,5 +51,12 @@ class AppServiceProvider extends ServiceProvider
             $model::saved($invalidate);
             $model::deleted($invalidate);
         }
+
+        // Product-specific cache (show + related) — clear by slug/id.
+        $clearProduct = function (Product $p) {
+            NavigationService::clearProductCache($p->slug, $p->id);
+        };
+        Product::saved($clearProduct);
+        Product::deleted($clearProduct);
     }
 }

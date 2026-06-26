@@ -12,12 +12,15 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $featuredProducts = Product::query()
-            ->forListing()
-            ->featured()
-            ->active()
-            ->limit((int) SiteSetting::get('featured_limit', 8))
-            ->get();
+        $featuredLimit = (int) SiteSetting::get('featured_limit', 8);
+        $featuredProducts = Cache::remember("home.featured_products.{$featuredLimit}", 3600, function () use ($featuredLimit) {
+            return Product::query()
+                ->forListing()
+                ->featured()
+                ->active()
+                ->limit($featuredLimit)
+                ->get();
+        });
 
         $query = Product::query()
             ->forListing()
