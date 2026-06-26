@@ -21,12 +21,16 @@ use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\ProductCatalogController as AdminProductCatalogController;
 use App\Http\Controllers\Admin\HeaderMenuController;
 use App\Http\Controllers\Admin\ShippingRateController;
+use App\Http\Controllers\Admin\ProductDiscountController;
+use App\Http\Controllers\Admin\CouponController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [ProductCatalogController::class, 'index'])->name('products.index');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
 Route::get('/payment/success', [PageController::class, 'paymentSuccess'])->name('pages.payment-success');
 Route::get('/faqs', [PageController::class, 'faqs'])->name('pages.faqs');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
@@ -107,6 +111,17 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::delete('/settings/shipping/regions/{region}', [ShippingRateController::class, 'destroyRegion'])->name('settings.shipping.regions.destroy');
     // Free shipping settings
     Route::put('/settings/shipping-threshold', [ShippingRateController::class, 'updateThreshold'])->name('settings.shipping.threshold');
+
+    // Product discounts
+    Route::get('/product-discounts', [ProductDiscountController::class, 'index'])->name('product-discounts.index');
+    Route::post('/product-discounts', [ProductDiscountController::class, 'store'])->name('product-discounts.store');
+    Route::put('/product-discounts/{discount}', [ProductDiscountController::class, 'update'])->name('product-discounts.update');
+    Route::patch('/product-discounts/{discount}/toggle', [ProductDiscountController::class, 'toggle'])->name('product-discounts.toggle');
+    Route::delete('/product-discounts/{discount}', [ProductDiscountController::class, 'destroy'])->name('product-discounts.destroy');
+
+    // Coupons
+    Route::resource('coupons', CouponController::class)->except(['show']);
+    Route::patch('/coupons/{coupon}/toggle', [CouponController::class, 'toggle'])->name('coupons.toggle');
 
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 });
