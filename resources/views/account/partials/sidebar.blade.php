@@ -1,5 +1,5 @@
 @php $user = auth()->user(); @endphp
-<aside class="lg:fixed lg:right-[max(1rem,calc((100vw-72rem)/2+1rem))] lg:top-28 lg:w-64 mb-6 lg:mb-0">
+<aside class="lg:sticky lg:top-32 lg:w-64 mb-6 lg:mb-0 z-30 self-start">
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="bg-gradient-to-br from-violet-600 to-indigo-700 p-5 text-white">
             <div class="flex items-center gap-3">
