@@ -46,6 +46,29 @@ class CheckoutController extends Controller
         return view('checkout.index', compact('seo', 'shippingCountries', 'discountedProductIds'));
     }
 
+    /**
+     * Return current stock for the requested product IDs.
+     * Used by the checkout page to cap quantity controls.
+     */
+    public function stocks(Request $request): JsonResponse
+    {
+        $ids = collect(explode(',', (string) $request->query('ids', '')))
+            ->map(fn ($v) => (int) trim($v))
+            ->filter(fn ($v) => $v > 0)
+            ->unique()
+            ->take(100)
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return response()->json(['stocks' => (object) []]);
+        }
+
+        $stocks = Product::whereIn('id', $ids)->pluck('stock', 'id');
+
+        return response()->json(['stocks' => $stocks]);
+    }
+
+
     public function applyCoupon(Request $request): JsonResponse
     {
         $data = $request->validate([
