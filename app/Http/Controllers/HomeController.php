@@ -4,36 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\SiteSetting;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $featuredProducts = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id', 'short_description', 'featured'])
+            ->forListing()
             ->featured()
             ->active()
-            ->with([
-                'category:id,name,slug',
-                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
-                'activeDiscount',
-            ])
-            ->limit((int) \App\Models\SiteSetting::get('featured_limit', 8))
+            ->limit((int) SiteSetting::get('featured_limit', 8))
             ->get();
 
         $query = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id', 'short_description', 'featured'])
-            ->active()
-            ->with([
-                'category:id,name,slug',
-                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
-                'activeDiscount',
-            ]);
+            ->forListing()
+            ->active();
 
-
-        if (request()->filled('search')) {
-            $search = request('search');
+        if ($request->filled('search')) {
+            $search = (string) $request->string('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('short_description', 'like', "%{$search}%")
@@ -41,7 +32,7 @@ class HomeController extends Controller
             });
         }
 
-        $products = $query->orderByDesc('created_at')->paginate((int) \App\Models\SiteSetting::get('products_limit', 12));
+        $products = $query->orderByDesc('created_at')->paginate((int) SiteSetting::get('products_limit', 12));
 
         $mainCategories = Cache::remember('main_categories', 86400, function () {
             return Category::query()

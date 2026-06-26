@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,22 +15,45 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Admin / test-user credentials:
+     *  - In local/testing: weak default "password" for developer convenience.
+     *  - In any other environment: a strong random password is generated and
+     *    printed ONCE to the console. Capture it then; it is not stored anywhere
+     *    else in plain text. Re-running the seeder will create a new password
+     *    only if the row does not already exist (firstOrCreate).
      */
     public function run(): void
     {
-        // Create Admin User in admins table
-        \App\Models\Admin::create([
-            'name' => 'Admin Manager',
-            'email' => 'admin@uni.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-        ]);
+        $useDevDefault = app()->environment(['local', 'testing']);
 
-        // Create Regular Test User
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-        ]);
+        $adminPlain = $useDevDefault ? 'password' : Str::password(20, true, true, true, false);
+        $userPlain = $useDevDefault ? 'password' : Str::password(20, true, true, true, false);
+
+        $admin = Admin::firstOrCreate(
+            ['email' => 'admin@uni.com'],
+            [
+                'name' => 'Admin Manager',
+                'password' => Hash::make($adminPlain),
+            ]
+        );
+
+        $user = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make($userPlain),
+            ]
+        );
+
+        if (! $useDevDefault) {
+            if ($admin->wasRecentlyCreated) {
+                $this->command?->warn("Admin password (save this now, shown only once): {$adminPlain}");
+            }
+            if ($user->wasRecentlyCreated) {
+                $this->command?->warn("Test user password (save this now, shown only once): {$userPlain}");
+            }
+        }
 
         // Seed Categories & Products
         $this->call(CategorySeeder::class);

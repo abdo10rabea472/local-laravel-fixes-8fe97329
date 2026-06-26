@@ -29,9 +29,15 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [ProductCatalogController::class, 'index'])->name('products.index');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
-Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
-Route::get('/checkout/stocks', [CheckoutController::class, 'stocks'])->name('checkout.stocks');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])
+    ->middleware('throttle:30,1')
+    ->name('checkout.apply-coupon');
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])
+    ->middleware('throttle:30,1')
+    ->name('checkout.place-order');
+Route::get('/checkout/stocks', [CheckoutController::class, 'stocks'])
+    ->middleware('throttle:60,1')
+    ->name('checkout.stocks');
 Route::get('/payment/success', [PageController::class, 'paymentSuccess'])->name('pages.payment-success');
 Route::get('/faqs', [PageController::class, 'faqs'])->name('pages.faqs');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
@@ -49,7 +55,8 @@ Route::get('/admin', function () {
 
 Route::middleware('guest:admin')->group(function () {
     Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/admin/login', [AdminAuthController::class, 'login']);
+    Route::post('/admin/login', [AdminAuthController::class, 'login'])
+        ->middleware('throttle:5,1');
 });
 
 Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->group(function () {

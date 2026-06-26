@@ -92,6 +92,21 @@ class Product extends Model
         return $query->whereHas('discounts', fn ($q) => $q->active());
     }
 
+    /**
+     * Standard column selection + eager-loads used by every public listing
+     * (home, catalog, category). Keeps the storefront list queries consistent.
+     */
+    public function scopeForListing($query)
+    {
+        return $query
+            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id', 'short_description', 'featured'])
+            ->with([
+                'category:id,name,slug',
+                'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
+                'activeDiscount',
+            ]);
+    }
+
     public function getEffectivePriceAttribute(): float
     {
         $base = (float) ($this->sale_price ?? $this->price);

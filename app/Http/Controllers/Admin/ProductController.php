@@ -47,27 +47,32 @@ class ProductController extends Controller
 
         $products = $query->orderByDesc('created_at')->paginate(10)->withQueryString();
 
-        $categories = Category::active()->orderBy('name')->get(['id', 'name', 'parent_id']);
+        $categories = $this->categoryOptions();
 
         return view('admin.products.index', compact('products', 'categories'));
     }
 
     public function create(): View
     {
-        $categories = Category::active()->orderBy('name')->get(['id', 'name', 'parent_id']);
-
         return view('admin.products.form', [
             'product' => new Product(),
-            'categories' => $categories,
+            'categories' => $this->categoryOptions(),
         ]);
     }
 
     public function edit(Product $product): View
     {
         $product->load('images');
-        $categories = Category::active()->orderBy('name')->get(['id', 'name', 'parent_id']);
 
-        return view('admin.products.form', compact('product', 'categories'));
+        return view('admin.products.form', [
+            'product' => $product,
+            'categories' => $this->categoryOptions(),
+        ]);
+    }
+
+    private function categoryOptions()
+    {
+        return Category::active()->orderBy('name')->get(['id', 'name', 'parent_id']);
     }
 
     public function store(Request $request): RedirectResponse

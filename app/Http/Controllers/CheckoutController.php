@@ -75,7 +75,6 @@ class CheckoutController extends Controller
             'code' => 'required|string|max:50',
             'cart' => 'required|array',
             'cart.*.id' => 'required|integer',
-            'cart.*.price' => 'required|numeric',
             'cart.*.quantity' => 'required|integer|min:1',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
@@ -96,8 +95,14 @@ class CheckoutController extends Controller
             ], 200);
         }
 
+        // Rebuild cart using DB-trusted prices (ignore client-sent prices).
+        $serverCart = $this->buildServerCart($data['cart']);
+        if (empty($serverCart)) {
+            return response()->json(['ok' => false, 'message' => 'السلة غير صالحة.'], 200);
+        }
+
         $userId = Auth::id();
-        $result = $coupon->validateFor($data['cart'], $userId, $data['email'] ?? null, $data['phone'] ?? null);
+        $result = $coupon->validateFor($serverCart, $userId, $data['email'] ?? null, $data['phone'] ?? null);
 
         return response()->json(array_merge($result, [
             'code' => $coupon->code,
@@ -112,7 +117,6 @@ class CheckoutController extends Controller
             'code' => 'nullable|string|max:50',
             'cart' => 'required|array|min:1',
             'cart.*.id' => 'required|integer',
-            'cart.*.price' => 'required|numeric',
             'cart.*.quantity' => 'required|integer|min:1',
             'email' => 'required|email',
             'phone' => 'nullable|string',
@@ -138,7 +142,7 @@ class CheckoutController extends Controller
                 // Lock product rows to prevent race conditions / overselling
                 $products = Product::whereIn('id', array_keys($requested))
                     ->lockForUpdate()
-                    ->get(['id', 'name', 'stock']);
+                    ->get(['id', 'name', 'stock', 'price', 'sale_price']);
 
                 if ($products->count() !== count($requested)) {
                     throw new \RuntimeException('One or more products are no longer available.');
@@ -151,18 +155,24 @@ class CheckoutController extends Controller
                     }
                 }
 
-                // Atomic decrement
+                // Atomic decrement (avoids brittle DB::raw string concat).
                 foreach ($products as $product) {
                     Product::where('id', $product->id)
                         ->where('stock', '>=', $requested[$product->id])
-                        ->update(['stock' => DB::raw('stock - ' . (int) $requested[$product->id])]);
+                        ->decrement('stock', (int) $requested[$product->id]);
                 }
 
-                // Coupon redemption (kept inside same transaction for consistency)
+                // Coupon redemption — rebuild cart with DB-trusted prices, never client prices.
                 if (! empty($data['code'])) {
                     $coupon = Coupon::where('code', strtoupper($data['code']))->first();
                     if ($coupon) {
-                        $result = $coupon->validateFor($data['cart'], Auth::id(), $data['email'], $data['phone'] ?? null);
+                        $serverCart = $products->map(fn ($p) => [
+                            'id' => (int) $p->id,
+                            'price' => (float) ($p->sale_price ?? $p->price),
+                            'quantity' => (int) $requested[$p->id],
+                        ])->all();
+
+                        $result = $coupon->validateFor($serverCart, Auth::id(), $data['email'], $data['phone'] ?? null);
                         if (! $result['ok']) {
                             throw new \RuntimeException($result['message']);
                         }
@@ -188,5 +198,35 @@ class CheckoutController extends Controller
             'ok' => true,
             'redirect' => route('pages.payment-success'),
         ]);
+    }
+
+    /**
+     * Rebuild the cart using prices read from the database, ignoring any
+     * client-supplied price values. Returns rows shaped for Coupon::validateFor.
+     */
+    private function buildServerCart(array $clientCart): array
+    {
+        $quantities = [];
+        foreach ($clientCart as $line) {
+            $pid = (int) ($line['id'] ?? 0);
+            $qty = (int) ($line['quantity'] ?? 0);
+            if ($pid <= 0 || $qty <= 0) {
+                continue;
+            }
+            $quantities[$pid] = ($quantities[$pid] ?? 0) + $qty;
+        }
+
+        if (empty($quantities)) {
+            return [];
+        }
+
+        return Product::whereIn('id', array_keys($quantities))
+            ->get(['id', 'price', 'sale_price'])
+            ->map(fn ($p) => [
+                'id' => (int) $p->id,
+                'price' => (float) ($p->sale_price ?? $p->price),
+                'quantity' => (int) $quantities[$p->id],
+            ])
+            ->all();
     }
 }
