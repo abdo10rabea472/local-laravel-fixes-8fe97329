@@ -593,6 +593,7 @@
                     shipping_postcode: zipEl?.value || null,
                     shipping_cost: shippingCost,
                     shipping_carrier_id: carrierSel?.value ? parseInt(carrierSel.value, 10) : null,
+                    payment_gateway: (form.querySelector('input[name="payment_gateway"]:checked')?.value) || null,
                 }),
             });
 
