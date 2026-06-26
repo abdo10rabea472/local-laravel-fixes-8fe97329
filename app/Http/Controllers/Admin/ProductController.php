@@ -161,9 +161,11 @@ class ProductController extends Controller
             'og_description' => 'nullable|string',
             'og_image' => 'nullable|string|max:255',
             'schema_markup' => 'nullable|string',
-            'images' => 'nullable|array|max:5',
+            'images' => ($product && $product->exists ? 'nullable' : 'required') . '|array|min:4|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:4096',
         ], [
+            'images.required' => 'يجب رفع 4 صور على الأقل لكل منتج.',
+            'images.min' => 'يجب رفع 4 صور على الأقل لكل منتج.',
             'images.max' => 'الحد الأقصى 5 صور لكل منتج.',
             'images.*.image' => 'الملف المرفوع يجب أن يكون صورة.',
             'images.*.max' => 'حجم الصورة يجب أن لا يتجاوز 4 ميجابايت.',
