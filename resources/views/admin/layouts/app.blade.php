@@ -113,6 +113,31 @@
                 <span>إدارة الطلبات</span>
             </a>
 
+            <a 
+                href="{{ route('admin.customers.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.customers.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+            >
+                <i class="fa-solid fa-users text-lg group-hover:scale-110 transition-transform"></i>
+                <span>العملاء</span>
+            </a>
+
+            <a 
+                href="{{ route('admin.customer-groups.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.customer-groups.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+            >
+                <i class="fa-solid fa-layer-group text-lg group-hover:scale-110 transition-transform"></i>
+                <span>مجموعات العملاء</span>
+            </a>
+
+            <a 
+                href="{{ route('admin.reviews.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group {{ request()->routeIs('admin.reviews.*') ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}"
+            >
+                <i class="fa-solid fa-star text-lg group-hover:scale-110 transition-transform"></i>
+                <span>المراجعات</span>
+            </a>
+
+
 
             <a 
                 href="{{ route('admin.colleges.index') }}" 
