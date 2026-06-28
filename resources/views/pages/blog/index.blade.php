@@ -25,7 +25,7 @@
     <div class="max-w-6xl mx-auto px-4">
         <a href="{{ route('blog.show', $featured->slug) }}" class="group grid md:grid-cols-2 gap-8 items-center bg-gradient-to-br from-slate-50 to-violet-50 rounded-3xl p-6 md:p-10 hover:shadow-xl transition-all">
             <div class="aspect-video rounded-2xl overflow-hidden bg-slate-200">
-                <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-contain p-2 bg-white group-hover:scale-105 transition-transform duration-500">
 
             </div>
             <div>
@@ -63,7 +63,7 @@
                     @foreach($posts as $post)
                     <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col">
                         <a href="{{ route('blog.show', $post->slug) }}" class="block aspect-video bg-slate-100 overflow-hidden relative">
-                            <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="w-full h-full object-contain p-2 bg-white group-hover:scale-110 transition-transform duration-500">
 
                             @if($post->category)
                                 <span class="absolute top-3 right-3 px-3 py-1 bg-white/95 backdrop-blur text-violet-700 text-xs font-bold rounded-full shadow">{{ $post->category->name }}</span>
@@ -116,7 +116,7 @@
                     <li>
                         <a href="{{ route('blog.show', $p->slug) }}" class="flex gap-3 group">
                             <div class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-slate-100">
-                                <img src="{{ $p->image_url }}" alt="{{ $p->title }}" class="w-full h-full object-cover">
+                                <img src="{{ $p->image_url }}" alt="{{ $p->title }}" class="w-full h-full object-contain bg-white">
 
                             </div>
                             <div class="flex-1 min-w-0">
