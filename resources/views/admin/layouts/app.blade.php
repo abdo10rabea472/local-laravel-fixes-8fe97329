@@ -70,8 +70,14 @@
             ['title' => 'تقارير المخزون',   'route' => 'admin.reports.inventory'],
             ['title' => 'تقارير الكوبونات', 'route' => 'admin.reports.coupons'],
         ]],
+        ['title' => 'إدارة المحتوى', 'icon' => 'fa-newspaper', 'children' => [
+            ['title' => 'المقالات',          'route' => 'admin.blog.index'],
+            ['title' => 'تصنيفات المقالات',  'route' => 'admin.blog-categories.index'],
+            ['title' => 'الأسئلة الشائعة',   'route' => 'admin.faqs.index'],
+            ['title' => 'رسائل التواصل',     'route' => 'admin.messages.index'],
+            ['title' => 'مشتركو النشرة',     'route' => 'admin.subscribers.index'],
+        ]],
         ['title' => 'الإعدادات العامة', 'icon' => 'fa-sliders-h', 'route' => 'admin.settings.index'],
-    ];
 
     $isActiveRoute = function($name){
         if(!$name) return false;
