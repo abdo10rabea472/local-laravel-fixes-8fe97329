@@ -41,20 +41,6 @@
                 </form>
             </div>
 
-            @if($categories->count())
-            <div class="flex flex-wrap items-center justify-center gap-3">
-                <a href="{{ route('blog.index') }}"
-                   class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm {{ !request('category') ? 'bg-slate-900 text-white shadow-slate-900/20' : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 ring-1 ring-slate-200' }}">
-                    All
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
-                       class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm {{ request('category')===$cat->slug ? 'bg-slate-900 text-white shadow-slate-900/20' : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 ring-1 ring-slate-200' }}">
-                        {{ $cat->name }}
-                    </a>
-                @endforeach
-            </div>
-            @endif
         </div>
     </section>
 
