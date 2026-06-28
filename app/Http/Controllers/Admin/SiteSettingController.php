@@ -18,7 +18,7 @@ class SiteSettingController extends Controller
     public function index(Request $request): View
     {
         $tab = $request->get('tab', 'general');
-        $allowedTabs = ['general', 'images', 'contact', 'ai'];
+        $allowedTabs = ['general', 'images', 'contact', 'ai', 'mail'];
 
         if (! in_array($tab, $allowedTabs, true)) {
             $tab = 'general';
