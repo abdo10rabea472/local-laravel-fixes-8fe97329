@@ -112,10 +112,21 @@ class BlogPostController extends Controller
             $ai = new AiService();
             // الحد الأقصى للتوكنز يأخذ من الإعدادات (افتراضي 8000)، والمزوّد سيُرجع ما يستطيع فقط
             $maxTokens = max(512, (int) (site_setting('ai_max_tokens') ?: 8000));
-            $raw = $ai->chat([
+            $messages = [
                 ['role' => 'system', 'content' => $system],
                 ['role' => 'user',   'content' => $userPrompt],
-            ], maxTokens: $maxTokens, temperature: 0.8, timeout: 120);
+            ];
+            try {
+                $raw = $ai->chat($messages, maxTokens: $maxTokens, temperature: 0.8, timeout: 120);
+            } catch (\Throwable $e1) {
+                // إعادة المحاولة تلقائيًا بالحد الأقصى المسموح به من الرصيد عند 402
+                if (preg_match('/can only afford\s+(\d+)/i', $e1->getMessage(), $m)) {
+                    $affordable = max(256, (int) $m[1] - 50);
+                    $raw = $ai->chat($messages, maxTokens: $affordable, temperature: 0.8, timeout: 120);
+                } else {
+                    throw $e1;
+                }
+            }
 
             $json = trim($raw);
             $json = preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $json);
