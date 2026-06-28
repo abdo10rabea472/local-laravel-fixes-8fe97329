@@ -76,7 +76,7 @@
             new Swiper(el,{
                 slidesPerView:"auto",
                 spaceBetween:16,
-                loop: count >= 15,
+                loop: count > 1,
                 speed:700,
                 grabCursor:true,
                 autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
@@ -103,7 +103,7 @@
                 new Swiper(el, {
                     slidesPerView: "auto",
                     spaceBetween: 20,
-                    loop: count >= 15,
+                    loop: count > 1,
                     grabCursor: true,
                     speed: 700,
                     autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
@@ -159,7 +159,7 @@
             new Swiper(el,{
                 slidesPerView:"auto",
                 spaceBetween:20,
-                loop: count >= 15,
+                loop: count > 1,
                 loopAdditionalSlides:20,
                 grabCursor:true,
                 watchOverflow:false,
@@ -184,7 +184,7 @@
             new Swiper(el,{
                 slidesPerView:2,
                 spaceBetween:16,
-                loop: count >= 15,
+                loop: count > 1,
                 speed:700,
                 grabCursor:true,
                 autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
