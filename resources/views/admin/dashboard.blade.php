@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'لوحة التحكم')
+@section('title', 'Dashboard')
 
 @section('content')
 @php
