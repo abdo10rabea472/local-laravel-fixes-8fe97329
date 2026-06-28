@@ -128,7 +128,7 @@
             {{-- Mini newsletter --}}
             <div class="mt-6">
                 <p class="text-xs font-bold text-white mb-2">Get semester deals</p>
-                @if(session('newsletter_success'))<p class="text-xs text-emerald-400 mb-2">{{ session('newsletter_success') }}</p>@endif
+                @if(session('success') && url()->previous() === route('newsletter.subscribe'))<p class="text-xs text-emerald-400 mb-2">{{ session('success') }}</p>@endif
                 <form action="{{ route('newsletter.subscribe') }}" method="post" class="flex gap-2">
                     @csrf
                     <input type="email" name="email" required placeholder="your@email.com" class="flex-1 h-10 px-3 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder:text-slate-600 outline-none focus:border-violet-500">
