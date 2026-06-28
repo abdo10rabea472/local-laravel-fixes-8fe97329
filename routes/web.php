@@ -200,7 +200,8 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::post('/orders/{order}/refresh-tracking', [\App\Http\Controllers\Admin\OrderController::class, 'refreshTracking'])->name('orders.refresh-tracking');
     Route::post('/orders/{order}/shipment/retry', [\App\Http\Controllers\Admin\OrderController::class, 'retryShipment'])->name('orders.shipment.retry');
     Route::post('/orders/{order}/shipment/sync',  [\App\Http\Controllers\Admin\OrderController::class, 'syncShipment'])->name('orders.shipment.sync');
-    Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
+    // حذف الطلبات معطّل عمداً — نحتفظ بكل السجلات.
+    // Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
 
 
     // Reports & Analytics
