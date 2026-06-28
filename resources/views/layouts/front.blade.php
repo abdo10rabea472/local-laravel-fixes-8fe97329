@@ -78,38 +78,27 @@
 
 
     <script>
-
-            new Swiper(".collegeIconsSwiper",{
-
+        (function(){
+            const el = document.querySelector(".collegeIconsSwiper");
+            if(!el) return;
+            const count = el.querySelectorAll(".swiper-slide").length;
+            new Swiper(el,{
                 slidesPerView:"auto",
-
                 spaceBetween:16,
-
-                loop:true,
-
+                loop: count > 6,
                 speed:700,
-
                 grabCursor:true,
-
-                autoplay:{
-                    delay:2500,
-                    disableOnInteraction:false,
-                    pauseOnMouseEnter:true,
-                },
-
-                navigation:{
-                    nextEl:".college-icons-next",
-                    prevEl:".college-icons-prev",
-                },
-
+                autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
+                navigation:{ nextEl:".college-icons-next", prevEl:".college-icons-prev" },
                 breakpoints:{
                     320:{spaceBetween:12},
                     768:{spaceBetween:16},
                     1024:{spaceBetween:20},
                 }
-
             });
-        </script>
+        })();
+    </script>
+
 
 
 
