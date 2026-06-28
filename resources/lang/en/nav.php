@@ -47,4 +47,11 @@ return [
     'admin_panel' => 'Admin',
     'sign_in' => 'Sign in',
     'search_long_placeholder' => 'Search microscopes, dissection kits, lab glassware...',
+    'all_colleges' => 'All Colleges',
+    'home_nav' => 'Home',
+    'all_products' => 'All Products',
+    'browse_by_college' => 'Browse by college',
+    'departments' => 'departments',
+    'cart_btn' => 'Cart',
+    'search_short' => 'Search products...',
 ];

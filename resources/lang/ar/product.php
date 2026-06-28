@@ -15,4 +15,6 @@ return [
     'no_reviews' => 'لا توجد مراجعات بعد',
     'starting_from' => 'يبدأ من',
     'save' => 'وفر',
+    'add' => 'أضف',
+    'featured_badge' => 'مميز',
 ];

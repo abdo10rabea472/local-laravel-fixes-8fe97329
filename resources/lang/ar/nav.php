@@ -42,4 +42,11 @@ return [
     'admin_panel' => 'الإدارة',
     'sign_in' => 'تسجيل الدخول',
     'search_long_placeholder' => 'ابحث عن المجاهر، أدوات التشريح، الزجاجيات المخبرية...',
+    'all_colleges' => 'كل الكليات',
+    'home_nav' => 'الرئيسية',
+    'all_products' => 'كل المنتجات',
+    'browse_by_college' => 'تصفح حسب الكلية',
+    'departments' => 'قسم',
+    'cart_btn' => 'السلة',
+    'search_short' => 'ابحث عن المنتجات...',
 ];
