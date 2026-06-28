@@ -23,12 +23,24 @@ class BlogController extends Controller
             $query->where(fn($w) => $w->where('title', 'like', "%$q%")->orWhere('excerpt', 'like', "%$q%"));
         }
 
-        $posts = $query->latest('published_at')->paginate(9)->withQueryString();
+        if ($request->filled('tag')) {
+            $tag = $request->tag;
+            $query->where('tags', 'like', "%{$tag}%");
+        }
+
+        $posts = $query->withCount(['approvedComments as comments_count'])
+            ->latest('published_at')->paginate(8)->withQueryString();
         $categories = Category::whereHas('blogPosts')->orderBy('name')->get(['id','name','slug']);
-        $featured = BlogPost::published()->latest('published_at')->first();
+        $featured = BlogPost::published()->where('is_featured', true)->latest('published_at')->first()
+            ?: BlogPost::published()->latest('published_at')->first();
         $popular = BlogPost::published()->orderByDesc('views')->limit(5)->get(['id','title','slug','image','views','published_at']);
 
-        return view('pages.blog.index', compact('posts', 'categories', 'featured', 'popular'));
+        // Collect all unique tags from published posts
+        $tags = BlogPost::published()->whereNotNull('tags')->where('tags','!=','')->pluck('tags')
+            ->flatMap(fn($t) => array_filter(array_map('trim', explode(',', $t))))
+            ->unique()->values()->take(30);
+
+        return view('pages.blog.index', compact('posts', 'categories', 'featured', 'popular', 'tags'));
     }
 
     public function show(string $slug)

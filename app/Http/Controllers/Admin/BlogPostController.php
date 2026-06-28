@@ -139,8 +139,15 @@ class BlogPostController extends Controller
             'meta_keywords' => ['nullable','string','max:255'],
             'og_image' => ['nullable','image','max:4096'],
             'no_index' => ['nullable','boolean'],
+            'is_featured' => ['nullable','boolean'],
+            'tags' => ['nullable','string','max:500'],
         ]);
         $data['no_index'] = $request->boolean('no_index');
+        $data['is_featured'] = $request->boolean('is_featured');
+        if (!empty($data['tags'])) {
+            $parts = array_filter(array_map('trim', explode(',', $data['tags'])));
+            $data['tags'] = implode(', ', $parts);
+        }
         unset($data['canonical_url']);
         // Auto-publish if no date provided (so the post appears on /blog immediately)
         if (empty($data['published_at'])) {

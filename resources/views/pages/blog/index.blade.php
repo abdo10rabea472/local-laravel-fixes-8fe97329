@@ -1,178 +1,162 @@
 @extends('layouts.front')
 
 @section('content')
-@php
-    // Selecting the most viewed post to be the featured cover post
-    $featuredPost = ($popular ?? collect())->first();
-    $hasFilters = request('q') || request('category');
-@endphp
-
 <div class="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans selection:bg-indigo-500 selection:text-white pb-24">
 
-    {{-- ============ MODERN HERO & SEARCH ============ --}}
-    <section class="relative pt-16 pb-12 overflow-hidden">
-        <!-- Abstract Background Gradients -->
+    {{-- ============ HERO ============ --}}
+    <section class="relative pt-14 pb-10 overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden -z-10 pointer-events-none">
-            <div class="absolute -top-40 right-20 w-96 h-96 bg-indigo-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-            <div class="absolute top-0 left-20 w-96 h-96 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div class="absolute -top-40 right-20 w-96 h-96 bg-indigo-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+            <div class="absolute top-0 left-20 w-96 h-96 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
         </div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-12">
-                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold tracking-wide uppercase ring-1 ring-inset ring-indigo-500/20 mb-6 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                    Digital Journal
-                </span>
-                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-                    Ideas that shape the <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Future</span>
-                </h1>
-                <p class="text-lg text-slate-600 leading-relaxed mb-8">
-                    A modern space for articles, insights, and field experiences. Explore our latest carefully crafted releases to enrich your knowledge.
-                </p>
-
-                <!-- Premium Search -->
-                <form method="GET" class="relative max-w-xl mx-auto group">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-5 pointer-events-none">
-                        <i class="fas fa-search text-slate-400 group-focus-within:text-indigo-500 transition-colors duration-300"></i>
-                    </div>
-                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Search articles, authors, or topics..."
-                           class="block w-full p-4 ps-12 text-slate-900 bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all duration-300 outline-none text-base">
-                    <button type="submit" class="absolute inset-y-2 end-2 px-6 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-sm font-medium transition-colors duration-300 shadow-sm">
-                        Search
-                    </button>
-                </form>
-            </div>
-
-            <!-- Modern Category Pills -->
-            @if($categories->count())
-            <div class="flex flex-wrap items-center justify-center gap-3">
-                <a href="{{ route('blog.index') }}"
-                   class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm {{ !request('category') ? 'bg-slate-900 text-white shadow-slate-900/20' : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 ring-1 ring-slate-200' }}">
-                    All
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
-                       class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm {{ request('category')===$cat->slug ? 'bg-slate-900 text-white shadow-slate-900/20' : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 ring-1 ring-slate-200' }}">
-                        {{ $cat->name }}
-                    </a>
-                @endforeach
-            </div>
-            @endif
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold tracking-wide uppercase ring-1 ring-inset ring-indigo-500/20 mb-5">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Digital Journal
+            </span>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
+                Ideas that shape the <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Future</span>
+            </h1>
+            <p class="text-slate-600 max-w-2xl mx-auto">A modern space for articles, insights and field experiences.</p>
         </div>
     </section>
 
-    {{-- ============ IMMERSIVE FEATURED ARTICLE (MOST VIEWED) ============ --}}
-    @if($featuredPost && !$hasFilters)
-    <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-20">
-        <a href="{{ route('blog.show', $featuredPost->slug) }}" class="group block relative rounded-[2rem] overflow-hidden bg-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)]">
-            <div class="grid lg:grid-cols-12 items-center">
-                
-                <!-- Content Side -->
-                <div class="p-10 lg:p-14 flex flex-col justify-center relative z-10 lg:col-span-7 order-2 lg:order-1">
-                    @if($featuredPost->category)
-                        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600 mb-6">
-                            <i class="fas fa-fire text-amber-500"></i>
-                            Trending
-                            <span class="text-slate-300">|</span>
-                            {{ $featuredPost->category->name }}
-                        </span>
-                    @endif
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 leading-[1.3] mb-6 group-hover:text-indigo-600 transition-colors duration-300">
-                        {{ $featuredPost->title }}
-                    </h2>
-                    <p class="text-slate-600 text-base leading-relaxed line-clamp-3 mb-8">
-                        {{ $featuredPost->excerpt }}
-                    </p>
-                    <div class="mt-auto flex items-center justify-between text-sm text-slate-500 font-medium">
-                        <div class="flex items-center gap-4">
-                            <span class="flex items-center gap-2"><i class="far fa-calendar"></i> {{ $featuredPost->published_at?->format('M d, Y') }}</span>
-                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                            <span class="flex items-center gap-2 font-semibold text-indigo-600"><i class="far fa-eye"></i> {{ $featuredPost->views }} views</span>
-                        </div>
-                        <span class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                            <!-- Arrow changed to point right for English -->
-                            <i class="fas fa-arrow-right"></i>
-                        </span>
-                    </div>
-                </div>
+    {{-- ============ MAIN GRID ============ --}}
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-3 gap-10">
 
-                <!-- Image Side (Smaller Width) -->
-                <div class="relative h-[280px] lg:h-[400px] lg:col-span-5 order-1 lg:order-2 overflow-hidden m-4 lg:m-6 rounded-2xl shadow-sm">
-                    <img src="{{ $featuredPost->image_url }}" alt="{{ $featuredPost->title }}"
-                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
-                </div>
-
+        {{-- ============ ARTICLES LIST ============ --}}
+        <main class="lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-slate-900">
+                    {{ request('q') ? 'Search Results' : (request('category') ? 'Category' : (request('tag') ? 'Tag: '.request('tag') : 'Latest Articles')) }}
+                </h2>
+                @if(request('q') || request('category') || request('tag'))
+                    <a href="{{ route('blog.index') }}" class="text-xs font-medium text-indigo-600 hover:underline">Clear filters</a>
+                @endif
             </div>
-        </a>
-    </section>
-    @endif
 
-    {{-- ============ LATEST ARTICLES GRID ============ --}}
-    <section class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-10">
-            <h3 class="text-2xl font-bold text-slate-900">
-                {{ request('q') ? 'Search Results' : (request('category') ? 'Category Articles' : 'Latest Articles') }}
-            </h3>
-            @if(request('q'))
-                <span class="px-4 py-1.5 rounded-full bg-slate-200/50 text-slate-600 text-sm font-medium">
-                    For: "{{ request('q') }}"
-                </span>
-            @endif
-        </div>
-
-        @if($posts->isEmpty())
-            <!-- Beautiful Empty State -->
-            <div class="flex flex-col items-center justify-center py-20 px-4 bg-white rounded-[2rem] shadow-sm ring-1 ring-slate-100 text-center">
-                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                    <i class="fas fa-search text-4xl text-slate-300"></i>
+            @if($posts->isEmpty())
+                <div class="p-12 bg-white rounded-2xl ring-1 ring-slate-100 text-center">
+                    <i class="fas fa-search text-3xl text-slate-300 mb-3"></i>
+                    <p class="text-slate-500">No articles found.</p>
                 </div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2">We couldn't find any articles</h3>
-                <p class="text-slate-500 mb-8 max-w-sm">Try searching with different keywords or browse our available categories to find what you're looking for.</p>
-                <a href="{{ route('blog.index') }}" class="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-medium hover:bg-indigo-600 transition-colors duration-300 shadow-md">
-                    Clear Search & Return
-                </a>
-            </div>
-        @else
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($posts as $index => $post)
-                <!-- Modern Card -->
-                <article class="group flex flex-col bg-white rounded-[1.5rem] overflow-hidden shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)]">
-                    <a href="{{ route('blog.show', $post->slug) }}" class="block relative aspect-[16/10] overflow-hidden">
+            @else
+                @foreach($posts as $post)
+                <article class="group flex gap-4 sm:gap-6 bg-white rounded-2xl p-4 sm:p-5 ring-1 ring-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.08)]">
+                    <a href="{{ route('blog.show', $post->slug) }}" class="shrink-0 block w-28 h-28 sm:w-44 sm:h-32 rounded-xl overflow-hidden bg-slate-100">
                         <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                        @if($post->category)
-                            <div class="absolute top-4 start-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-800 shadow-sm">
-                                {{ $post->category->name }}
-                            </div>
-                        @endif
                     </a>
-                    
-                    <div class="p-6 lg:p-8 flex flex-col flex-1">
-                        <h3 class="text-xl font-bold text-slate-900 leading-snug mb-3 group-hover:text-indigo-600 transition-colors duration-300">
+                    <div class="flex-1 min-w-0 flex flex-col">
+                        @if($post->category)
+                            <a href="{{ route('blog.index', ['category' => $post->category->slug]) }}"
+                               class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 hover:text-indigo-800 mb-1.5">
+                                {{ $post->category->name }}
+                            </a>
+                        @endif
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-snug mb-1.5 line-clamp-2 group-hover:text-indigo-600 transition-colors">
                             <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
                         </h3>
-                        <p class="text-slate-600 leading-relaxed line-clamp-3 mb-6 text-sm flex-1">
-                            {{ $post->excerpt }}
-                        </p>
-                        <div class="flex items-center justify-between pt-5 border-t border-slate-100 text-xs font-medium text-slate-500">
-                            <span class="flex items-center gap-1.5"><i class="far fa-calendar text-slate-400"></i> {{ $post->published_at?->format('M d, Y') }}</span>
-                            <span class="flex items-center gap-1.5 group-hover:text-indigo-600 transition-colors">
-                                Read More 
-                                <!-- Arrow changed to point right and animation changed to positive X translation -->
-                                <i class="fas fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
-                            </span>
+                        <p class="hidden sm:block text-sm text-slate-600 leading-relaxed line-clamp-2 mb-3">{{ $post->excerpt }}</p>
+                        <div class="mt-auto flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 font-medium">
+                            <span class="flex items-center gap-1.5"><i class="far fa-calendar"></i> {{ $post->published_at?->format('M d, Y') }}</span>
+                            <span class="flex items-center gap-1.5"><i class="far fa-eye"></i> {{ $post->views }} views</span>
+                            <span class="flex items-center gap-1.5"><i class="far fa-comment"></i> {{ $post->comments_count ?? 0 }} comments</span>
                         </div>
                     </div>
                 </article>
                 @endforeach
+
+                <div class="pt-6">{{ $posts->links() }}</div>
+            @endif
+        </main>
+
+        {{-- ============ SIDEBAR ============ --}}
+        <aside class="lg:col-span-1 space-y-6 lg:sticky lg:top-24 self-start">
+
+            {{-- Search --}}
+            <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
+                <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fas fa-search text-indigo-600"></i> Search</h4>
+                <form method="GET" class="relative">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Search articles..."
+                           class="w-full h-11 ps-4 pe-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none">
+                    <button class="absolute inset-y-0 end-0 px-3 text-slate-400 hover:text-indigo-600"><i class="fas fa-arrow-right"></i></button>
+                </form>
             </div>
 
-            <!-- Modern Pagination -->
-            <div class="mt-16 flex justify-center">
-                {{ $posts->links() }}
+            {{-- Featured --}}
+            @if($featured)
+            <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-star text-amber-500"></i> Featured Article</h4>
+                <a href="{{ route('blog.show', $featured->slug) }}" class="group block">
+                    <div class="aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-slate-100">
+                        <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    </div>
+                    @if($featured->category)
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">{{ $featured->category->name }}</span>
+                    @endif
+                    <h5 class="font-bold text-slate-900 leading-snug mt-1 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">{{ $featured->title }}</h5>
+                    <p class="text-xs text-slate-500 line-clamp-2">{{ $featured->excerpt }}</p>
+                </a>
             </div>
-        @endif
-    </section>
+            @endif
+
+            {{-- Popular --}}
+            @if($popular && $popular->count())
+            <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-fire text-rose-500"></i> Most Viewed</h4>
+                <ul class="space-y-4">
+                    @foreach($popular as $i => $p)
+                    <li>
+                        <a href="{{ route('blog.show', $p->slug) }}" class="group flex gap-3 items-start">
+                            <span class="shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-xs font-bold flex items-center justify-center">{{ $i + 1 }}</span>
+                            <div class="flex-1 min-w-0">
+                                <h6 class="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">{{ $p->title }}</h6>
+                                <div class="flex items-center gap-3 mt-1 text-[11px] text-slate-400 font-medium">
+                                    <span><i class="far fa-calendar"></i> {{ $p->published_at?->format('M d, Y') }}</span>
+                                    <span><i class="far fa-eye"></i> {{ $p->views }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            {{-- Categories --}}
+            @if($categories->count())
+            <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-folder text-indigo-600"></i> Categories</h4>
+                <div class="space-y-1">
+                    <a href="{{ route('blog.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ !request('category') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                        <span>All</span>
+                    </a>
+                    @foreach($categories as $cat)
+                    <a href="{{ route('blog.index', ['category' => $cat->slug]) }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request('category')===$cat->slug ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50' }}">
+                        <span>{{ $cat->name }}</span>
+                        <i class="fas fa-chevron-left text-[10px] opacity-50"></i>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- Tags --}}
+            @if($tags && $tags->count())
+            <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-tags text-purple-600"></i> Tags</h4>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($tags as $tag)
+                    <a href="{{ route('blog.index', ['tag' => $tag]) }}"
+                       class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors {{ request('tag')===$tag ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700' }}">
+                        #{{ $tag }}
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+        </aside>
+    </div>
 </div>
 @endsection

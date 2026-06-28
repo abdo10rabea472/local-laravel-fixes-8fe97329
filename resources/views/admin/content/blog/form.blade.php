@@ -43,6 +43,19 @@
                 </div>
 
                 <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">التسميات (Tags)</label>
+                    <input name="tags" value="{{ old('tags', $post->tags) }}" placeholder="laravel, php, seo"
+                           class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                    <p class="text-xs text-gray-500 mt-1">افصل بين التسميات بفاصلة. ستظهر كفلاتر في صفحة المدونة.</p>
+                </div>
+
+                <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
+                    <input type="hidden" name="is_featured" value="0">
+                    <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $post->is_featured)) class="accent-primary-600 w-4 h-4">
+                    <span class="font-bold text-gray-700 dark:text-gray-200"><i class="fa-solid fa-star text-amber-500 me-1"></i> مقال مميز (يظهر في القائمة الجانبية)</span>
+                </label>
+
+                <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">المحتوى *</label>
                     <textarea id="content-editor" name="content" rows="20"
                               class="w-full px-4 py-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">{{ old('content', $post->content) }}</textarea>

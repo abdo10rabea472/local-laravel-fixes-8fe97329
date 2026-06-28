@@ -14,12 +14,20 @@ class BlogPost extends Model
         'blog_category_id','author_id','title','slug','image',
         'excerpt','content','views','published_at',
         'meta_title','meta_description','meta_keywords','og_image','canonical_url','no_index',
+        'is_featured','tags',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'no_index' => 'boolean',
+        'is_featured' => 'boolean',
     ];
+
+    public function getTagsArrayAttribute(): array
+    {
+        if (empty($this->tags)) return [];
+        return array_values(array_filter(array_map('trim', explode(',', $this->tags))));
+    }
 
     protected static function booted(): void
     {
