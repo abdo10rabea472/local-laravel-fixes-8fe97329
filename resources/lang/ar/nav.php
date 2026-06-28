@@ -35,4 +35,11 @@ return [
     'all' => 'الكل',
     'menu' => 'القائمة',
     'close' => 'إغلاق',
+    'shopping_cart' => 'سلة التسوق',
+    'cart_total' => 'الإجمالي',
+    'shop_more' => 'تسوق المزيد',
+    'free_shipping_over' => 'شحن مجاني لأكثر من :amount',
+    'admin_panel' => 'الإدارة',
+    'sign_in' => 'تسجيل الدخول',
+    'search_long_placeholder' => 'ابحث عن المجاهر، أدوات التشريح، الزجاجيات المخبرية...',
 ];

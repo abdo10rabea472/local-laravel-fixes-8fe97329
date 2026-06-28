@@ -40,4 +40,11 @@ return [
     'all' => 'All',
     'menu' => 'Menu',
     'close' => 'Close',
+    'shopping_cart' => 'Shopping Cart',
+    'cart_total' => 'TOTAL',
+    'shop_more' => 'Shop More',
+    'free_shipping_over' => 'Free shipping over :amount',
+    'admin_panel' => 'Admin',
+    'sign_in' => 'Sign in',
+    'search_long_placeholder' => 'Search microscopes, dissection kits, lab glassware...',
 ];
