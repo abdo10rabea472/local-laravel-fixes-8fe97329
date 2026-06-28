@@ -19,13 +19,7 @@ class OffersController extends Controller
 
         $coupons = collect();
         if (Schema::hasTable('coupons')) {
-            $coupons = Coupon::where('active', true)
-                ->where(function ($q) {
-                    $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
-                })
-                ->where(function ($q) {
-                    $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
-                })
+            $coupons = Coupon::active()
                 ->orderByDesc('created_at')
                 ->limit(8)
                 ->get();

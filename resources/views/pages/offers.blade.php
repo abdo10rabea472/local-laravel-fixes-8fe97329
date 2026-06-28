@@ -25,7 +25,7 @@
                     </span>
                 </div>
                 @if($c->description)<p class="text-sm text-slate-600 mb-2">{{ $c->description }}</p>@endif
-                @if($c->expires_at)<p class="text-xs text-slate-400"><i class="far fa-clock"></i> ينتهي {{ $c->expires_at->format('Y-m-d') }}</p>@endif
+                @if($c->ends_at)<p class="text-xs text-slate-400"><i class="far fa-clock"></i> ينتهي {{ $c->ends_at->format('Y-m-d') }}</p>@endif
                 <button onclick="navigator.clipboard.writeText('{{ $c->code }}'); this.innerText='تم النسخ ✓'"
                         class="mt-3 w-full bg-violet-600 text-white py-2 rounded-lg text-sm hover:bg-violet-700">نسخ الكود</button>
             </div>
