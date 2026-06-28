@@ -247,6 +247,21 @@
                     <a href="{{ route('products.index', ['featured' => 1]) }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
                         <i class="fa-solid fa-star text-xs text-amber-500"></i> Featured
                     </a>
+                    <a href="{{ route('offers') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('offers') ? 'text-rose-600 border-b-2 border-rose-500' : 'text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-300' }} transition">
+                        <i class="fa-solid fa-fire text-xs"></i> Offers
+                    </a>
+                    <a href="{{ route('blog.index') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('blog.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                        <i class="fa-solid fa-newspaper text-xs"></i> Blog
+                    </a>
+                    <a href="{{ route('track-order') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('track-order') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                        <i class="fa-solid fa-truck text-xs"></i> Track Order
+                    </a>
+                    <a href="{{ route('contact') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('contact') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                        <i class="fa-solid fa-envelope text-xs"></i> Contact
+                    </a>
+                    <a href="{{ route('about') }}" class="hidden xl:flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('about') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                        <i class="fa-solid fa-circle-info text-xs"></i> About
+                    </a>
 
                     {{-- Dynamic menu items --}}
                     @foreach($navHeaderMenu ?? collect() as $item)
