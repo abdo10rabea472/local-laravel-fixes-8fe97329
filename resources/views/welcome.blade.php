@@ -11,36 +11,36 @@
         <div>
             <span class="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-xs font-bold px-3 py-1.5 rounded-full mb-5">
                 <i class="fa-solid fa-flask-vial text-amber-300"></i>
-                {{ $hero['badge'] ?? 'Trusted by university students nationwide' }}
+                {{ $hero['badge'] ?? __('home.hero_badge') }}
             </span>
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] mb-5">
-                {{ $hero['title'] ?? 'Professional lab tools, built for every college.' }}
+                {{ $hero['title'] ?? __('home.hero_title') }}
             </h1>
             <p class="text-violet-100 text-base sm:text-lg max-w-xl mb-7 leading-relaxed">
-                {{ $hero['subtitle'] ?? 'Microscopes, dissection kits, engineering instruments, chemistry glassware — everything your faculty needs, delivered fast.' }}
+                {{ $hero['subtitle'] ?? __('home.hero_subtitle') }}
             </p>
 
             <div class="flex flex-wrap gap-3 mb-8">
                 <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 bg-white text-violet-800 font-black px-7 py-3.5 rounded-xl hover:bg-amber-300 hover:text-violet-900 transition shadow-xl">
-                    <i class="fa-solid fa-bag-shopping"></i> Shop all products
+                    <i class="fa-solid fa-bag-shopping"></i> {{ __('home.hero_shop_all') }}
                 </a>
                 <a href="#colleges" class="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/25 text-white font-black px-7 py-3.5 rounded-xl hover:bg-white/20 transition">
-                    <i class="fa-solid fa-graduation-cap"></i> Browse by college
+                    <i class="fa-solid fa-graduation-cap"></i> {{ __('home.hero_browse_colleges') }}
                 </a>
             </div>
 
             <div class="grid grid-cols-3 gap-4 max-w-md">
                 <div class="text-center">
                     <div class="text-2xl sm:text-3xl font-black text-amber-300">{{ $hero['stat_products'] ?? '0' }}</div>
-                    <div class="text-xs text-violet-200 font-semibold">Products</div>
+                    <div class="text-xs text-violet-200 font-semibold">{{ __('home.hero_stat_products') }}</div>
                 </div>
                 <div class="text-center border-x border-white/15">
                     <div class="text-2xl sm:text-3xl font-black text-amber-300">{{ $hero['stat_colleges'] ?? '0' }}</div>
-                    <div class="text-xs text-violet-200 font-semibold">Colleges</div>
+                    <div class="text-xs text-violet-200 font-semibold">{{ __('home.hero_stat_colleges') }}</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl sm:text-3xl font-black text-amber-300">{{ $hero['stat_departments'] ?? '0' }}</div>
-                    <div class="text-xs text-violet-200 font-semibold">Departments</div>
+                    <div class="text-xs text-violet-200 font-semibold">{{ __('home.hero_stat_departments') }}</div>
                 </div>
             </div>
         </div>
@@ -50,10 +50,10 @@
             <div class="relative grid grid-cols-2 gap-4 w-full max-w-lg">
                 @php
                     $heroIcons = [
-                        ['fa-microscope', 'from-cyan-400 to-blue-500', 'Microscopes'],
-                        ['fa-vial', 'from-emerald-400 to-teal-500', 'Glassware'],
-                        ['fa-stethoscope', 'from-rose-400 to-pink-500', 'Medical kits'],
-                        ['fa-screwdriver-wrench', 'from-amber-400 to-orange-500', 'Engineering'],
+                        ['fa-microscope', 'from-cyan-400 to-blue-500', __('home.hero_card_microscopes')],
+                        ['fa-vial', 'from-emerald-400 to-teal-500', __('home.hero_card_glassware')],
+                        ['fa-stethoscope', 'from-rose-400 to-pink-500', __('home.hero_card_medical')],
+                        ['fa-screwdriver-wrench', 'from-amber-400 to-orange-500', __('home.hero_card_engineering')],
                     ];
                 @endphp
                 @foreach($heroIcons as [$ic, $grad, $lbl])
@@ -62,7 +62,7 @@
                         <i class="fa-solid {{ $ic }}"></i>
                     </div>
                     <div class="font-black">{{ $lbl }}</div>
-                    <div class="text-xs text-violet-100 mt-0.5">Professional grade</div>
+                    <div class="text-xs text-violet-100 mt-0.5">{{ __('home.hero_card_subtitle') }}</div>
                 </div>
                 @endforeach
             </div>
@@ -75,10 +75,10 @@
     <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $features = [
-                ['fa-truck-fast', 'Fast delivery', 'Across Egypt in 2–4 days'],
-                ['fa-shield-halved', 'Original products', 'Quality guaranteed'],
-                ['fa-rotate-left', 'Easy returns', 'Within 14 days'],
-                ['fa-headset', 'Student support', '7 days a week'],
+                ['fa-truck-fast', __('home.features_fast_title'), __('home.features_fast_sub')],
+                ['fa-shield-halved', __('home.features_original_title'), __('home.features_original_sub')],
+                ['fa-rotate-left', __('home.features_returns_title'), __('home.features_returns_sub')],
+                ['fa-headset', __('home.features_support_title'), __('home.features_support_sub')],
             ];
         @endphp
         @foreach($features as [$ic, $title, $sub])
@@ -103,11 +103,11 @@
         <div class="flex items-end justify-between mb-6">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-violet-600">
-                    Shop by college
+                    {{ __('home.colleges_eyebrow') }}
                 </span>
 
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-                    Find tools for your faculty
+                    {{ __('home.colleges_title') }}
                 </h2>
             </div>
 
@@ -193,11 +193,11 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-amber-600">
-                    Editor's Pick
+                    {{ __('home.featured_eyebrow') }}
                 </span>
 
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-                    {{ $homeSections['featured_title'] ?? 'Top picks for students' }}
+                    {{ $homeSections['featured_title'] ?? __('home.featured_title') }}
                 </h2>
 
                 @if(!empty($homeSections['featured_subtitle']))
@@ -250,11 +250,11 @@
             <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-400/20 rounded-full blur-3xl"></div>
 
             <div class="relative">
-                <span class="inline-block bg-amber-400/20 text-amber-300 text-xs font-black px-3 py-1.5 rounded-full mb-3">Bulk orders</span>
-                <h3 class="text-3xl sm:text-4xl font-black mb-3 leading-tight">Equip your entire department</h3>
-                <p class="text-violet-100 mb-6 max-w-md">Special pricing for faculties, research labs, and student associations placing bulk orders.</p>
+                <span class="inline-block bg-amber-400/20 text-amber-300 text-xs font-black px-3 py-1.5 rounded-full mb-3">{{ __('home.cta_badge') }}</span>
+                <h3 class="text-3xl sm:text-4xl font-black mb-3 leading-tight">{{ __('home.cta_title') }}</h3>
+                <p class="text-violet-100 mb-6 max-w-md">{{ __('home.cta_subtitle') }}</p>
                 <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 bg-white text-violet-800 font-black px-6 py-3 rounded-xl hover:bg-amber-300 hover:text-violet-900 transition shadow-lg">
-                    Request a quote <i class="fa-solid fa-arrow-right"></i>
+                    {{ __('home.cta_button') }} <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
             <div class="relative hidden md:grid grid-cols-3 gap-3">
@@ -274,9 +274,9 @@
     <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="text-center mb-6">
-            <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Best deals</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-600">{{ __('home.deals_eyebrow') }}</span>
             <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-                Latest equipment & lowest prices
+                {{ __('home.deals_title') }}
             </h2>
 
             @if($mainCategories->isNotEmpty())
@@ -285,7 +285,7 @@
                     <button type="button"
                             class="filter-btn px-4 py-2 rounded-full text-xs font-bold bg-violet-600 text-white"
                             data-college="">
-                        All products
+                        {{ __('home.deals_all') }}
                     </button>
 
                     @foreach($mainCategories->take(6) as $c)
@@ -323,7 +323,7 @@
         <div class="flex justify-center mt-8">
             <a href="{{ route('products.index') }}"
                class="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold px-8 py-3 rounded-full shadow-lg shadow-violet-500/30 transition">
-                Browse all deals
+                {{ __('home.deals_browse_all') }}
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
@@ -369,8 +369,8 @@
     <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-8">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-violet-600">By college</span>
-                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Explore every faculty</h2>
+                <span class="text-xs font-bold uppercase tracking-wider text-violet-600">{{ __('home.college_tiles_eyebrow') }}</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{{ __('home.college_tiles_title') }}</h2>
             </div>
             <div class="hidden md:flex gap-3">
                 <button class="college-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition"><i class="fa-solid fa-chevron-left"></i></button>
@@ -392,9 +392,9 @@
                                 <div>
                                     <h3 class="text-lg sm:text-xl font-black leading-tight">{{ $cat->name }}</h3>
                                     @if($cat->children_count)
-                                        <p class="text-xs text-white/80 mt-1">{{ $cat->children_count }} departments</p>
+                                        <p class="text-xs text-white/80 mt-1">{{ $cat->children_count }} {{ __('home.college_tiles_departments') }}</p>
                                     @endif
-                                    <span class="inline-flex items-center gap-1.5 text-xs font-bold mt-3 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">Shop now <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-bold mt-3 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">{{ __('home.college_tiles_shop_now') }} <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
                                 </div>
                             </div>
                         </a>
@@ -414,13 +414,13 @@
 
         <div class="flex items-end justify-between mb-6">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Just landed</span>
-                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">New arrivals</h2>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">{{ __('home.new_eyebrow') }}</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{{ __('home.new_title') }}</h2>
             </div>
 
             <div class="flex items-center gap-3">
                 <a href="{{ route('products.index',['sort'=>'newest']) }}" class="text-violet-700 font-bold text-sm hover:underline hidden sm:inline-flex items-center gap-1">
-                    View all <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    {{ __('home.new_view_all') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </a>
 
                 <button class="new-prev hidden md:flex w-10 h-10 items-center justify-center rounded-full border bg-white hover:bg-violet-600 hover:text-white transition">
@@ -455,18 +455,18 @@
 <section class="py-14 bg-gradient-to-br from-slate-900 to-violet-950 text-white">
     <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-300">Why UNI-LAB</span>
-            <h2 class="text-2xl sm:text-4xl font-black mt-1">Built specifically for university students</h2>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-300">{{ __('home.why_eyebrow') }}</span>
+            <h2 class="text-2xl sm:text-4xl font-black mt-1">{{ __('home.why_title') }}</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             @php
                 $why = [
-                    ['fa-flask-vial', 'Curriculum-matched tools', 'Every product is selected to match Egyptian university lab requirements.'],
-                    ['fa-tags', 'Student-friendly prices', 'Negotiated pricing with manufacturers so you pay less every semester.'],
-                    ['fa-truck', 'Delivery to your campus', 'Get your equipment delivered directly to your faculty or address.'],
-                    ['fa-shield-halved', 'Original & certified', 'Authentic instruments from trusted lab and medical suppliers.'],
-                    ['fa-people-group', 'Group orders', 'Save more when you order with classmates or your association.'],
-                    ['fa-headset', 'Real support', 'Talk to humans who understand what your professor actually asked for.'],
+                    ['fa-flask-vial', __('home.why_1_title'), __('home.why_1_desc')],
+                    ['fa-tags', __('home.why_2_title'), __('home.why_2_desc')],
+                    ['fa-truck', __('home.why_3_title'), __('home.why_3_desc')],
+                    ['fa-shield-halved', __('home.why_4_title'), __('home.why_4_desc')],
+                    ['fa-people-group', __('home.why_5_title'), __('home.why_5_desc')],
+                    ['fa-headset', __('home.why_6_title'), __('home.why_6_desc')],
                 ];
             @endphp
             @foreach($why as [$ic, $t, $d])
@@ -488,13 +488,13 @@
         <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-violet-100 text-violet-700 text-2xl mb-4">
             <i class="fa-regular fa-envelope"></i>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3">Stay in the loop</h2>
-        <p class="text-slate-500 mb-6">Get new arrivals, semester deals, and lab guides straight to your inbox.</p>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3">{{ __('home.newsletter_title') }}</h2>
+        <p class="text-slate-500 mb-6">{{ __('home.newsletter_subtitle') }}</p>
         <form action="{{ route('newsletter.subscribe') }}" method="post" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
             @csrf
-            <input type="email" name="email" required placeholder="your@email.com" class="flex-1 h-12 px-5 bg-slate-100 text-slate-900 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500 border border-transparent focus:bg-white focus:border-violet-300">
+            <input type="email" name="email" required placeholder="{{ __('home.newsletter_placeholder') }}" class="flex-1 h-12 px-5 bg-slate-100 text-slate-900 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500 border border-transparent focus:bg-white focus:border-violet-300">
             <button type="submit" class="h-12 px-8 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl transition shadow-lg shadow-violet-500/30">
-                Subscribe
+                {{ __('home.newsletter_button') }}
             </button>
         </form>
     </div>

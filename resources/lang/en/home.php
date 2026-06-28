@@ -1,0 +1,71 @@
+<?php
+
+return [
+    'hero_badge'              => 'Trusted by university students nationwide',
+    'hero_title'              => 'Professional lab tools, built for every college.',
+    'hero_subtitle'           => 'Microscopes, dissection kits, engineering instruments, chemistry glassware — everything your faculty needs, delivered fast.',
+    'hero_shop_all'           => 'Shop all products',
+    'hero_browse_colleges'    => 'Browse by college',
+    'hero_stat_products'      => 'Products',
+    'hero_stat_colleges'      => 'Colleges',
+    'hero_stat_departments'   => 'Departments',
+    'hero_card_microscopes'   => 'Microscopes',
+    'hero_card_glassware'     => 'Glassware',
+    'hero_card_medical'       => 'Medical kits',
+    'hero_card_engineering'   => 'Engineering',
+    'hero_card_subtitle'      => 'Professional grade',
+
+    'features_fast_title'     => 'Fast delivery',
+    'features_fast_sub'       => 'Across Egypt in 2–4 days',
+    'features_original_title' => 'Original products',
+    'features_original_sub'   => 'Quality guaranteed',
+    'features_returns_title'  => 'Easy returns',
+    'features_returns_sub'    => 'Within 14 days',
+    'features_support_title'  => 'Student support',
+    'features_support_sub'    => '7 days a week',
+
+    'colleges_eyebrow'        => 'Shop by college',
+    'colleges_title'          => 'Find tools for your faculty',
+
+    'featured_eyebrow'        => "Editor's Pick",
+    'featured_title'          => 'Top picks for students',
+
+    'cta_badge'               => 'Bulk orders',
+    'cta_title'               => 'Equip your entire department',
+    'cta_subtitle'            => 'Special pricing for faculties, research labs, and student associations placing bulk orders.',
+    'cta_button'              => 'Request a quote',
+
+    'deals_eyebrow'           => 'Best deals',
+    'deals_title'             => 'Latest equipment & lowest prices',
+    'deals_all'               => 'All products',
+    'deals_browse_all'        => 'Browse all deals',
+
+    'college_tiles_eyebrow'   => 'By college',
+    'college_tiles_title'     => 'Explore every faculty',
+    'college_tiles_departments' => 'departments',
+    'college_tiles_shop_now'  => 'Shop now',
+
+    'new_eyebrow'             => 'Just landed',
+    'new_title'               => 'New arrivals',
+    'new_view_all'            => 'View all',
+
+    'why_eyebrow'             => 'Why UNI-LAB',
+    'why_title'               => 'Built specifically for university students',
+    'why_1_title'             => 'Curriculum-matched tools',
+    'why_1_desc'              => 'Every product is selected to match Egyptian university lab requirements.',
+    'why_2_title'             => 'Student-friendly prices',
+    'why_2_desc'              => 'Negotiated pricing with manufacturers so you pay less every semester.',
+    'why_3_title'             => 'Delivery to your campus',
+    'why_3_desc'              => 'Get your equipment delivered directly to your faculty or address.',
+    'why_4_title'             => 'Original & certified',
+    'why_4_desc'              => 'Authentic instruments from trusted lab and medical suppliers.',
+    'why_5_title'             => 'Group orders',
+    'why_5_desc'              => 'Save more when you order with classmates or your association.',
+    'why_6_title'             => 'Real support',
+    'why_6_desc'              => 'Talk to humans who understand what your professor actually asked for.',
+
+    'newsletter_title'        => 'Stay in the loop',
+    'newsletter_subtitle'     => 'Get new arrivals, semester deals, and lab guides straight to your inbox.',
+    'newsletter_placeholder'  => 'your@email.com',
+    'newsletter_button'       => 'Subscribe',
+];
