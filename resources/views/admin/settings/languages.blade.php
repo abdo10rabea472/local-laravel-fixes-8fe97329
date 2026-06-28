@@ -66,6 +66,10 @@
                     </td>
                     <td class="p-3">{{ $lang->sort_order }}</td>
                     <td class="p-3 text-right whitespace-nowrap">
+                        <a href="{{ route('admin.settings.languages.translations', $lang) }}"
+                           class="text-emerald-600 hover:underline text-xs font-bold mr-2">
+                            <i class="fa-solid fa-language"></i> Translate
+                        </a>
                         <button @click='open=true; edit={{ $lang->id }}; form=@json($lang)'
                                 class="text-violet-600 hover:underline text-xs font-bold mr-2">Edit</button>
                         @unless($lang->is_default)
