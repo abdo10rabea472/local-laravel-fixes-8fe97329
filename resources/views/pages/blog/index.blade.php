@@ -63,11 +63,8 @@
                     @foreach($posts as $post)
                     <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col">
                         <a href="{{ route('blog.show', $post->slug) }}" class="block aspect-video bg-slate-100 overflow-hidden relative">
-                            @if($post->image)
-                                <img src="{{ asset('storage/'.$post->image) }}" alt="{{ $post->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-indigo-100"><i class="fas fa-newspaper text-5xl text-violet-300"></i></div>
-                            @endif
+                            <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
                             @if($post->category)
                                 <span class="absolute top-3 right-3 px-3 py-1 bg-white/95 backdrop-blur text-violet-700 text-xs font-bold rounded-full shadow">{{ $post->category->name }}</span>
                             @endif
