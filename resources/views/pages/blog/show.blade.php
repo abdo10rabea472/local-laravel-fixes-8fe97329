@@ -7,7 +7,7 @@
 @section('content')
 <section class="relative bg-gradient-to-br from-slate-900 via-violet-900 to-indigo-900 text-white pt-16 pb-32 overflow-hidden">
     <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 30%, #a78bfa 0, transparent 40%), radial-gradient(circle at 80% 70%, #6366f1 0, transparent 45%);"></div>
-    <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="relative w-full px-6 lg:px-16 max-w-[1400px] mx-auto">
         <nav class="flex items-center gap-2 text-sm text-violet-200 mb-6">
             <a href="{{ route('home') }}" class="hover:text-white">الرئيسية</a>
             <i class="fas fa-chevron-left text-[10px]"></i>
