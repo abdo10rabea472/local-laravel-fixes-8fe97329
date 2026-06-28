@@ -1,201 +1,223 @@
 @extends('layouts.front')
 
 @section('content')
-{{-- ============ HERO ============ --}}
-<section class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-violet-950 to-indigo-950 text-white">
-    <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 15% 20%, #a78bfa 0, transparent 35%), radial-gradient(circle at 85% 70%, #6366f1 0, transparent 40%), radial-gradient(circle at 50% 100%, #ec4899 0, transparent 45%);"></div>
-    <div class="absolute inset-0 opacity-[0.07]" style="background-image: linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px); background-size: 56px 56px;"></div>
+@php
+    $featuredPost = $featured ?? null;
+    $hasFilters = request('q') || request('category');
+@endphp
 
-    <div class="relative w-full px-6 lg:px-16 py-24 lg:py-32">
-        <div class="max-w-5xl mx-auto text-center">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur text-sm font-medium border border-white/20 mb-6">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <i class="fas fa-book-open"></i> مدونة المعرفة
-            </span>
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-[1.1]">
-                أحدث المقالات
-                <span class="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">والتجارب</span>
-            </h1>
-            <p class="text-lg md:text-xl text-violet-100/90 max-w-2xl mx-auto leading-relaxed">
-                اقرأ، تعلم، وشارك أفكارك في مجتمع يهتم بالمعرفة والإبداع.
-            </p>
+<div class="bg-stone-50 text-stone-900 [font-feature-settings:'ss01','ss02']">
 
-            <form method="GET" class="mt-10 max-w-2xl mx-auto flex bg-white/10 backdrop-blur-xl rounded-2xl p-2 border border-white/20 shadow-2xl shadow-violet-900/40">
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="ابحث عن مقال، كلمة، موضوع..."
-                       class="flex-1 bg-transparent px-5 py-3 placeholder-violet-200/70 text-white focus:outline-none text-base">
-                <button class="px-6 md:px-8 py-3 bg-white text-violet-700 font-bold rounded-xl hover:bg-violet-50 transition-all hover:shadow-lg">
-                    <i class="fas fa-search"></i> <span class="hidden sm:inline">بحث</span>
-                </button>
-            </form>
+    {{-- ============ EDITORIAL MASTHEAD ============ --}}
+    <section class="relative border-b border-stone-200 bg-stone-50">
+        <div class="w-full max-w-[1850px] mx-auto px-6 lg:px-16 pt-14 pb-10">
+            <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-10">
+                <span>{{ now()->format('l, d F Y') }}</span>
+                <span class="hidden sm:inline">عدد المقالات · {{ $posts->total() }}</span>
+                <span>المجلة · العدد الرقمي</span>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-10 items-end">
+                <div class="lg:col-span-8">
+                    <span class="inline-block text-[11px] tracking-[0.35em] uppercase text-amber-700 font-bold mb-5">— Editorial Journal</span>
+                    <h1 class="font-serif text-5xl md:text-7xl lg:text-[6rem] leading-[0.95] tracking-tight text-stone-900">
+                        قصص، أفكار،
+                        <em class="italic font-light text-amber-700">ورؤى</em>
+                        تستحق القراءة.
+                    </h1>
+                </div>
+
+                <div class="lg:col-span-4 lg:border-r lg:border-stone-300 lg:pr-8">
+                    <p class="text-base leading-loose text-stone-600 mb-6">
+                        مساحة تحريرية للباحثين والمهتمين بالمعرفة. مقالات معمّقة، تجارب من الميدان، ومقاربات نقدية لما يحدث الآن.
+                    </p>
+                    <form method="GET" class="flex items-center border-b-2 border-stone-900 pb-2 group">
+                        <i class="fas fa-search text-stone-400 ml-2 group-focus-within:text-stone-900 transition"></i>
+                        <input type="search" name="q" value="{{ request('q') }}" placeholder="ابحث في الأرشيف…"
+                               class="flex-1 bg-transparent px-2 py-1 focus:outline-none placeholder-stone-400 text-stone-900">
+                        <button class="text-xs uppercase tracking-widest font-bold text-stone-900 hover:text-amber-700 transition">بحث</button>
+                    </form>
+                </div>
+            </div>
 
             @if($categories->count())
-            <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
-                <a href="{{ route('blog.index') }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition border {{ !request('category') ? 'bg-white text-violet-700 border-white' : 'bg-white/5 text-white/90 border-white/15 hover:bg-white/10' }}">جميع التصنيفات</a>
-                @foreach($categories->take(8) as $cat)
-                <a href="{{ route('blog.index', ['category' => $cat->slug]) }}" class="px-4 py-1.5 rounded-full text-xs font-bold transition border {{ request('category')===$cat->slug ? 'bg-white text-violet-700 border-white' : 'bg-white/5 text-white/90 border-white/15 hover:bg-white/10' }}">{{ $cat->name }}</a>
+            <div class="mt-12 pt-6 border-t border-stone-200 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+                <span class="text-[11px] uppercase tracking-[0.3em] text-stone-400 font-bold">الأقسام</span>
+                <a href="{{ route('blog.index') }}"
+                   class="relative pb-1 transition {{ !request('category') ? 'text-amber-700 font-bold after:absolute after:bottom-0 after:right-0 after:w-full after:h-px after:bg-amber-700' : 'text-stone-600 hover:text-stone-900' }}">
+                    الكل
+                </a>
+                @foreach($categories as $cat)
+                    <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
+                       class="relative pb-1 transition {{ request('category')===$cat->slug ? 'text-amber-700 font-bold after:absolute after:bottom-0 after:right-0 after:w-full after:h-px after:bg-amber-700' : 'text-stone-600 hover:text-stone-900' }}">
+                        {{ $cat->name }}
+                    </a>
                 @endforeach
             </div>
             @endif
         </div>
-    </div>
+    </section>
 
-    <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-slate-50"></div>
-</section>
-
-{{-- ============ FEATURED ============ --}}
-@if($featured && !request('q') && !request('category'))
-<section class="bg-slate-50 pb-12 -mt-8 relative">
-    <div class="w-full px-6 lg:px-16">
-        <a href="{{ route('blog.show', $featured->slug) }}" class="group block relative overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-violet-900/5 hover:shadow-2xl hover:shadow-violet-900/15 transition-all duration-500">
-            <div class="grid lg:grid-cols-5 items-stretch">
-                <div class="lg:col-span-3 relative aspect-[16/10] lg:aspect-auto bg-gradient-to-br from-slate-100 to-violet-50 overflow-hidden">
-                    <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    <span class="absolute top-5 right-5 inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black rounded-full shadow-lg">
-                        <i class="fas fa-star"></i> مقال مميز
-                    </span>
-                </div>
-                <div class="lg:col-span-2 p-8 lg:p-12 flex flex-col justify-center">
-                    @if($featured->category)<span class="inline-block w-fit px-3 py-1 bg-violet-100 text-violet-700 text-xs font-bold rounded-full mb-4 uppercase tracking-wide">{{ $featured->category->name }}</span>@endif
-                    <h2 class="text-3xl lg:text-4xl font-black text-slate-900 leading-tight mb-4 group-hover:text-violet-700 transition">{{ $featured->title }}</h2>
-                    <p class="text-slate-600 line-clamp-3 mb-6 leading-relaxed">{{ $featured->excerpt }}</p>
-                    <div class="flex items-center gap-5 text-sm text-slate-500 pb-6 mb-6 border-b border-slate-100">
-                        <span class="inline-flex items-center gap-1.5"><i class="far fa-calendar text-violet-500"></i> {{ $featured->published_at?->format('d M Y') }}</span>
-                        <span class="inline-flex items-center gap-1.5"><i class="far fa-eye text-violet-500"></i> {{ $featured->views }}</span>
+    {{-- ============ HERO / FEATURED ============ --}}
+    @if($featuredPost && !$hasFilters)
+    <section class="bg-stone-900 text-stone-50">
+        <div class="w-full max-w-[1850px] mx-auto px-6 lg:px-16 py-16 lg:py-24">
+            <a href="{{ route('blog.show', $featuredPost->slug) }}" class="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center group">
+                <div class="lg:col-span-7 relative overflow-hidden">
+                    <div class="aspect-[4/3] lg:aspect-[5/4] overflow-hidden bg-stone-800">
+                        <img src="{{ $featuredPost->image_url }}" alt="{{ $featuredPost->title }}"
+                             class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[1200ms]">
                     </div>
-                    <span class="inline-flex items-center gap-2 text-violet-700 font-bold group-hover:gap-3 transition-all">
-                        اقرأ المقال كاملاً <i class="fas fa-arrow-left text-sm"></i>
+                    <div class="absolute top-5 right-5 bg-amber-400 text-stone-900 px-4 py-2 text-[11px] uppercase tracking-[0.25em] font-black">
+                        ★ مقال الغلاف
+                    </div>
+                </div>
+                <div class="lg:col-span-5">
+                    @if($featuredPost->category)
+                        <span class="inline-block text-[11px] uppercase tracking-[0.35em] text-amber-400 font-bold mb-5">
+                            {{ $featuredPost->category->name }}
+                        </span>
+                    @endif
+                    <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-6 group-hover:text-amber-300 transition">
+                        {{ $featuredPost->title }}
+                    </h2>
+                    <p class="text-lg leading-loose text-stone-300 mb-8 line-clamp-4 max-w-xl">
+                        {{ $featuredPost->excerpt }}
+                    </p>
+                    <div class="flex items-center gap-6 text-xs uppercase tracking-widest text-stone-400 pb-6 mb-6 border-b border-stone-700">
+                        <span>{{ $featuredPost->published_at?->format('d F Y') }}</span>
+                        <span>·</span>
+                        <span>{{ $featuredPost->views }} مشاهدة</span>
+                    </div>
+                    <span class="inline-flex items-center gap-3 text-sm uppercase tracking-[0.25em] font-bold text-amber-400 group-hover:gap-5 transition-all">
+                        اقرأ المقال كاملاً
+                        <span class="w-10 h-px bg-amber-400"></span>
+                        <i class="fas fa-arrow-left"></i>
                     </span>
                 </div>
-            </div>
-        </a>
-    </div>
-</section>
-@endif
+            </a>
+        </div>
+    </section>
+    @endif
 
-{{-- ============ GRID + SIDEBAR ============ --}}
-<section class="py-16 bg-slate-50">
-    <div class="w-full px-6 lg:px-16 grid lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] gap-10">
-        {{-- Main --}}
-        <div>
-            <div class="flex items-end justify-between mb-8 pb-5 border-b border-slate-200">
+    {{-- ============ LATEST ARTICLES ============ --}}
+    <section class="bg-stone-50 py-20 lg:py-28">
+        <div class="w-full max-w-[1850px] mx-auto px-6 lg:px-16">
+
+            <div class="flex items-end justify-between border-b border-stone-300 pb-6 mb-14">
                 <div>
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">
-                        {{ request('q') ? 'نتائج البحث' : (request('category') ? 'تصنيف المقالات' : 'أحدث المقالات') }}
+                    <span class="block text-[11px] uppercase tracking-[0.35em] text-amber-700 font-bold mb-3">— Latest</span>
+                    <h2 class="font-serif text-4xl md:text-5xl text-stone-900">
+                        {{ request('q') ? 'نتائج البحث' : (request('category') ? 'في هذا القسم' : 'أحدث الإصدارات') }}
                     </h2>
-                    @if(request('q'))<p class="text-sm text-slate-500 mt-1">عن: <span class="font-semibold text-violet-700">"{{ request('q') }}"</span></p>@endif
+                    @if(request('q'))
+                        <p class="text-stone-500 mt-3">عن: <em class="text-stone-900 font-semibold">"{{ request('q') }}"</em></p>
+                    @endif
                 </div>
-                <span class="text-sm font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-full border border-slate-200">{{ $posts->total() }} مقال</span>
+                <span class="hidden md:block text-stone-400 font-serif text-3xl italic">{{ str_pad($posts->total(), 2, '0', STR_PAD_LEFT) }}</span>
             </div>
 
             @if($posts->isEmpty())
-                <div class="bg-white rounded-3xl p-16 text-center shadow-sm border border-slate-100">
-                    <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-violet-50 flex items-center justify-center">
-                        <i class="fas fa-newspaper text-3xl text-violet-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">لا توجد مقالات</h3>
-                    <p class="text-slate-500 mb-6">لم نعثر على نتائج تطابق بحثك. جرب كلمات أخرى.</p>
-                    <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 transition">
-                        <i class="fas fa-redo"></i> عرض جميع المقالات
+                <div class="py-24 text-center max-w-md mx-auto">
+                    <div class="font-serif text-7xl text-stone-300 mb-6">∅</div>
+                    <h3 class="font-serif text-3xl text-stone-900 mb-3">لا يوجد ما يطابق بحثك</h3>
+                    <p class="text-stone-500 mb-8">جرّب كلمات أخرى أو تصفّح كامل الأرشيف.</p>
+                    <a href="{{ route('blog.index') }}"
+                       class="inline-flex items-center gap-3 text-sm uppercase tracking-[0.25em] font-bold text-stone-900 border-b-2 border-stone-900 pb-1 hover:text-amber-700 hover:border-amber-700 transition">
+                        عرض جميع المقالات <i class="fas fa-arrow-left"></i>
                     </a>
                 </div>
             @else
-                <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-7">
-                    @foreach($posts as $post)
-                    <article class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-violet-900/10 transition-all duration-500 border border-slate-100 hover:border-violet-200 hover:-translate-y-1 flex flex-col">
-                        <a href="{{ route('blog.show', $post->slug) }}" class="block aspect-[16/10] bg-gradient-to-br from-slate-100 to-violet-50 overflow-hidden relative">
-                            <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition"></div>
-                            @if($post->category)
-                                <span class="absolute top-4 right-4 px-3 py-1.5 bg-white/95 backdrop-blur text-violet-700 text-xs font-black rounded-full shadow-md uppercase tracking-wide">{{ $post->category->name }}</span>
-                            @endif
-                        </a>
-                        <div class="p-6 flex flex-col flex-1">
-                            <h3 class="text-lg font-extrabold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-violet-700 transition">
-                                <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
-                            </h3>
-                            <p class="text-sm text-slate-600 line-clamp-3 mb-5 flex-1 leading-relaxed">{{ $post->excerpt }}</p>
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-semibold text-slate-500">
-                                <span class="inline-flex items-center gap-1.5"><i class="far fa-clock text-violet-500"></i> {{ $post->published_at?->diffForHumans() }}</span>
-                                <span class="inline-flex items-center gap-1.5"><i class="far fa-eye text-violet-500"></i> {{ $post->views }}</span>
+                <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-16">
+                    @foreach($posts as $index => $post)
+                    <article class="group flex flex-col">
+                        <a href="{{ route('blog.show', $post->slug) }}" class="block relative overflow-hidden mb-6 bg-stone-200">
+                            <div class="aspect-[4/3] overflow-hidden">
+                                <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[900ms]">
                             </div>
+                            <span class="absolute top-4 right-4 bg-stone-50 text-stone-900 px-3 py-1 text-[10px] uppercase tracking-[0.25em] font-bold">
+                                №{{ str_pad(($posts->firstItem() ?? 1) + $index, 2, '0', STR_PAD_LEFT) }}
+                            </span>
+                        </a>
+
+                        @if($post->category)
+                            <a href="{{ route('blog.index', ['category' => $post->category->slug]) }}"
+                               class="text-[11px] uppercase tracking-[0.3em] text-amber-700 font-bold mb-3 hover:underline">
+                                {{ $post->category->name }}
+                            </a>
+                        @endif
+
+                        <h3 class="font-serif text-2xl lg:text-[1.75rem] leading-snug text-stone-900 mb-3 group-hover:text-amber-700 transition">
+                            <a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a>
+                        </h3>
+
+                        <p class="text-stone-600 leading-loose line-clamp-3 mb-6 flex-1">{{ $post->excerpt }}</p>
+
+                        <div class="flex items-center justify-between pt-5 border-t border-stone-200 text-xs text-stone-500">
+                            <span class="uppercase tracking-widest">{{ $post->published_at?->format('d M Y') }}</span>
+                            <span class="inline-flex items-center gap-3">
+                                <span><i class="far fa-eye"></i> {{ $post->views }}</span>
+                                <span class="text-amber-700 group-hover:translate-x-[-4px] transition-transform inline-block"><i class="fas fa-arrow-left"></i></span>
+                            </span>
                         </div>
                     </article>
                     @endforeach
                 </div>
 
-                <div class="mt-12 flex justify-center">{{ $posts->links() }}</div>
+                <div class="mt-20 pt-10 border-t border-stone-200 flex justify-center">
+                    {{ $posts->links() }}
+                </div>
             @endif
         </div>
+    </section>
 
-        {{-- Sidebar --}}
-        <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            @if($categories->count())
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h3 class="font-extrabold text-slate-900 mb-5 flex items-center gap-2 text-lg">
-                    <span class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center"><i class="fas fa-tags text-sm"></i></span>
-                    التصنيفات
-                </h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="{{ route('blog.index') }}" class="flex items-center justify-between px-4 py-2.5 rounded-xl transition {{ !request('category') ? 'bg-violet-50 text-violet-700 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
-                            <span>جميع المقالات</span>
-                            <i class="fas fa-chevron-left text-xs opacity-50"></i>
-                        </a>
-                    </li>
-                    @foreach($categories as $cat)
-                    <li>
-                        <a href="{{ route('blog.index', ['category' => $cat->slug]) }}" class="flex items-center justify-between px-4 py-2.5 rounded-xl transition {{ request('category')===$cat->slug ? 'bg-violet-50 text-violet-700 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
-                            <span>{{ $cat->name }}</span>
-                            <i class="fas fa-chevron-left text-xs opacity-50"></i>
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            @if($popular->count())
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                <h3 class="font-extrabold text-slate-900 mb-5 flex items-center gap-2 text-lg">
-                    <span class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-fire text-sm"></i></span>
-                    الأكثر قراءة
-                </h3>
-                <ul class="space-y-4">
-                    @foreach($popular as $i => $p)
-                    <li>
-                        <a href="{{ route('blog.show', $p->slug) }}" class="flex gap-3 group">
-                            <div class="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 relative">
-                                <img src="{{ $p->image_url }}" alt="{{ $p->title }}" class="w-full h-full object-cover">
-                                <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-violet-600 text-white text-xs font-black flex items-center justify-center shadow">{{ $i+1 }}</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="text-sm font-bold text-slate-800 line-clamp-2 group-hover:text-violet-700 transition leading-snug">{{ $p->title }}</h4>
-                                <span class="text-xs text-slate-400 mt-1 inline-flex items-center gap-1"><i class="far fa-eye"></i> {{ $p->views }} مشاهدة</span>
-                            </div>
-                        </a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <div class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 rounded-3xl p-7 text-white shadow-xl shadow-violet-900/20">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                <div class="absolute -bottom-12 -left-8 w-40 h-40 bg-pink-400/20 rounded-full blur-3xl"></div>
-                <div class="relative">
-                    <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center mb-4">
-                        <i class="fas fa-envelope-open-text text-xl"></i>
-                    </div>
-                    <h3 class="font-extrabold mb-2 text-xl">اشترك بالنشرة</h3>
-                    <p class="text-sm text-violet-100 mb-5 leading-relaxed">احصل على أحدث المقالات في بريدك أسبوعياً.</p>
-                    <form action="{{ route('newsletter.subscribe') ?? '#' }}" method="POST" class="space-y-2">
-                        @csrf
-                        <input type="email" name="email" required placeholder="بريدك الإلكتروني" class="w-full px-4 py-3 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-white text-sm">
-                        <button class="w-full bg-white text-violet-700 font-black py-3 rounded-xl hover:bg-violet-50 transition shadow-lg">اشترك الآن</button>
-                    </form>
+    {{-- ============ POPULAR STRIP ============ --}}
+    @if(($popular ?? collect())->count())
+    <section class="bg-stone-900 text-stone-50 py-20">
+        <div class="w-full max-w-[1850px] mx-auto px-6 lg:px-16">
+            <div class="flex items-end justify-between border-b border-stone-700 pb-6 mb-12">
+                <div>
+                    <span class="block text-[11px] uppercase tracking-[0.35em] text-amber-400 font-bold mb-3">— Most Read</span>
+                    <h2 class="font-serif text-4xl md:text-5xl">الأكثر قراءة</h2>
                 </div>
             </div>
-        </aside>
-    </div>
-</section>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                @foreach($popular->take(4) as $i => $p)
+                <a href="{{ route('blog.show', $p->slug) }}" class="group flex gap-5 items-start">
+                    <span class="font-serif text-5xl text-amber-400 leading-none shrink-0">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</span>
+                    <div class="flex-1 min-w-0 border-r border-stone-700 pr-5">
+                        <h4 class="font-serif text-xl leading-snug mb-2 group-hover:text-amber-300 transition line-clamp-3">{{ $p->title }}</h4>
+                        <span class="text-[11px] uppercase tracking-widest text-stone-400"><i class="far fa-eye"></i> {{ $p->views }} مشاهدة</span>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
+    {{-- ============ NEWSLETTER ============ --}}
+    <section class="bg-amber-50 border-y border-amber-200">
+        <div class="w-full max-w-[1850px] mx-auto px-6 lg:px-16 py-20 grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="block text-[11px] uppercase tracking-[0.35em] text-amber-700 font-bold mb-4">— Newsletter</span>
+                <h2 class="font-serif text-4xl md:text-5xl text-stone-900 leading-tight mb-4">
+                    أحدث المقالات،
+                    <em class="italic font-light text-amber-700">في بريدك.</em>
+                </h2>
+                <p class="text-stone-600 leading-loose max-w-lg">رسالة واحدة كل أسبوع. مقالات منتقاة، وقراءات مقترحة. بدون إزعاج.</p>
+            </div>
+            <form action="{{ route('newsletter.subscribe') ?? '#' }}" method="POST" class="flex items-center border-b-2 border-stone-900 pb-3">
+                @csrf
+                <input type="email" name="email" required placeholder="بريدك الإلكتروني"
+                       class="flex-1 bg-transparent text-lg py-2 focus:outline-none placeholder-stone-400 text-stone-900">
+                <button class="text-sm uppercase tracking-[0.25em] font-bold text-stone-900 hover:text-amber-700 transition px-4">
+                    اشترك ←
+                </button>
+            </form>
+        </div>
+    </section>
+
+</div>
 @endsection
