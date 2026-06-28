@@ -167,6 +167,7 @@
 <script>
     tinymce.init({
         selector: '#content-editor',
+        license_key: 'gpl',
         height: 600,
         directionality: 'rtl',
         language: 'ar',
