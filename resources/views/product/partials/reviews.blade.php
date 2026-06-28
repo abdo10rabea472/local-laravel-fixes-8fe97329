@@ -2,10 +2,6 @@
     $approved = $product->reviews()->approved()->latest()->limit(20)->get();
     $avg = $product->reviews()->approved()->avg('rating');
     $count = $approved->count();
-    $userCanReview = auth()->check() && \App\Models\Order::where('user_id', auth()->id())
-        ->whereIn('status', ['paid','shipped','delivered'])
-        ->whereHas('items', fn ($q) => $q->where('product_id', $product->id))
-        ->exists();
     $userReview = auth()->check() ? \App\Models\Review::where('product_id', $product->id)->where('user_id', auth()->id())->first() : null;
 @endphp
 
