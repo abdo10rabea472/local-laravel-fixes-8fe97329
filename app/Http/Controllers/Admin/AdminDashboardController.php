@@ -124,12 +124,12 @@ class AdminDashboardController extends Controller
                 ->whereIn('orders.status', ['paid','shipped','delivered'])
                 ->select(
                     'order_items.product_id',
-                    DB::raw('COALESCE(products.name, order_items.product_name) as name'),
-                    'products.slug',
+                    DB::raw('MAX(COALESCE(products.name, order_items.product_name)) as name'),
+                    DB::raw('MAX(products.slug) as slug'),
                     DB::raw('SUM(order_items.quantity) as qty'),
                     DB::raw('SUM(order_items.line_total) as revenue')
                 )
-                ->groupBy('order_items.product_id', 'name', 'products.slug')
+                ->groupBy('order_items.product_id')
                 ->orderByDesc('qty')
                 ->limit(5)
                 ->get();
