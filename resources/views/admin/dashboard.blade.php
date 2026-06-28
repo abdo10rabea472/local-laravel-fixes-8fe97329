@@ -178,49 +178,49 @@
         </div>
     </div>
 
-    {{-- إحصاءات اليوم + أفضل المنتجات مبيعًا --}}
+    {{-- Today's stats + Top-selling products --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {{-- اليوم --}}
+        {{-- Today --}}
         <div class="bg-gradient-to-br from-primary-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg lg:col-span-1">
-            <h3 class="font-bold text-base mb-4 flex items-center gap-2"><i class="fas fa-bolt"></i> إحصاءات اليوم</h3>
+            <h3 class="font-bold text-base mb-4 flex items-center gap-2"><i class="fas fa-bolt"></i> Today's Stats</h3>
             <div class="space-y-3">
                 <div class="flex items-center justify-between bg-white/10 rounded-xl p-3">
-                    <span class="text-xs opacity-90">طلبات اليوم</span>
+                    <span class="text-xs opacity-90">Orders today</span>
                     <span class="text-2xl font-black">{{ $todayStats['orders'] ?? 0 }}</span>
                 </div>
                 <div class="flex items-center justify-between bg-white/10 rounded-xl p-3">
-                    <span class="text-xs opacity-90">إيرادات اليوم</span>
-                    <span class="text-2xl font-black">{{ number_format($todayStats['revenue'] ?? 0) }} ج.م</span>
+                    <span class="text-xs opacity-90">Revenue today</span>
+                    <span class="text-2xl font-black">{{ number_format($todayStats['revenue'] ?? 0) }} EGP</span>
                 </div>
                 <div class="flex items-center justify-between bg-white/10 rounded-xl p-3">
-                    <span class="text-xs opacity-90">عملاء جدد</span>
+                    <span class="text-xs opacity-90">New customers</span>
                     <span class="text-2xl font-black">{{ $todayStats['new_customers'] ?? 0 }}</span>
                 </div>
             </div>
         </div>
 
-        {{-- الأكثر مبيعًا --}}
+        {{-- Top sellers --}}
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm lg:col-span-2">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-gray-900 dark:text-white text-base flex items-center gap-2"><i class="fas fa-trophy text-amber-500"></i> الأكثر مبيعًا</h3>
-                <a href="{{ route('admin.products.index') }}" class="text-xs text-primary-600 hover:underline">كل المنتجات</a>
+                <h3 class="font-bold text-gray-900 dark:text-white text-base flex items-center gap-2"><i class="fas fa-trophy text-amber-500"></i> Best Sellers</h3>
+                <a href="{{ route('admin.products.index') }}" class="text-xs text-primary-600 hover:underline">All products</a>
             </div>
             <div class="space-y-2">
                 @forelse($topProducts ?? [] as $idx => $tp)
                     <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-dark-800 transition-colors">
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-400 to-orange-500 text-white grid place-items-center font-black text-sm">{{ $idx + 1 }}</div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ $tp->name ?? 'منتج محذوف' }}</p>
-                            <p class="text-xs text-gray-500">{{ (int)$tp->qty }} قطعة مباعة</p>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ $tp->name ?? 'Deleted product' }}</p>
+                            <p class="text-xs text-gray-500">{{ (int)$tp->qty }} units sold</p>
                         </div>
-                        <div class="text-left">
-                            <p class="text-sm font-black text-emerald-600">{{ number_format((float)$tp->revenue, 0) }} ج.م</p>
+                        <div class="text-right">
+                            <p class="text-sm font-black text-emerald-600">{{ number_format((float)$tp->revenue, 0) }} EGP</p>
                         </div>
                     </div>
                 @empty
                     <div class="text-center text-sm text-gray-400 py-8">
                         <i class="fas fa-chart-line text-3xl mb-2 block opacity-40"></i>
-                        لا توجد مبيعات بعد
+                        No sales yet
                     </div>
                 @endforelse
             </div>
