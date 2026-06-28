@@ -9,7 +9,7 @@
     $userReview = auth()->check() ? \App\Models\Review::where('product_id', $product->id)->where('user_id', auth()->id())->first() : null;
 @endphp
 
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<section id="reviews" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="bg-white rounded-3xl border border-slate-200 p-6 lg:p-8">
         <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
             <div>
