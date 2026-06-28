@@ -1,5 +1,9 @@
 @extends('layouts.front')
 
+@push('styles')
+    @if($post->no_index ?? false)<meta name="robots" content="noindex,nofollow">@endif
+@endpush
+
 @section('content')
 <article class="py-12 bg-white">
     <div class="max-w-3xl mx-auto px-4">
