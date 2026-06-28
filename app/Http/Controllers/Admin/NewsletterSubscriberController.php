@@ -28,6 +28,22 @@ class NewsletterSubscriberController extends Controller
         return view('admin.content.subscribers.index', compact('subscribers','total','active','posts'));
     }
 
+    public function searchPosts(Request $request)
+    {
+        $q = trim((string) $request->get('q', ''));
+        $posts = BlogPost::query()
+            ->when($q !== '', fn ($b) => $b->where('title', 'like', "%$q%"))
+            ->orderByDesc('id')
+            ->limit(15)
+            ->get(['id','title','slug'])
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'title' => $p->title,
+                'url' => route('blog.show', $p->slug),
+            ]);
+        return response()->json($posts);
+    }
+
     public function sendArticle(Request $request)
     {
         $data = $request->validate([
@@ -36,22 +52,33 @@ class NewsletterSubscriberController extends Controller
 
         $post = BlogPost::findOrFail($data['blog_post_id']);
         $sent = 0;
+        $failed = 0;
+        $firstError = null;
 
         NewsletterSubscriber::where('active', true)
             ->orderBy('id')
-            ->chunk(100, function ($rows) use ($post, &$sent) {
+            ->chunk(100, function ($rows) use ($post, &$sent, &$failed, &$firstError) {
                 foreach ($rows as $sub) {
                     try {
                         Mail::to($sub->email)->send(new NewsletterArticleMail($post));
                         $sent++;
                     } catch (\Throwable $e) {
+                        $failed++;
+                        $firstError = $firstError ?: $e->getMessage();
                         \Log::warning('Newsletter send failed for '.$sub->email.': '.$e->getMessage());
                     }
                 }
             });
 
-        return back()->with('success', "تم إرسال المقال إلى {$sent} مشترك.");
+        if ($sent === 0 && $failed > 0) {
+            return back()->with('error', 'لم يتم إرسال المقال. تأكد من إعدادات البريد (SMTP) في الإعدادات. الخطأ: '.$firstError);
+        }
+
+        $msg = "تم إرسال المقال إلى {$sent} مشترك.";
+        if ($failed > 0) $msg .= " فشل {$failed} بسبب: ".$firstError;
+        return back()->with($failed > 0 ? 'error' : 'success', $msg);
     }
+
 
 
     public function toggle(NewsletterSubscriber $subscriber)
