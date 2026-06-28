@@ -326,6 +326,34 @@
     </div>
 </section>
 
+<script>
+(function(){
+    const buttons = document.querySelectorAll('.filter-btn');
+    const items = document.querySelectorAll('#products-grid .product-item');
+    const activeCls = ['bg-violet-600','text-white'];
+    const idleCls   = ['bg-slate-100','text-slate-700','border','border-slate-200','hover:border-violet-500','hover:text-violet-700','transition'];
+
+    function setActive(btn){
+        buttons.forEach(b => {
+            b.classList.remove(...activeCls);
+            b.classList.add(...idleCls);
+        });
+        btn.classList.remove(...idleCls);
+        btn.classList.add(...activeCls);
+    }
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const slug = btn.dataset.college || '';
+            setActive(btn);
+            items.forEach(item => {
+                item.style.display = (!slug || item.dataset.college === slug) ? '' : 'none';
+            });
+        });
+    });
+})();
+</script>
+
 
 @endif
 
