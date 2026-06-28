@@ -139,6 +139,21 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::post('/settings/ai/test', [SiteSettingController::class, 'testAi'])->name('settings.ai.test');
     Route::post('/settings/mail/test', [SiteSettingController::class, 'testMail'])->name('settings.mail.test');
 
+    // Languages
+    Route::get('/settings/languages', [\App\Http\Controllers\Admin\LanguageController::class, 'index'])->name('settings.languages.index');
+    Route::post('/settings/languages', [\App\Http\Controllers\Admin\LanguageController::class, 'store'])->name('settings.languages.store');
+    Route::put('/settings/languages/{language}', [\App\Http\Controllers\Admin\LanguageController::class, 'update'])->name('settings.languages.update');
+    Route::delete('/settings/languages/{language}', [\App\Http\Controllers\Admin\LanguageController::class, 'destroy'])->name('settings.languages.destroy');
+    Route::post('/settings/languages/{language}/default', [\App\Http\Controllers\Admin\LanguageController::class, 'setDefault'])->name('settings.languages.default');
+
+    // Currencies
+    Route::get('/settings/currencies', [\App\Http\Controllers\Admin\CurrencyController::class, 'index'])->name('settings.currencies.index');
+    Route::post('/settings/currencies', [\App\Http\Controllers\Admin\CurrencyController::class, 'store'])->name('settings.currencies.store');
+    Route::put('/settings/currencies/{currency}', [\App\Http\Controllers\Admin\CurrencyController::class, 'update'])->name('settings.currencies.update');
+    Route::delete('/settings/currencies/{currency}', [\App\Http\Controllers\Admin\CurrencyController::class, 'destroy'])->name('settings.currencies.destroy');
+    Route::post('/settings/currencies/{currency}/default', [\App\Http\Controllers\Admin\CurrencyController::class, 'setDefault'])->name('settings.currencies.default');
+
+
     // Payment Gateways
     Route::get('/settings/payment-gateways', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'index'])->name('settings.payment-gateways.index');
     Route::get('/settings/payment-gateways/{gateway}/edit', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'edit'])->name('settings.payment-gateways.edit');
