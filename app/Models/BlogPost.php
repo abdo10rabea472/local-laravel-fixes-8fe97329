@@ -39,7 +39,27 @@ class BlogPost extends Model
                 $p->published_at = now();
             }
         });
+
+        static::created(function ($p) {
+            try {
+                NewsletterSubscriber::where('active', true)
+                    ->orderBy('id')
+                    ->chunk(100, function ($rows) use ($p) {
+                        foreach ($rows as $sub) {
+                            try {
+                                \Illuminate\Support\Facades\Mail::to($sub->email)
+                                    ->send(new \App\Mail\NewsletterArticleMail($p));
+                            } catch (\Throwable $e) {
+                                \Log::warning('Newsletter auto-send failed for '.$sub->email.': '.$e->getMessage());
+                            }
+                        }
+                    });
+            } catch (\Throwable $e) {
+                \Log::warning('Newsletter auto-send error: '.$e->getMessage());
+            }
+        });
     }
+
 
     public static function normalizeSlug(?string $value): string
     {
