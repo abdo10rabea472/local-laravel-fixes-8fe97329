@@ -63,11 +63,32 @@
     </x-admin.card>
 
     <x-slot:side>
+        <x-admin.card title="إرسال مقال للمشتركين" icon="fa-paper-plane">
+            <form method="POST" action="{{ route('admin.subscribers.send-article') }}" class="space-y-3"
+                  onsubmit="return confirm('سيتم إرسال المقال إلى جميع المشتركين المفعّلين. متابعة؟');">
+                @csrf
+                <select name="blog_post_id" required
+                        class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                    <option value="">اختر مقالاً...</option>
+                    @foreach($posts as $p)
+                        <option value="{{ $p->id }}">{{ $p->title }}</option>
+                    @endforeach
+                </select>
+                <button class="w-full h-12 inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20">
+                    <i class="fa-solid fa-paper-plane"></i> إرسال للمشتركين
+                </button>
+                @if(session('success'))
+                    <p class="text-xs text-emerald-600 font-bold">{{ session('success') }}</p>
+                @endif
+            </form>
+        </x-admin.card>
+
         <x-admin.card title="إجراءات سريعة" icon="fa-bolt">
             <a href="{{ route('admin.subscribers.export') }}" class="w-full h-12 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20">
                 <i class="fa-solid fa-download"></i> تصدير CSV
             </a>
         </x-admin.card>
+
 
         <x-admin.card title="بحث" icon="fa-search">
             <form method="GET" class="space-y-3">
