@@ -24,14 +24,14 @@
         <div class="space-y-2">
             <label class="text-xs font-bold text-slate-500">اسم المزود (للعرض فقط)</label>
             <input type="text" name="ai_provider_name" id="ai_provider_name"
-                   value="{{ site_setting('ai_provider_name') }}" placeholder="OpenAI / Groq / OpenRouter ..."
+                   value="{{ site_setting('ai_provider_name', 'Gemini') }}" placeholder="OpenAI / Groq / OpenRouter ..."
                    class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
         </div>
 
         <div class="space-y-2">
             <label class="text-xs font-bold text-slate-500">اسم النموذج (Model)</label>
             <input type="text" name="ai_model" id="ai_model" dir="ltr"
-                   value="{{ site_setting('ai_model', 'gpt-4o-mini') }}"
+                   value="{{ site_setting('ai_model', 'gemini-flash-latest') }}"
                    placeholder="gpt-4o-mini, gemini-flash-latest, llama-3.1-70b ..."
                    class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono">
         </div>
@@ -39,8 +39,8 @@
         <div class="space-y-2 md:col-span-2">
             <label class="text-xs font-bold text-slate-500">رابط الـ API (Base URL) — يجب أن يحتوي على <code dir="ltr">/v1</code></label>
             <input type="url" name="ai_base_url" id="ai_base_url" dir="ltr"
-                   value="{{ site_setting('ai_base_url', 'https://api.openai.com/v1') }}"
-                   placeholder="https://api.openai.com/v1"
+                   value="{{ site_setting('ai_base_url', 'https://generativelanguage.googleapis.com/v1beta') }}"
+                   placeholder="https://generativelanguage.googleapis.com/v1beta"
                    class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono">
             <p class="text-xs text-slate-500">
                 أمثلة:
