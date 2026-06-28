@@ -15,4 +15,6 @@ return [
     'no_reviews' => 'No reviews yet',
     'starting_from' => 'Starting from',
     'save' => 'Save',
+    'add' => 'Add',
+    'featured_badge' => 'Featured',
 ];
