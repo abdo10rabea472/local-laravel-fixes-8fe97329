@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class BlogPost extends Model
@@ -22,8 +23,42 @@ class BlogPost extends Model
     protected static function booted(): void
     {
         static::saving(function ($p) {
-            if (empty($p->slug)) $p->slug = Str::slug($p->title);
+            $p->slug = static::uniqueSlug($p->slug ?: $p->title, $p->id);
+
+            if (empty($p->published_at)) {
+                $p->published_at = now();
+            }
         });
+    }
+
+    public static function normalizeSlug(?string $value): string
+    {
+        $value = trim((string) $value);
+
+        $slug = Str::slug($value);
+
+        if ($slug === '') {
+            $slug = preg_replace('/[^\pL\pN]+/u', '-', $value) ?: '';
+            $slug = trim($slug, '-');
+            $slug = preg_replace('/-+/u', '-', $slug) ?: '';
+        }
+
+        return $slug !== '' ? mb_strtolower($slug, 'UTF-8') : 'post-'.Str::lower(Str::random(8));
+    }
+
+    public static function uniqueSlug(?string $value, ?int $ignoreId = null): string
+    {
+        $base = static::normalizeSlug($value);
+        $slug = $base;
+        $counter = 2;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn (Builder $query) => $query->whereKeyNot($ignoreId))
+            ->exists()) {
+            $slug = $base.'-'.$counter++;
+        }
+
+        return $slug;
     }
 
     public function category(): BelongsTo
@@ -39,6 +74,9 @@ class BlogPost extends Model
 
     public function scopePublished($q)
     {
-        return $q->whereNotNull('published_at')->where('published_at', '<=', now());
+        return $q->where(function ($query) {
+            $query->whereNull('published_at')
+                ->orWhere('published_at', '<=', now());
+        });
     }
 }
