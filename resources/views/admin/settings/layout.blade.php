@@ -24,6 +24,11 @@ $tabs = [
         'icon' => 'fa-robot',
         'route' => route('admin.settings.index', ['tab' => 'ai']),
     ],
+    'mail' => [
+        'label' => 'إعدادات البريد',
+        'icon' => 'fa-envelope',
+        'route' => route('admin.settings.index', ['tab' => 'mail']),
+    ],
     'header-menu' => [
         'label' => 'الهيدر',
         'icon' => 'fa-bars',

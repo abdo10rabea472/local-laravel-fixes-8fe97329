@@ -18,7 +18,7 @@ class SiteSettingController extends Controller
     public function index(Request $request): View
     {
         $tab = $request->get('tab', 'general');
-        $allowedTabs = ['general', 'images', 'contact', 'ai'];
+        $allowedTabs = ['general', 'images', 'contact', 'ai', 'mail'];
 
         if (! in_array($tab, $allowedTabs, true)) {
             $tab = 'general';
@@ -31,6 +31,7 @@ class SiteSettingController extends Controller
             'images' => ['title' => 'الصور', 'subtitle' => 'شعار الموقع، الخلفيات، والصور الافتراضية.'],
             'contact' => ['title' => 'معلومات التواصل', 'subtitle' => 'بيانات التواصل والعنوان.'],
             'ai' => ['title' => 'نماذج الذكاء الاصطناعي', 'subtitle' => 'أضف أي مزود AI متوافق مع OpenAI (Base URL + API Key + Model).'],
+            'mail' => ['title' => 'إعدادات البريد (SMTP)', 'subtitle' => 'تُحفظ مباشرة في ملف .env وتُستخدم لإرسال البريد.'],
             default => ['title' => 'إعدادات الموقع', 'subtitle' => ''],
         };
 
@@ -47,6 +48,18 @@ class SiteSettingController extends Controller
     {
         $tab = $request->get('tab', 'general');
         $imageKeys = ['site_logo', 'hero_background', 'default_product_image', 'default_og_image', 'welcome_popup_image'];
+
+        if ($tab === 'mail') {
+            $mailKeys = ['MAIL_MAILER','MAIL_HOST','MAIL_PORT','MAIL_ENCRYPTION','MAIL_USERNAME','MAIL_PASSWORD','MAIL_FROM_ADDRESS','MAIL_FROM_NAME'];
+            $updates = [];
+            foreach ($mailKeys as $k) {
+                if ($request->has($k)) $updates[$k] = (string) $request->input($k, '');
+            }
+            $this->writeEnv($updates);
+            \Artisan::call('config:clear');
+            return redirect()->route('admin.settings.index', ['tab' => 'mail'])->with('success', 'تم حفظ إعدادات البريد في .env');
+        }
+
 
         foreach ($request->except(['_token', '_method', 'tab']) as $key => $value) {
             $setting = SiteSetting::firstOrNew(['key' => $key]);
@@ -133,4 +146,35 @@ class SiteSettingController extends Controller
             default => $key,
         };
     }
+
+    public function testMail(Request $request)
+    {
+        $data = $request->validate(['to' => ['required','email']]);
+        try {
+            \Mail::raw('رسالة اختبار من لوحة التحكم — إذا وصلتك فالإعدادات صحيحة.', function ($m) use ($data) {
+                $m->to($data['to'])->subject('اختبار SMTP');
+            });
+            return response()->json(['ok' => true]);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 200);
+        }
+    }
+
+    private function writeEnv(array $values): void
+    {
+        $path = base_path('.env');
+        if (! is_file($path)) return;
+        $content = file_get_contents($path);
+        foreach ($values as $key => $val) {
+            $escaped = (preg_match('/\s|#|"/', $val) || $val === '') ? '"'.addcslashes($val, '"\\').'"' : $val;
+            $line = $key.'='.$escaped;
+            if (preg_match("/^{$key}=.*$/m", $content)) {
+                $content = preg_replace("/^{$key}=.*$/m", $line, $content);
+            } else {
+                $content .= PHP_EOL.$line;
+            }
+        }
+        file_put_contents($path, $content);
+    }
 }
+

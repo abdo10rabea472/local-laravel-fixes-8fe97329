@@ -137,6 +137,7 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
     Route::post('/settings/ai/test', [SiteSettingController::class, 'testAi'])->name('settings.ai.test');
+    Route::post('/settings/mail/test', [SiteSettingController::class, 'testMail'])->name('settings.mail.test');
 
     // Payment Gateways
     Route::get('/settings/payment-gateways', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'index'])->name('settings.payment-gateways.index');
@@ -267,6 +268,7 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/subscribers', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'index'])->name('subscribers.index');
     Route::get('/subscribers/export', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'export'])->name('subscribers.export');
     Route::post('/subscribers/send-article', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'sendArticle'])->name('subscribers.send-article');
+    Route::get('/subscribers/posts-search', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'searchPosts'])->name('subscribers.posts-search');
 
     Route::patch('/subscribers/{subscriber}/toggle', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'toggle'])->name('subscribers.toggle');
     Route::delete('/subscribers/{subscriber}', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'destroy'])->name('subscribers.destroy');
