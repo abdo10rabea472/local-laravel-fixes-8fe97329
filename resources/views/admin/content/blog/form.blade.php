@@ -254,5 +254,78 @@
             serpUrl.textContent = `${blogBaseUrl}/${previewSlug(s)}`;
         }
     });
+
+    // ✨ AI article generator
+    (function(){
+        const btn = document.getElementById('ai-generate-btn');
+        if (!btn) return;
+        const label  = document.getElementById('ai-generate-label');
+        const out    = document.getElementById('ai-generate-result');
+        const url    = @json(route('admin.blog.ai-generate'));
+        const token  = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        const setField = (name, value) => {
+            if (value === undefined || value === null || value === '') return;
+            const el = document.querySelector(`[name="${name}"]`);
+            if (!el) return;
+            el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        const showMsg = (ok, text) => {
+            out.classList.remove('hidden');
+            out.className = 'mt-2 p-3 rounded-xl text-sm border ' +
+                (ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-rose-50 border-rose-200 text-rose-700');
+            out.innerHTML = text;
+        };
+
+        btn.addEventListener('click', async () => {
+            const payload = {
+                title: document.getElementById('title')?.value || '',
+                blog_category_id: document.querySelector('[name="blog_category_id"]')?.value || '',
+                product_id: document.getElementById('ai-product-id')?.value || '',
+                language: document.getElementById('ai-language')?.value || 'ar',
+            };
+
+            btn.disabled = true;
+            label.textContent = 'جارٍ التوليد...';
+            btn.classList.add('opacity-70');
+            showMsg(true, '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ توليد المقال من الذكاء الاصطناعي...');
+
+            try {
+                const res  = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json','X-CSRF-TOKEN':token,'Accept':'application/json'},
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                    showMsg(false, '<b><i class="fa-solid fa-circle-xmark"></i> '+(data.message || 'فشل التوليد')+'</b>' +
+                        (data.error ? '<pre dir="ltr" class="mt-2 text-xs whitespace-pre-wrap opacity-80">'+data.error+'</pre>' : ''));
+                    return;
+                }
+                const d = data.data || {};
+                setField('title', d.title);
+                setField('excerpt', d.excerpt);
+                setField('meta_title', d.meta_title);
+                setField('meta_description', d.meta_description);
+                setField('meta_keywords', d.meta_keywords);
+                setField('tags', d.tags);
+                if (window.tinymce && tinymce.get('content-editor')) {
+                    tinymce.get('content-editor').setContent(d.content || '');
+                } else {
+                    setField('content', d.content);
+                }
+                showMsg(true, '<b><i class="fa-solid fa-circle-check"></i> تم توليد المقال بنجاح. يمكنك المراجعة والتعديل قبل الحفظ.</b>');
+            } catch (e) {
+                showMsg(false, '<b>تعذّر الاتصال بالخادم</b><pre dir="ltr" class="mt-2 text-xs">'+e.message+'</pre>');
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'كتابة المقال بالذكاء الاصطناعي';
+                btn.classList.remove('opacity-70');
+            }
+        });
+    })();
 </script>
 @endsection
