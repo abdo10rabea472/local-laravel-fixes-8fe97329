@@ -1,6 +1,6 @@
 {{-- ═══ Pre-footer feature strip ═══ --}}
 <section class="bg-gradient-to-r from-violet-700 via-indigo-700 to-violet-800 text-white">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-5">
         @php
             $footerFeatures = [
                 ['fa-truck-fast', 'Nationwide delivery', 'To every Egyptian governorate'],
@@ -28,7 +28,7 @@
     <div class="absolute -top-40 -left-40 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
+    <div class="relative max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
         {{-- Brand --}}
         <div class="lg:col-span-4 space-y-5">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5">
@@ -141,7 +141,7 @@
     </div>
 
     {{-- Bottom bar --}}
-    <div class="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800/80">
+    <div class="relative max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800/80">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
             <p class="text-slate-500">
                 © {{ date('Y') }} <span class="text-slate-300 font-bold">UNI-LAB MARKET</span>. All rights reserved.

@@ -31,7 +31,7 @@
 <header class="sticky top-0 z-50 w-full">
     {{-- ═══ Announcement / utility bar ═══ --}}
     <div class="bg-gradient-to-r from-violet-700 via-indigo-700 to-violet-800 text-white text-[11px] sm:text-xs">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
+        <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
             <div class="flex items-center gap-4 min-w-0">
                 @if(site_setting('contact_phone'))
                 <a href="tel:{{ site_setting('contact_phone') }}" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
@@ -85,7 +85,7 @@
 
     {{-- ═══ Main header ═══ --}}
     <div class="bg-white/95 backdrop-blur-md border-b border-slate-200/70 shadow-sm">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex h-20 items-center justify-between gap-4 lg:gap-8">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="shrink-0 flex items-center gap-2.5 group">
@@ -180,7 +180,7 @@
 
         {{-- ═══ Navigation bar ═══ --}}
         <div class="hidden lg:block border-t border-slate-100 bg-white">
-            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
                 <nav class="flex flex-nowrap items-center gap-1 h-12 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {{-- Categories mega menu --}}
                     @if(($navCategories ?? collect())->isNotEmpty())

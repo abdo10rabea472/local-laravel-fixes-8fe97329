@@ -7,7 +7,7 @@
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-amber-400/20 rounded-full blur-3xl"></div>
     <div class="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-cyan-400/20 rounded-full blur-3xl"></div>
 
-    <div class="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+    <div class="relative max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         <div>
             <span class="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-xs font-bold px-3 py-1.5 rounded-full mb-5">
                 <i class="fa-solid fa-flask-vial text-amber-300"></i>
@@ -72,7 +72,7 @@
 
 {{-- ═══════════════ FEATURES STRIP ═══════════════ --}}
 <section class="bg-white border-b border-slate-100">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $features = [
                 ['fa-truck-fast', 'Fast delivery', 'Across Egypt in 2–4 days'],
@@ -98,7 +98,7 @@
 {{-- ═══════════════ COLLEGES (CATEGORY CIRCLES) ═══════════════ --}}
 @if($mainCategories->isNotEmpty())
 <section id="colleges" class="bg-slate-50 py-10 overflow-hidden">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="flex items-end justify-between mb-6">
             <div>
@@ -188,7 +188,7 @@
 {{-- ═══════════════ FEATURED / TOP PICKS ═══════════════ --}}
 @if($featuredProducts->isNotEmpty())
 <section id="featured" class="bg-white py-12 overflow-hidden">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="flex items-center justify-between mb-6">
             <div>
@@ -244,7 +244,7 @@
 
 {{-- ═══════════════ CTA BANNER (LAB EQUIPMENT) ═══════════════ --}}
 <section class="py-8 bg-slate-50">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-violet-900 text-white p-8 sm:p-12 grid grid-cols-1 md:grid-cols-2 gap-6 items-center shadow-2xl">
             <div class="absolute -right-20 -top-20 w-72 h-72 bg-violet-500/30 rounded-full blur-3xl"></div>
             <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-400/20 rounded-full blur-3xl"></div>
@@ -271,7 +271,7 @@
 {{-- ═══════════════ BEST DEALS — TABS LINK TO FILTERED CATALOG ═══════════════ --}}
 @if($products->isNotEmpty())
 <section class="py-12 bg-white">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="text-center mb-6">
             <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Best deals</span>
@@ -332,7 +332,7 @@
 {{-- ═══════════════ COLLEGE TILES (BIG) ═══════════════ --}}
 @if($mainCategories->isNotEmpty())
 <section class="py-12 bg-slate-50 overflow-hidden">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-violet-600">By college</span>
@@ -376,7 +376,7 @@
 {{-- ═══════════════ NEW ARRIVALS ═══════════════ --}}
 @if($products->isNotEmpty())
 <section class="py-12 bg-white">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="flex items-end justify-between mb-6">
             <div>
@@ -419,7 +419,7 @@
 
 {{-- ═══════════════ WHY US ═══════════════ --}}
 <section class="py-14 bg-gradient-to-br from-slate-900 to-violet-950 text-white">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
             <span class="text-xs font-bold uppercase tracking-wider text-amber-300">Why UNI-LAB</span>
             <h2 class="text-2xl sm:text-4xl font-black mt-1">Built specifically for university students</h2>
