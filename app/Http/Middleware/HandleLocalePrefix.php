@@ -21,13 +21,39 @@ class HandleLocalePrefix
 {
     public function __construct(protected LanguageService $languages) {}
 
+    /**
+     * Path segments that must NEVER be locale-prefixed (admin, APIs, webhooks,
+     * payment callbacks, storage assets, health checks, locale switcher itself).
+     */
+    protected array $excluded = [
+        'admin', 'api', 'storage', 'build', 'vendor', 'up',
+        'locale', 'currency', 'payments', 'livewire', 'broadcasting',
+    ];
+
     public function handle(Request $request, Closure $next)
     {
         $first = $request->segment(1);
 
+        // ── Case A: URL has NO locale prefix ─────────────────────────────────
         if (!$first || !$this->languages->exists($first)) {
+            // Only auto-redirect plain GET page requests to /{locale}/...
+            if (
+                $request->isMethod('GET')
+                && !$request->ajax()
+                && !$request->expectsJson()
+                && !in_array($first, $this->excluded, true)
+            ) {
+                $locale = $this->resolveLocale($request);
+                if ($locale) {
+                    $path  = $request->getPathInfo();
+                    $qs    = $request->getQueryString();
+                    $target = '/' . $locale . ($path === '/' ? '' : $path) . ($qs ? '?' . $qs : '');
+                    return redirect($target, 302);
+                }
+            }
             return $next($request);
         }
+
 
         // Don't rewrite admin / api / asset paths — they shouldn't be locale-prefixed.
         // (Only applies if someone hits /en/admin which we still want to support; comment kept for clarity.)
