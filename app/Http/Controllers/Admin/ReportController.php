@@ -173,12 +173,12 @@ class ReportController extends Controller
         // KPIs
         $kpi = (clone $base)->selectRaw('
             COUNT(*) as orders,
-            COALESCE(SUM(subtotal),0)        as subtotal,
-            COALESCE(SUM(discount_total),0)  as discount,
-            COALESCE(SUM(shipping_total),0)  as shipping,
-            COALESCE(SUM(tax_total),0)       as tax,
-            COALESCE(SUM(total),0)           as revenue,
-            COALESCE(AVG(total),0)           as aov
+            COALESCE(SUM(subtotal),0)         as subtotal,
+            COALESCE(SUM(discount_amount),0)  as discount,
+            COALESCE(SUM(shipping_cost),0)    as shipping,
+            0                                  as tax,
+            COALESCE(SUM(total),0)            as revenue,
+            COALESCE(AVG(total),0)            as aov
         ')->first();
 
         // سلسلة يومية
