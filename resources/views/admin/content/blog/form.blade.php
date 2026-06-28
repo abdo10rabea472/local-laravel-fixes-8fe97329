@@ -196,6 +196,20 @@
     </x-slot:side>
 </x-admin.page>
 
+{{-- Tom Select for searchable selects --}}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        ['ai-product-id'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.tomselect) new TomSelect(el, { create:false, allowEmptyOption:true, placeholder:'ابحث عن المنتج...' });
+        });
+        const catEl = document.querySelector('[name="blog_category_id"]');
+        if (catEl && !catEl.tomselect) new TomSelect(catEl, { create:false, allowEmptyOption:true, placeholder:'اختر تصنيفًا...' });
+    });
+</script>
+
 {{-- TinyMCE rich editor --}}
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
@@ -312,6 +326,15 @@
                 setField('meta_description', d.meta_description);
                 setField('meta_keywords', d.meta_keywords);
                 setField('tags', d.tags);
+                // ضبط تصنيف المقال تلقائيًا من تصنيف المنتج
+                if (d.blog_category_id) {
+                    const catEl = document.querySelector('[name="blog_category_id"]');
+                    if (catEl) {
+                        catEl.value = d.blog_category_id;
+                        if (catEl.tomselect) catEl.tomselect.setValue(d.blog_category_id, true);
+                        catEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
                 if (window.tinymce && tinymce.get('content-editor')) {
                     tinymce.get('content-editor').setContent(d.content || '');
                 } else {
