@@ -105,48 +105,28 @@
 
 
         <script>
-            new Swiper(".featuredSwiper", {
-
-                slidesPerView: "auto",
-
-                spaceBetween: 20,
-
-                loop: true,
-
-                grabCursor: true,
-
-                speed: 700,
-
-                autoplay: {
-                    delay: 2500,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                },
-
-                navigation: {
-                    nextEl: ".featured-next",
-                    prevEl: ".featured-prev",
-                },
-
-                pagination: {
-                    el: ".featuredSwiper .swiper-pagination",
-                    clickable: true,
-                },
-
-                breakpoints: {
-                    320: {
-                        spaceBetween: 12
-                    },
-                    768: {
-                        spaceBetween: 20
-                    },
-                    1024: {
-                        spaceBetween: 24
+            (function(){
+                const el = document.querySelector(".featuredSwiper");
+                if(!el) return;
+                const count = el.querySelectorAll(".swiper-slide").length;
+                new Swiper(el, {
+                    slidesPerView: "auto",
+                    spaceBetween: 20,
+                    loop: count > 6,
+                    grabCursor: true,
+                    speed: 700,
+                    autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
+                    navigation: { nextEl: ".featured-next", prevEl: ".featured-prev" },
+                    pagination: { el: ".featuredSwiper .swiper-pagination", clickable: true },
+                    breakpoints: {
+                        320: { spaceBetween: 12 },
+                        768: { spaceBetween: 20 },
+                        1024: { spaceBetween: 24 }
                     }
-                }
-
-            });
+                });
+            })();
         </script>
+
 
 
     <script>
