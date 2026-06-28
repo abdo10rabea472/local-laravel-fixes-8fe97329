@@ -371,9 +371,6 @@
                 <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
                     <i class="fa-solid fa-box-open w-5 text-violet-600"></i> All Products
                 </a>
-                <a href="{{ route('products.index', ['featured' => 1]) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-star w-5 text-amber-500"></i> Featured
-                </a>
                 <a href="{{ route('offers') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-rose-600">
                     <i class="fa-solid fa-fire w-5 text-rose-500"></i> Offers
                 </a>
