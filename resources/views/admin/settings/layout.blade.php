@@ -19,6 +19,11 @@ $tabs = [
         'icon' => 'fa-address-card',
         'route' => route('admin.settings.index', ['tab' => 'contact']),
     ],
+    'ai' => [
+        'label' => 'الذكاء الاصطناعي',
+        'icon' => 'fa-robot',
+        'route' => route('admin.settings.index', ['tab' => 'ai']),
+    ],
     'header-menu' => [
         'label' => 'الهيدر',
         'icon' => 'fa-bars',
