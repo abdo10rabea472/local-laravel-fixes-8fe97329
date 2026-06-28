@@ -49,7 +49,7 @@ class BlogController extends Controller
             'og_title'        => $post->meta_title ?: $post->title,
             'og_description'  => $post->meta_description ?: $post->excerpt,
             'og_image'        => $ogImageUrl,
-            'canonical_url'   => $post->canonical_url ?: route('blog.show', $post->slug),
+            'canonical_url'   => $post->canonical_url ? url($post->canonical_url) : route('blog.show', $post->slug),
             'no_index'        => $post->no_index,
         ];
 
