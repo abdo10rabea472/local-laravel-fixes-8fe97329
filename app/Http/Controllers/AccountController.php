@@ -66,10 +66,10 @@ class AccountController extends Controller
                 'rating' => $data['rating'],
                 'title' => $data['title'] ?? null,
                 'body' => $data['body'],
-                'status' => 'pending',
+                'status' => 'approved',
             ]
         );
 
-        return back()->with('success', 'شكراً! ستظهر مراجعتك بعد الموافقة.');
+        return back()->with('success', 'شكراً! تم نشر مراجعتك.');
     }
 }
