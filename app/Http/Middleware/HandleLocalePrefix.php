@@ -59,7 +59,9 @@ class HandleLocalePrefix
         // 2) Persist locale cookie so subsequent requests without prefix still work.
         cookie()->queue(cookie()->forever('locale', $locale));
 
-        // 3) Force generated URLs to include /{locale}.
+        // 3) Force generated URLs to include /{locale}, but keep asset()/Vite
+        //    pointing to the un-prefixed host so CSS/JS/images still resolve.
+        config(['app.asset_url' => $request->getSchemeAndHttpHost()]);
         URL::forceRootUrl($request->getSchemeAndHttpHost() . '/' . $locale);
 
         // Expose for SetLocale middleware.

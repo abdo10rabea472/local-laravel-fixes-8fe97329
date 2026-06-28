@@ -362,13 +362,31 @@ Route::middleware('auth')->prefix('wishlist')->name('wishlist.')->group(function
     Route::delete('/{wishlist}', [WishlistController::class, 'destroy'])->name('destroy');
 });
 
-// Locale & currency switchers (cookie-based; redirects back)
+// Locale switcher: sets cookie AND rewrites the referrer URL so the locale
+// prefix in the path is swapped to the newly chosen one.
 Route::get('/locale/{code}', function (string $code) {
     $svc = app(\App\Services\LanguageService::class);
-    if ($svc->exists($code)) {
-        cookie()->queue(cookie()->forever('locale', $code));
+    if (!$svc->exists($code)) {
+        return back();
     }
-    return back();
+    cookie()->queue(cookie()->forever('locale', $code));
+
+    $referer = request()->headers->get('referer') ?: url('/');
+    $parts   = parse_url($referer);
+    $path    = $parts['path'] ?? '/';
+    $query   = isset($parts['query']) ? ('?' . $parts['query']) : '';
+
+    // Strip any existing locale prefix from the path.
+    $segments = array_values(array_filter(explode('/', $path), fn ($s) => $s !== ''));
+    if (!empty($segments) && $svc->exists($segments[0])) {
+        array_shift($segments);
+    }
+    $rest = $segments ? '/' . implode('/', $segments) : '';
+
+    $host = ($parts['scheme'] ?? request()->getScheme()) . '://' . ($parts['host'] ?? request()->getHost())
+          . (isset($parts['port']) ? ':' . $parts['port'] : '');
+
+    return redirect($host . '/' . $code . $rest . $query);
 })->name('locale.switch');
 
 Route::get('/currency/{code}', function (string $code) {
