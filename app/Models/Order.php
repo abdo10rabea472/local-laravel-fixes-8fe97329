@@ -81,12 +81,12 @@ class Order extends Model
     public function statusLabel(): string
     {
         return [
-            'pending' => 'قيد الانتظار',
-            'paid' => 'مدفوع',
-            'shipped' => 'تم الشحن',
-            'delivered' => 'تم التوصيل',
-            'cancelled' => 'ملغي',
-            'refunded' => 'مسترد',
+            'pending' => 'Pending',
+            'paid' => 'Paid',
+            'shipped' => 'Shipped',
+            'delivered' => 'Delivered',
+            'cancelled' => 'Cancelled',
+            'refunded' => 'Refunded',
         ][$this->status] ?? $this->status;
     }
 }
