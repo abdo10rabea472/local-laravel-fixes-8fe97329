@@ -78,6 +78,8 @@
             ['title' => 'مشتركو النشرة',     'route' => 'admin.subscribers.index'],
         ]],
         ['title' => 'الإعدادات العامة', 'icon' => 'fa-sliders-h', 'route' => 'admin.settings.index'],
+    ];
+
 
     $isActiveRoute = function($name){
         if(!$name) return false;
