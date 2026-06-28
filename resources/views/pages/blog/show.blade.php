@@ -39,13 +39,13 @@
     </div>
 </section>
 
-<div class="max-w-7xl mx-auto px-6 lg:px-10 -mt-24 relative z-10">
+<div class="max-w-[1400px] mx-auto px-6 lg:px-16 -mt-24 relative z-10">
     <img src="{{ $post->image_url }}" alt="{{ $post->title }}" class="w-full rounded-3xl shadow-2xl aspect-video object-cover">
 
 </div>
 
 <article class="py-12 bg-white">
-    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-16">
 
         @if($post->excerpt)
             <p class="text-xl text-slate-600 leading-relaxed mb-8 pb-8 border-b border-slate-200 font-medium italic">
@@ -94,7 +94,7 @@
 
 {{-- Comments --}}
 <section id="comments" class="py-12 bg-slate-50 border-t border-slate-100">
-    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-16">
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
                 <i class="far fa-comments text-violet-600"></i>
@@ -170,7 +170,7 @@
 
 @if($related->count())
 <section class="py-14 bg-white border-t border-slate-100">
-    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-16">
         <h2 class="text-2xl font-extrabold text-slate-900 mb-8 flex items-center gap-2">
             <i class="fas fa-bookmark text-violet-600"></i> مقالات ذات صلة
         </h2>
