@@ -76,7 +76,12 @@ class BlogPostController extends Controller
 
         $lang = $data['language'] ?? 'ar';
         $category = !empty($data['blog_category_id']) ? Category::find($data['blog_category_id']) : null;
-        $product  = !empty($data['product_id']) ? Product::find($data['product_id']) : null;
+        $product  = !empty($data['product_id']) ? Product::with('category:id,name')->find($data['product_id']) : null;
+
+        // إذا لم يحدد المستخدم تصنيفًا للمقال، استخدم تصنيف المنتج تلقائيًا
+        if (!$category && $product && $product->category) {
+            $category = $product->category;
+        }
 
         $context = [];
         if (!empty($data['title']))  $context[] = 'العنوان المقترح: '.$data['title'];
@@ -84,13 +89,13 @@ class BlogPostController extends Controller
         if ($product) {
             $context[] = 'المنتج المُراد الكتابة عنه: '.$product->name;
             if (!empty($product->short_description)) $context[] = 'وصف قصير: '.$product->short_description;
-            if (!empty($product->description))       $context[] = 'وصف تفصيلي: '.\Illuminate\Support\Str::limit(strip_tags($product->description), 1200);
+            if (!empty($product->description))       $context[] = 'وصف تفصيلي: '.\Illuminate\Support\Str::limit(strip_tags($product->description), 1500);
             if (isset($product->price))              $context[] = 'السعر: '.$product->price;
         }
 
         $system = $lang === 'ar'
-            ? 'أنت كاتب محتوى محترف بالعربية الفصحى. تكتب مقالات مدوّنة عالية الجودة، متوافقة مع SEO، بتنسيق HTML نظيف (عناوين h2/h3، فقرات، قوائم عند الحاجة). لا تستخدم Markdown، فقط HTML. لا تكرر العنوان داخل المحتوى.'
-            : 'You are a professional blog writer. Output clean SEO-friendly HTML (h2/h3, p, ul). No markdown, no code fences. Do not repeat the title inside the body.';
+            ? 'أنت كاتب محتوى محترف بالعربية الفصحى. تكتب مقالات مدوّنة عالية الجودة، متوافقة مع SEO، بتنسيق HTML نظيف (عناوين h2/h3، فقرات، قوائم عند الحاجة). لا تستخدم Markdown، فقط HTML. لا تكرر العنوان داخل المحتوى. إن انقطع المحتوى بسبب حد التوكنز أعد ما استطعت بصيغة JSON صالحة.'
+            : 'You are a professional blog writer. Output clean SEO-friendly HTML (h2/h3, p, ul). No markdown, no code fences. Do not repeat the title inside the body. If you run out of tokens, still return valid JSON with whatever you produced.';
 
         $userPrompt = ($lang === 'ar'
                 ? "اكتب مقالاً متكاملاً بناءً على المعلومات التالية:\n"
@@ -105,15 +110,27 @@ class BlogPostController extends Controller
 
         try {
             $ai = new AiService();
+            // الحد الأقصى للتوكنز يأخذ من الإعدادات (افتراضي 8000)، والمزوّد سيُرجع ما يستطيع فقط
+            $maxTokens = max(512, (int) (site_setting('ai_max_tokens') ?: 8000));
             $raw = $ai->chat([
                 ['role' => 'system', 'content' => $system],
                 ['role' => 'user',   'content' => $userPrompt],
-            ], maxTokens: (int) (site_setting('ai_max_tokens') ?: 2000), temperature: 0.8, timeout: 90);
+            ], maxTokens: $maxTokens, temperature: 0.8, timeout: 120);
 
             $json = trim($raw);
             $json = preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $json);
             if (preg_match('/\{.*\}/s', $json, $m)) $json = $m[0];
             $parsed = json_decode($json, true);
+
+            // إصلاح JSON المقطوع بسبب حد التوكنز
+            if (!is_array($parsed) && !empty($json)) {
+                $repaired = rtrim($json);
+                $repaired = preg_replace('/,\s*$/', '', $repaired);
+                if (substr_count($repaired, '{') > substr_count($repaired, '}')) {
+                    $repaired .= str_repeat('"}', substr_count($repaired, '{') - substr_count($repaired, '}'));
+                }
+                $parsed = json_decode($repaired, true);
+            }
 
             if (!is_array($parsed)) {
                 $parsed = [
@@ -122,16 +139,38 @@ class BlogPostController extends Controller
                 ];
             }
 
+            $content = (string) ($parsed['content'] ?? '');
+
+            // إضافة زر تسويق المنتج في نهاية المقال
+            if ($product) {
+                $productUrl = route('product.show', $product->slug ?? $product->id);
+                $ctaTitle   = $lang === 'ar' ? 'تعرّف على '.$product->name : 'Discover '.$product->name;
+                $ctaBtn     = $lang === 'ar' ? 'تسوّق المنتج الآن' : 'Shop the product';
+                $priceLine  = isset($product->price) && $product->price
+                    ? '<p style="margin:8px 0 16px;font-size:18px;font-weight:700;color:#0f766e;">'
+                        .($lang === 'ar' ? 'السعر: ' : 'Price: ').e($product->price).'</p>'
+                    : '';
+                $content .= '
+<div style="margin:32px 0;padding:24px;background:linear-gradient(135deg,#ecfeff,#eef2ff);border:1px solid #c7d2fe;border-radius:16px;text-align:center;">
+  <h3 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1e293b;">'.e($ctaTitle).'</h3>
+  '.$priceLine.'
+  <a href="'.e($productUrl).'" style="display:inline-block;margin-top:8px;padding:12px 28px;background:#4f46e5;color:#fff;font-weight:700;border-radius:10px;text-decoration:none;">
+    '.e($ctaBtn).' &larr;
+  </a>
+</div>';
+            }
+
             return response()->json([
                 'ok'   => true,
                 'data' => [
                     'title'            => (string) ($parsed['title'] ?? $data['title'] ?? ''),
                     'excerpt'          => (string) ($parsed['excerpt'] ?? ''),
-                    'content'          => (string) ($parsed['content'] ?? ''),
+                    'content'          => $content,
                     'meta_title'       => mb_substr((string) ($parsed['meta_title'] ?? ''), 0, 60),
                     'meta_description' => mb_substr((string) ($parsed['meta_description'] ?? ''), 0, 160),
                     'meta_keywords'    => (string) ($parsed['meta_keywords'] ?? ''),
                     'tags'             => (string) ($parsed['tags'] ?? ''),
+                    'blog_category_id' => $category?->id,
                 ],
             ]);
         } catch (\Throwable $e) {
