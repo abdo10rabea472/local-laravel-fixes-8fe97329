@@ -28,8 +28,10 @@
 <section class="relative overflow-hidden"
     style="background: linear-gradient(135deg, {{ $primary }}, {{ $secondary }});">
     @if($category->banner_url ?? $college?->banner_url)
-        <img src="{{ $category- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">banner_url ?? $college?->banner_url }}" alt=""
+        <img src="{{ $category->banner_url ?? $college?->banner_url }}" alt=""
+            onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'"
             class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" loading="eager">
+
     @endif
     <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
 
