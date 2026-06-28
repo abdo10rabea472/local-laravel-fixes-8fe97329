@@ -253,7 +253,7 @@
                     labels: REVENUE_LABELS,
                     datasets: [
                         {
-                            label: 'الأرباح المحققة (ج.م)',
+                            label: 'Revenue (EGP)',
                             data: REVENUE_DATA,
                             borderColor: '#22c55e',
                             backgroundColor: 'rgba(34,197,94,0.08)',
@@ -261,7 +261,7 @@
                             pointBackgroundColor: '#22c55e', pointRadius: 4,
                         },
                         {
-                            label: 'الطلبات المحجوزة',
+                            label: 'Orders',
                             data: ORDERS_DATA,
                             borderColor: '#3b82f6',
                             backgroundColor: 'transparent',
@@ -273,10 +273,10 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', align: 'start', labels: { font: { family: 'Cairo' }, color: textColor, usePointStyle: true, boxWidth: 8 } } },
+                    plugins: { legend: { position: 'top', align: 'start', labels: { font: { family: 'Inter' }, color: textColor, usePointStyle: true, boxWidth: 8 } } },
                     scales: {
-                        x: { grid: { color: 'transparent' }, ticks: { font: { family: 'Cairo' }, color: textColor } },
-                        y: { grid: { color: gridColor },    ticks: { font: { family: 'Cairo' }, color: textColor } }
+                        x: { grid: { color: 'transparent' }, ticks: { font: { family: 'Inter' }, color: textColor } },
+                        y: { grid: { color: gridColor },    ticks: { font: { family: 'Inter' }, color: textColor } }
                     }
                 }
             });
