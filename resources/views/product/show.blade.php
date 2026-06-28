@@ -87,6 +87,16 @@
                     <span class="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full mb-3">Featured</span>
                     @endif
                     <h1 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight">{{ $product->name }}</h1>
+                    <div class="flex items-center gap-2 mt-2">
+                        @php $full = (int) round($reviewsAvg); @endphp
+                        <span class="text-amber-500 text-lg leading-none" aria-label="{{ $reviewsAvg }} من 5">@for($i=0;$i<$full;$i++)★@endfor<span class="text-slate-300">@for($i=0;$i<5-$full;$i++)★@endfor</span></span>
+                        @if($reviewsCount > 0)
+                            <span class="text-sm font-bold text-slate-700">{{ number_format($reviewsAvg, 1) }}</span>
+                            <a href="#reviews" class="text-xs text-slate-500 hover:text-violet-600">({{ $reviewsCount }} مراجعة)</a>
+                        @else
+                            <a href="#reviews" class="text-xs text-slate-400 hover:text-violet-600">لا توجد مراجعات بعد</a>
+                        @endif
+                    </div>
                     @if($product->sku)<p class="text-sm text-slate-400 mt-2">SKU: {{ $product->sku }}</p>@endif
                 </div>
 
