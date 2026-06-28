@@ -186,7 +186,7 @@
                     @if(($navCategories ?? collect())->isNotEmpty())
                     <div class="relative group" id="colleges-dropdown">
                         <button type="button" id="colleges-dropdown-btn" aria-expanded="false" aria-haspopup="true"
-                                class="flex items-center gap-2 pl-3 pr-4 h-9 my-1.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition shadow-sm">
+                                class="shrink-0 flex items-center gap-2 pl-3 pr-4 h-9 my-1.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition shadow-sm">
                             <i class="fa-solid fa-bars-staggered text-xs"></i>
                             <span>All Colleges</span>
                             <i id="colleges-dropdown-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
@@ -239,22 +239,22 @@
                     </div>
                     @endif
 
-                    <a href="{{ route('home') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('home') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                    <a href="{{ route('home') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('home') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-house text-xs"></i> Home
                     </a>
-                    <a href="{{ route('products.index') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('products.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                    <a href="{{ route('products.index') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('products.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-box-open text-xs"></i> All Products
                     </a>
-                    <a href="{{ route('offers') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('offers') ? 'text-rose-600 border-b-2 border-rose-500' : 'text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-300' }} transition">
+                    <a href="{{ route('offers') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('offers') ? 'text-rose-600 border-b-2 border-rose-500' : 'text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-300' }} transition">
                         <i class="fa-solid fa-fire text-xs"></i> Offers
                     </a>
-                    <a href="{{ route('blog.index') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('blog.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                    <a href="{{ route('blog.index') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('blog.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-newspaper text-xs"></i> Blog
                     </a>
-                    <a href="{{ route('track-order') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('track-order') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                    <a href="{{ route('track-order') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('track-order') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-truck text-xs"></i> Track Order
                     </a>
-                    <a href="{{ route('contact') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('contact') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
+                    <a href="{{ route('contact') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('contact') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-envelope text-xs"></i> Contact
                     </a>
                     <a href="{{ route('about') }}" class="hidden xl:flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('about') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
@@ -265,7 +265,7 @@
                     @foreach($navHeaderMenu ?? collect() as $item)
                         @if($item->children->isNotEmpty())
                             <div class="relative group">
-                                <button type="button" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
+                                <button type="button" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
                                     @if($item->icon)<i class="fa-solid {{ $item->icon }} text-xs"></i>@endif
                                     <span>{{ $item->title }}</span>
                                     <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 group-hover:rotate-180"></i>
@@ -293,13 +293,13 @@
                         @else
                             @if($item->type === 'coupon')
                                 <a href="#" onclick="openWelcomePopup('{{ $item->coupon_code }}', {{ $item->coupon_percent ?? 0 }}); return false;"
-                                   class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-400 transition">
+                                   class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-400 transition">
                                     <i class="fa-solid fa-gift text-xs"></i>
                                     <span>{{ $item->title }}</span>
                                 </a>
                             @else
                                 <a href="{{ $item->url }}" target="{{ $item->target }}"
-                                   class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
+                                   class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
                                     @if($item->icon)<i class="fa-solid {{ $item->icon }} text-xs"></i>@endif
                                     <span>{{ $item->title }}</span>
                                 </a>
