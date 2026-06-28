@@ -25,11 +25,8 @@
     <div class="max-w-6xl mx-auto px-4">
         <a href="{{ route('blog.show', $featured->slug) }}" class="group grid md:grid-cols-2 gap-8 items-center bg-gradient-to-br from-slate-50 to-violet-50 rounded-3xl p-6 md:p-10 hover:shadow-xl transition-all">
             <div class="aspect-video rounded-2xl overflow-hidden bg-slate-200">
-                @if($featured->image)
-                    <img src="{{ asset('storage/'.$featured->image) }}" alt="{{ $featured->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                @else
-                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-200 to-indigo-200"><i class="fas fa-newspaper text-6xl text-violet-400"></i></div>
-                @endif
+                <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+
             </div>
             <div>
                 <span class="inline-block px-3 py-1 bg-violet-600 text-white text-xs font-bold rounded-full mb-3">⭐ مقال مميز</span>
