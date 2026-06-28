@@ -72,7 +72,7 @@
         ]],
         ['title' => 'إدارة المحتوى', 'icon' => 'fa-newspaper', 'children' => [
             ['title' => 'المقالات',          'route' => 'admin.blog.index'],
-            ['title' => 'تصنيفات المقالات',  'route' => 'admin.blog-categories.index'],
+            
             ['title' => 'الأسئلة الشائعة',   'route' => 'admin.faqs.index'],
             ['title' => 'رسائل التواصل',     'route' => 'admin.messages.index'],
             ['title' => 'مشتركو النشرة',     'route' => 'admin.subscribers.index'],
