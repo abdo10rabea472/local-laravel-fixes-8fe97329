@@ -47,66 +47,6 @@
             </div>
         </x-admin.card>
 
-        {{-- SEO --}}
-        <x-admin.card title="تحسين محركات البحث (SEO)" icon="fa-magnifying-glass">
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Meta Title</label>
-                    <input name="meta_title" value="{{ old('meta_title', $post->meta_title) }}" maxlength="60"
-                           class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none"
-                           oninput="document.getElementById('mt-count').innerText=this.value.length">
-                    <p class="text-xs text-gray-500 mt-1">المثالي ≤ 60 حرف — <span id="mt-count">{{ strlen($post->meta_title ?? '') }}</span>/60</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Meta Description</label>
-                    <textarea name="meta_description" rows="3" maxlength="160"
-                              class="w-full px-4 py-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none"
-                              oninput="document.getElementById('md-count').innerText=this.value.length">{{ old('meta_description', $post->meta_description) }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">المثالي ≤ 160 حرف — <span id="md-count">{{ strlen($post->meta_description ?? '') }}</span>/160</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Keywords (مفصولة بفواصل)</label>
-                    <input name="meta_keywords" value="{{ old('meta_keywords', $post->meta_keywords) }}" placeholder="laravel, php, seo" dir="ltr"
-                           class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-mono focus:border-primary-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">صورة المشاركة (OG Image)</label>
-                    <input type="file" name="og_image" accept="image/*"
-                           class="w-full text-sm file:mr-3 file:px-4 file:py-2 file:border-0 file:rounded-lg file:bg-primary-50 file:text-primary-700 file:font-bold file:cursor-pointer">
-                    @if($post->og_image)<img src="{{ asset('storage/'.$post->og_image) }}" class="mt-2 h-20 rounded-lg shadow">@endif
-                    <p class="text-xs text-gray-500 mt-1">1200×630 يُوصى به.</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Canonical URL</label>
-                    <div class="flex items-stretch" dir="ltr">
-                        <span class="inline-flex items-center px-3 bg-gray-100 dark:bg-dark-700 border border-l-0 border-gray-200 dark:border-gray-700 rounded-l-xl text-xs text-gray-600 dark:text-gray-300 font-mono">{{ rtrim(url('/'), '/') }}/</span>
-                        <input name="canonical_url" type="text" value="{{ old('canonical_url', $post->canonical_url) }}" placeholder="blog/your-slug" dir="ltr"
-                               class="flex-1 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-r-xl text-sm font-mono focus:border-primary-500 focus:outline-none">
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">اكتب المسار فقط بعد رابط الموقع. اتركه فارغًا لاستخدام رابط المقال الافتراضي.</p>
-                </div>
-
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="hidden" name="no_index" value="0">
-                    <input type="checkbox" name="no_index" value="1" @checked(old('no_index', $post->no_index)) class="accent-primary-600">
-                    منع الفهرسة (noindex) — لا تظهر في نتائج البحث.
-                </label>
-
-                {{-- Live SERP preview --}}
-                <div class="mt-4 p-4 bg-gray-50 dark:bg-dark-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">معاينة نتيجة بحث Google:</p>
-                    <div class="bg-white p-3 rounded-lg border max-w-xl" dir="ltr">
-                        <p class="text-xs text-emerald-700 truncate">{{ url('/blog/'.($post->slug ?: 'your-slug')) }}</p>
-                        <p class="text-blue-700 text-lg leading-tight truncate" id="serp-title">{{ $post->meta_title ?: ($post->title ?: 'عنوان المقال') }}</p>
-                        <p class="text-sm text-slate-600 line-clamp-2" id="serp-desc">{{ $post->meta_description ?: ($post->excerpt ?: 'وصف المقال يظهر هنا...') }}</p>
-                    </div>
-                </div>
-            </div>
-        </x-admin.card>
     </form>
 
     <x-slot:side>
