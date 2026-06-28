@@ -293,7 +293,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo' }, color: textColor } } }
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter' }, color: textColor } } }
                 }
             });
         }
