@@ -78,86 +78,55 @@
 
 
     <script>
-
-            new Swiper(".collegeIconsSwiper",{
-
+        (function(){
+            const el = document.querySelector(".collegeIconsSwiper");
+            if(!el) return;
+            const count = el.querySelectorAll(".swiper-slide").length;
+            new Swiper(el,{
                 slidesPerView:"auto",
-
                 spaceBetween:16,
-
-                loop:true,
-
+                loop: count > 6,
                 speed:700,
-
                 grabCursor:true,
-
-                autoplay:{
-                    delay:2500,
-                    disableOnInteraction:false,
-                    pauseOnMouseEnter:true,
-                },
-
-                navigation:{
-                    nextEl:".college-icons-next",
-                    prevEl:".college-icons-prev",
-                },
-
+                autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
+                navigation:{ nextEl:".college-icons-next", prevEl:".college-icons-prev" },
                 breakpoints:{
                     320:{spaceBetween:12},
                     768:{spaceBetween:16},
                     1024:{spaceBetween:20},
                 }
-
             });
-        </script>
+        })();
+    </script>
+
 
 
 
 
 
         <script>
-            new Swiper(".featuredSwiper", {
-
-                slidesPerView: "auto",
-
-                spaceBetween: 20,
-
-                loop: true,
-
-                grabCursor: true,
-
-                speed: 700,
-
-                autoplay: {
-                    delay: 2500,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                },
-
-                navigation: {
-                    nextEl: ".featured-next",
-                    prevEl: ".featured-prev",
-                },
-
-                pagination: {
-                    el: ".featuredSwiper .swiper-pagination",
-                    clickable: true,
-                },
-
-                breakpoints: {
-                    320: {
-                        spaceBetween: 12
-                    },
-                    768: {
-                        spaceBetween: 20
-                    },
-                    1024: {
-                        spaceBetween: 24
+            (function(){
+                const el = document.querySelector(".featuredSwiper");
+                if(!el) return;
+                const count = el.querySelectorAll(".swiper-slide").length;
+                new Swiper(el, {
+                    slidesPerView: "auto",
+                    spaceBetween: 20,
+                    loop: count > 6,
+                    grabCursor: true,
+                    speed: 700,
+                    autoplay: { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true },
+                    navigation: { nextEl: ".featured-next", prevEl: ".featured-prev" },
+                    pagination: { el: ".featuredSwiper .swiper-pagination", clickable: true },
+                    breakpoints: {
+                        320: { spaceBetween: 12 },
+                        768: { spaceBetween: 20 },
+                        1024: { spaceBetween: 24 }
                     }
-                }
-
-            });
+                });
+            })();
         </script>
+
 
 
     <script>
@@ -192,59 +161,53 @@
 
 
     <script>
-        new Swiper(".collegeSwiper",{
-            slidesPerView:"auto",
-            spaceBetween:20,
-            loop:true,
-            loopAdditionalSlides:20,
-            grabCursor:true,
-            watchOverflow:false,
-            speed:800,
-            autoplay:{
-                delay:2500,
-                disableOnInteraction:false,
-                pauseOnMouseEnter:true
-            },
-            navigation:{
-                nextEl:".college-next",
-                prevEl:".college-prev"
-            },
-            pagination:{
-                el:".swiper-pagination",
-                clickable:true
-            },
-            breakpoints:{
-                320:{spaceBetween:12},
-                768:{spaceBetween:20},
-                1024:{spaceBetween:24}
-            }
-        });
+        (function(){
+            const el = document.querySelector(".collegeSwiper");
+            if(!el) return;
+            const count = el.querySelectorAll(".swiper-slide").length;
+            new Swiper(el,{
+                slidesPerView:"auto",
+                spaceBetween:20,
+                loop: count > 6,
+                loopAdditionalSlides:20,
+                grabCursor:true,
+                watchOverflow:false,
+                speed:800,
+                autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
+                navigation:{ nextEl:".college-next", prevEl:".college-prev" },
+                pagination:{ el:".swiper-pagination", clickable:true },
+                breakpoints:{
+                    320:{spaceBetween:12},
+                    768:{spaceBetween:20},
+                    1024:{spaceBetween:24}
+                }
+            });
+        })();
     </script>
 
     <script>
-        new Swiper(".newProductsSwiper",{
-            slidesPerView:2,
-            spaceBetween:16,
-            loop:true,
-            speed:700,
-            grabCursor:true,
-            autoplay:{
-                delay:2500,
-                disableOnInteraction:false,
-                pauseOnMouseEnter:true
-            },
-            navigation:{
-                nextEl:".new-next",
-                prevEl:".new-prev"
-            },
-            breakpoints:{
-                640:{slidesPerView:2},
-                768:{slidesPerView:3},
-                1024:{slidesPerView:4},
-                1280:{slidesPerView:5}
-            }
-        });
+        (function(){
+            const el = document.querySelector(".newProductsSwiper");
+            if(!el) return;
+            const count = el.querySelectorAll(".swiper-slide").length;
+            new Swiper(el,{
+                slidesPerView:2,
+                spaceBetween:16,
+                loop: count > 5,
+                speed:700,
+                grabCursor:true,
+                autoplay:{ delay:2500, disableOnInteraction:false, pauseOnMouseEnter:true },
+                navigation:{ nextEl:".new-next", prevEl:".new-prev" },
+                breakpoints:{
+                    640:{slidesPerView:2},
+                    768:{slidesPerView:3},
+                    1024:{slidesPerView:4},
+                    1280:{slidesPerView:5}
+                }
+            });
+        })();
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ asset('js/ajax.js') }}?v={{ @filemtime(public_path('js/ajax.js')) ?: time() }}"></script>
     <script src="{{ asset('js/main.js') }}?v={{ @filemtime(public_path('js/main.js')) ?: time() }}"></script>
