@@ -274,13 +274,13 @@
     </div>
 </div>
 
-<div id="toast-container" class="fixed bottom-5 left-5 z-50 space-y-2"></div>
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
 
 <script>
     function toggleSidebar(){
         const sb = document.getElementById('sidebar');
         const ov = document.getElementById('sidebar-overlay');
-        sb.classList.toggle('translate-x-full');
+        sb.classList.toggle('-translate-x-full');
         sb.classList.toggle('translate-x-0');
         ov.classList.toggle('hidden');
     }
@@ -290,7 +290,7 @@
         const opening = sub.classList.contains('hidden');
         sub.classList.toggle('hidden', !opening);
         sub.classList.toggle('flex', opening);
-        if(arrow) arrow.classList.toggle('-rotate-90', opening);
+        if(arrow) arrow.classList.toggle('rotate-90', opening);
     }
     function toggleDropdown(id, evt){
         if(evt) evt.stopPropagation();
