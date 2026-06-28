@@ -7,7 +7,7 @@
 @section('content')
 <section class="relative bg-gradient-to-br from-slate-900 via-violet-900 to-indigo-900 text-white pt-16 pb-32 overflow-hidden">
     <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 30%, #a78bfa 0, transparent 40%), radial-gradient(circle at 80% 70%, #6366f1 0, transparent 45%);"></div>
-    <div class="relative max-w-4xl mx-auto px-4">
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
         <nav class="flex items-center gap-2 text-sm text-violet-200 mb-6">
             <a href="{{ route('home') }}" class="hover:text-white">الرئيسية</a>
             <i class="fas fa-chevron-left text-[10px]"></i>
@@ -39,14 +39,15 @@
     </div>
 </section>
 
-<div class="max-w-4xl mx-auto px-4 -mt-24 relative z-10">
+<div class="max-w-7xl mx-auto px-6 lg:px-10 -mt-24 relative z-10">
     @if($post->image)
         <img src="{{ asset('storage/'.$post->image) }}" alt="{{ $post->title }}" class="w-full rounded-3xl shadow-2xl aspect-video object-cover">
     @endif
 </div>
 
 <article class="py-12 bg-white">
-    <div class="max-w-3xl mx-auto px-4">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
         @if($post->excerpt)
             <p class="text-xl text-slate-600 leading-relaxed mb-8 pb-8 border-b border-slate-200 font-medium italic">
                 {{ $post->excerpt }}
@@ -94,7 +95,7 @@
 
 {{-- Comments --}}
 <section id="comments" class="py-12 bg-slate-50 border-t border-slate-100">
-    <div class="max-w-3xl mx-auto px-4">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
                 <i class="far fa-comments text-violet-600"></i>
@@ -170,7 +171,7 @@
 
 @if($related->count())
 <section class="py-14 bg-white border-t border-slate-100">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
         <h2 class="text-2xl font-extrabold text-slate-900 mb-8 flex items-center gap-2">
             <i class="fas fa-bookmark text-violet-600"></i> مقالات ذات صلة
         </h2>
