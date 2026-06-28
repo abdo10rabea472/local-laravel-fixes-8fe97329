@@ -1,83 +1,102 @@
-## الهدف
-أتمتة كاملة لتدفّق الشحن: حساب التكلفة فور اختيار العنوان/الشركة، إنشاء شحنة Aramex تلقائياً عند تأكيد الطلب، حفظ كل بيانات الشحنة في الطلب، وعرض/طباعة البوليصة وإعادة المزامنة من الإدارة — مع تسجيل أي فشل وإمكانية إعادة المحاولة.
+# Multi-Language & Multi-Currency System
+
+A large, multi-phase implementation. I'll break it into 5 phases so each turn produces a working, testable slice. Confirm the plan, then I'll execute Phase 1 immediately and continue phase by phase.
 
 ---
 
-## 1) صفحة الـ Checkout (واجهة العميل)
-- إزالة زر **"احسب تكلفة الشحن"** نهائياً من `resources/views/checkout/index.blade.php`.
-- إضافة سكربت يستمع لتغيّر:
-  - `country_id` / `region_id` / `city` / `postal_code` / `address_line1`
-  - `shipping_carrier_id`
-- يطلق **AJAX** إلى `POST /checkout/calculate-shipping` (موجود مسبقاً) مع debounce 400ms.
-- تحديث **تلقائي** لقيم: تكلفة الشحن، الضريبة، الإجمالي — بدون reload.
-- مؤشّر تحميل صغير بجوار قيمة الشحن أثناء الحساب.
+## Phase 1 — Database & Core Models
 
-## 2) إنشاء الطلب + إنشاء الشحنة تلقائياً
-عند `CheckoutController@place`:
-1. إنشاء الطلب داخل `DB::transaction`.
-2. بعد commit، **dispatch** Job: `App\Jobs\CreateCarrierShipment($order)` على queue `shipping`.
-3. الـ Job ينادي `ShippingDispatchService::createForOrder($order)`:
-   - يحدّد الـ driver من `shipping_carrier.code` (`aramex` → `AramexService::createShipment`).
-   - يبني الـ payload من بيانات الطلب + عنوان الشحن + إعدادات Shipper من `config/aramex.php`.
-   - عند **النجاح**: يحفظ في الطلب الحقول الجديدة (انظر قسم Migration) ويغيّر `status = processing` و `shipping_status = shipment_created`.
-   - عند **الفشل**: يحفظ `shipping_error`, `shipping_attempts++`, ويُبقي الطلب بحالة `pending_shipment`.
-   - يسجّل في `Log::channel('shipping')` ويضيف صفّاً في `order_status_history`.
+**Migrations**
+- `languages` — `id, name, native_name, code (unique, idx), locale, direction (enum ltr/rtl), flag, is_default (bool), is_active (bool, idx), sort_order, timestamps`
+- `currencies` — `id, name, code (unique, idx), symbol, symbol_position (enum before/after), decimals (u tinyint), decimal_separator, thousands_separator, exchange_rate (decimal 18,8), is_default, is_active (idx), sort_order, timestamps`
+- `translations` — `id, locale (idx), group (idx), key, value (text), unique(locale, group, key)` — DB-backed translations (admin-editable)
+- Seed default rows: en (LTR, default), ar (RTL); USD (default), EGP
 
-## 3) Migration جديدة — `add_carrier_shipment_fields_to_orders`
-أعمدة جديدة على `orders`:
-```text
-shipment_number       string  nullable  index
-tracking_number       string  nullable  index
-shipping_status       string  nullable  default 'pending'
-label_url             string  nullable
-barcode               string  nullable
-tracking_url          string  nullable
-pickup_address        json    nullable
-pickup_datetime       datetime nullable
-carrier_response      json    nullable   -- raw response للمرجع
-shipping_error        text    nullable
-shipping_attempts     unsignedTinyInteger default 0
-shipment_created_at   datetime nullable
-```
-+ indexes على `shipping_status`, `tracking_number`.
+**Models**: `Language`, `Currency`, `Translation` with proper casts, scopes (`active()`, `ordered()`), and `default()` accessor.
 
-## 4) صفحة تفاصيل الطلب في الإدارة
-في `resources/views/admin/orders/show.blade.php`:
-- بطاقة **معلومات الشحنة** تعرض: شركة الشحن، رقم الشحنة، رقم التتبع، الحالة، الباركود (صورة)، عنوان وميعاد الاستلام، رابط التتبع (يفتح في تبويب جديد).
-- أزرار:
-  - **طباعة البوليصة** → يفتح `label_url` في نافذة جديدة جاهز للطباعة.
-  - **تحميل البوليصة** → نفس الرابط بصفة `download`.
-  - **إعادة محاولة إنشاء الشحنة** (يظهر فقط لو `shipping_error` موجود) → POST إلى `admin.orders.shipment.retry`.
-  - **إعادة مزامنة الحالة** → POST إلى `admin.orders.shipment.sync` يستدعي `AramexService::trackShipments`.
-- إذا `shipping_error` → بانر أحمر يعرض الرسالة + زر إعادة المحاولة.
-
-## 5) Routes جديدة في `routes/web.php` (مجموعة admin)
-```text
-POST  /admin/orders/{order}/shipment/retry  → OrderController@retryShipment
-POST  /admin/orders/{order}/shipment/sync   → OrderController@syncShipment
-GET   /admin/orders/{order}/shipment/label  → OrderController@printLabel (proxy للطباعة)
-```
-
-## 6) ملفات/Classes جديدة
-- `app/Jobs/CreateCarrierShipment.php` — Queueable, `tries=3`, backoff تصاعدي.
-- `app/Services/ShippingDispatchService.php` — منسّق بين الـ Order وملقّمات الشحن (Strategy Pattern؛ يسهل إضافة شركات لاحقاً).
-- `config/logging.php` — قناة `shipping` تكتب في `storage/logs/shipping.log`.
-
-## 7) معالجة الأخطاء والـ Logs
-- كل استدعاء SOAP محاط بـ try/catch.
-- تسجيل: `order_id`, `carrier_code`, `payload`, `response/error` في القناة `shipping`.
-- لو فشل الـ Job 3 مرات → يبقى الطلب `pending_shipment` ويُرسل إشعار للأدمن (بريد عبر `CustomerNotificationMail` بنسخة admin).
-
-## 8) ما **لن** يتغيّر
-- مخطط جدول `shipping_carriers`، صفحات Cart، نظام الكوبونات، RLS/Policies الموجودة.
-- صفحة `checkout` الـ HTML يبقى تصميمها كما هو — فقط إزالة الزر + إضافة سكربت AJAX.
+**Services** (`app/Services/`):
+- `LanguageService` — cached list, default lookup, switch helper preserving current path
+- `CurrencyService` — cached list, convert(amount, from?, to?), format(amount, currency?)
+- Both use `Cache::rememberForever` with explicit invalidation on save/delete via model observers
 
 ---
 
-## تفاصيل تقنية مختصرة
-- الـ Driver المُختار يُحدَّد من حقل `shipping_carriers.code` (`aramex`, `bosta`, …) عبر `match()`.
-- بناء عنوان Aramex من `order.shipping_*` بالشكل: `line1`, `city`, `post_code`, `country_code` (الأخطاء السابقة التي ظهرت في tinker).
-- استخدام `queue:work --queue=shipping,default` (تذكير في الـ README).
-- لا حاجة لتغيير شيء في الـ Frontend خارج صفحة Checkout وصفحة Order في الإدارة.
+## Phase 2 — Routing, Middleware & Helpers
 
-هل أبدأ التنفيذ بهذا الشكل؟
+**Routes** — wrap all public frontend routes in a localized group:
+```php
+Route::prefix('{locale}')->where(['locale' => '[a-z]{2}'])
+    ->middleware(['set.locale'])->group(base_path('routes/frontend.php'));
+Route::get('/', fn() => redirect('/' . app(LanguageService::class)->default()->code));
+```
+Admin routes stay unprefixed.
+
+**Middleware**
+- `SetLocale` — validates `{locale}` against active languages, sets `App::setLocale()`, shares to views, 404s on invalid code
+- `SetCurrency` — reads cookie `currency` (fallback default), binds singleton
+
+**URL generation** — `URL::defaults(['locale' => app()->getLocale()])` so `route()` auto-includes prefix; add `LocaleServiceProvider` to register.
+
+**Helpers** (`app/helpers.php`, autoloaded via composer):
+- `current_locale()`, `current_currency()`, `money($amount, $currency=null)`, `switch_locale_url($code)`
+
+---
+
+## Phase 3 — Translation Conversion (Frontend Only)
+
+**Storage strategy**: Hybrid — file-based `resources/lang/{locale}/*.php` for developer keys + DB `translations` table merged via custom `Translator` loader (admin overrides files).
+
+Files to create per locale: `common.php`, `nav.php`, `home.php`, `product.php`, `cart.php`, `checkout.php`, `account.php`, `blog.php`, `auth.php`, `footer.php`.
+
+Convert all `resources/views/` frontend Blade files (excluding `admin/*`) — replace hardcoded Arabic/English strings with `{{ __('group.key') }}`. Done per-folder in sub-turns to keep diffs reviewable:
+1. layout + partials + nav + footer
+2. home + product listing + product show + reviews
+3. cart + checkout + account + auth + blog
+
+---
+
+## Phase 4 — SEO
+
+- Per-route `head()` equivalent: each Blade layout emits `<link rel="alternate" hreflang="{code}" href="{switch_locale_url(code)}">` for every active language + `x-default`
+- `<link rel="canonical" href="{current localized url}">`
+- Localized `sitemap.xml` controller — one `<url>` per (route × active language) with `<xhtml:link rel="alternate">`
+- Localized meta title/description per page via translation keys
+
+---
+
+## Phase 5 — Admin Settings UI
+
+Extend `/admin/settings` with two new tabs (matching existing tab styling):
+
+**Languages tab**
+- Table: flag, name, code, locale, direction, default radio, active toggle, sort, actions
+- Modal form: create/edit; flag upload to `storage/languages/`
+- Bulk reorder (sortable)
+
+**Currencies tab**
+- Table: name, code, symbol, rate, default, active, sort
+- Modal form: full field set from spec
+- "Update rates" button (stub for future API integration with documented hook)
+
+**Translations tab** (bonus, same page)
+- Filter by locale + group, inline-edit values, save → invalidates translation cache
+
+Cache invalidation on every admin save via model observers.
+
+---
+
+## Technical Notes
+
+- **Caching**: `languages:all`, `currencies:all`, `translations:{locale}:{group}` — flushed by observers
+- **Performance**: middleware reads from cache only (zero queries per request after warm-up); price formatting is pure PHP
+- **Backward compatibility**: existing `/products`, `/cart` URLs redirect to `/{default_locale}/...` via fallback route — no broken links
+- **No breaking changes** to admin panel (already English from prior phases)
+- **Cookie**: `currency` (1 year, SameSite=Lax); locale lives in URL, not cookie, for SEO
+
+---
+
+## Execution Order
+
+I'll execute one phase per turn. Phase 1 (migrations + models + services + seeds) is the foundation — nothing else works without it, and it's safe to ship alone because routes/middleware aren't wired yet.
+
+**Reply "ابدأ" / "go" to start Phase 1, or tell me which phase to prioritize / skip.**
