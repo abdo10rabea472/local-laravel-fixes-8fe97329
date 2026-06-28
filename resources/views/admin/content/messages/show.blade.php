@@ -1,26 +1,55 @@
 @extends('admin.layouts.app')
 @section('title', 'رسالة')
-@section('content')
-<div class="p-6 max-w-3xl">
-    <a href="{{ route('admin.messages.index') }}" class="text-slate-500 text-sm">← رجوع للقائمة</a>
-    <div class="bg-white p-6 rounded-xl shadow mt-4">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h1 class="text-xl font-bold">{{ $message->subject }}</h1>
-                <p class="text-sm text-slate-500">من <strong>{{ $message->name }}</strong> &lt;{{ $message->email }}&gt; — {{ $message->created_at->format('Y-m-d H:i') }}</p>
-                @if($message->phone)<p class="text-sm text-slate-500">هاتف: {{ $message->phone }}</p>@endif
-            </div>
-            <span class="px-3 py-1 rounded-full bg-slate-100 text-xs">{{ $message->status }}</span>
-        </div>
-        <div class="prose max-w-none whitespace-pre-wrap p-4 bg-slate-50 rounded-lg">{{ $message->message }}</div>
 
-        <div class="flex gap-2 mt-6 flex-wrap">
-            <a href="mailto:{{ $message->email }}?subject=Re: {{ $message->subject }}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm"><i class="fas fa-reply"></i> الرد عبر البريد</a>
-            @foreach(['new'=>'جديد','read'=>'مقروء','replied'=>'تم الرد','archived'=>'أرشفة'] as $k=>$v)
-                <form method="POST" action="{{ route('admin.messages.status', $message) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="{{ $k }}"><button class="px-3 py-2 bg-slate-100 rounded-lg text-sm">{{ $v }}</button></form>
-            @endforeach
-            <form method="POST" action="{{ route('admin.messages.destroy', $message) }}" onsubmit="return confirm('حذف؟')">@csrf @method('DELETE')<button class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm">حذف</button></form>
+@php
+    $statusMap = ['new'=>'جديد','read'=>'مقروء','replied'=>'تم الرد','archived'=>'مؤرشف'];
+@endphp
+
+@section('content')
+<x-admin.page title="عرض الرسالة" subtitle="تفاصيل رسالة العميل والإجراءات المتاحة." :back="route('admin.messages.index')">
+    <x-admin.card title="محتوى الرسالة" icon="fa-envelope-open-text">
+        <div class="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $message->subject }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    من <strong class="text-gray-700 dark:text-gray-200">{{ $message->name }}</strong>
+                    &lt;<span class="font-mono">{{ $message->email }}</span>&gt;
+                </p>
+                @if($message->phone)
+                    <p class="text-sm text-gray-500 dark:text-gray-400">هاتف: <span class="font-mono">{{ $message->phone }}</span></p>
+                @endif
+                <p class="text-xs text-gray-400 mt-1">{{ $message->created_at->format('Y-m-d H:i') }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-gray-100 dark:bg-dark-800 text-xs font-bold">{{ $statusMap[$message->status] ?? $message->status }}</span>
         </div>
-    </div>
-</div>
+        <div class="whitespace-pre-wrap p-5 bg-gray-50 dark:bg-dark-800 rounded-xl text-gray-700 dark:text-gray-200 leading-relaxed">{{ $message->message }}</div>
+    </x-admin.card>
+
+    <x-slot:side>
+        <x-admin.card title="إجراءات" icon="fa-bolt">
+            <a href="mailto:{{ $message->email }}?subject=Re: {{ $message->subject }}"
+               class="w-full h-12 inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20 mb-3">
+                <i class="fa-solid fa-reply"></i> الرد عبر البريد
+            </a>
+            <form method="POST" action="{{ route('admin.messages.destroy', $message) }}" onsubmit="return confirm('حذف الرسالة؟')">
+                @csrf @method('DELETE')
+                <button class="w-full h-11 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">
+                    <i class="fa-solid fa-trash"></i> حذف الرسالة
+                </button>
+            </form>
+        </x-admin.card>
+
+        <x-admin.card title="تغيير الحالة" icon="fa-tags">
+            <div class="grid grid-cols-2 gap-2">
+                @foreach($statusMap as $k=>$v)
+                    <form method="POST" action="{{ route('admin.messages.status', $message) }}">
+                        @csrf @method('PATCH')
+                        <input type="hidden" name="status" value="{{ $k }}">
+                        <button class="w-full h-10 bg-gray-50 dark:bg-dark-800 hover:bg-gray-100 dark:hover:bg-dark-700 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold {{ $message->status===$k ? 'ring-2 ring-primary-500' : '' }}">{{ $v }}</button>
+                    </form>
+                @endforeach
+            </div>
+        </x-admin.card>
+    </x-slot:side>
+</x-admin.page>
 @endsection

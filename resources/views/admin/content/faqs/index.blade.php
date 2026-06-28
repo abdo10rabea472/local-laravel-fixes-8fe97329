@@ -1,45 +1,68 @@
 @extends('admin.layouts.app')
 @section('title', 'الأسئلة الشائعة')
+
 @section('content')
-<div class="p-6 max-w-5xl">
-    <h1 class="text-2xl font-bold mb-6">الأسئلة الشائعة (FAQs)</h1>
-    @if(session('success'))<div class="bg-green-100 text-green-800 p-3 rounded mb-4">{{ session('success') }}</div>@endif
-    @if($errors->any())<div class="bg-red-100 text-red-700 p-3 rounded mb-4"><ul>@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
+<x-admin.page title="الأسئلة الشائعة" subtitle="إدارة قائمة الأسئلة الشائعة التي تظهر للعملاء.">
+    <x-admin.card title="كل الأسئلة" icon="fa-circle-question" padding="p-0">
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+            @forelse($faqs as $f)
+                <div class="p-5">
+                    <form method="POST" action="{{ route('admin.faqs.update', $f) }}" class="space-y-3">
+                        @csrf @method('PUT')
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input name="category" value="{{ $f->category }}" placeholder="التصنيف"
+                                   class="h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                            <input name="sort_order" type="number" value="{{ $f->sort_order }}" placeholder="ترتيب"
+                                   class="h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                            <label class="h-11 flex items-center gap-2 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm cursor-pointer">
+                                <input type="checkbox" name="active" value="1" @checked($f->active) class="accent-primary-600"> مفعّل
+                            </label>
+                        </div>
+                        <input name="question" value="{{ $f->question }}" placeholder="السؤال"
+                               class="w-full h-11 px-4 bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold focus:border-primary-500 focus:outline-none">
+                        <textarea name="answer" rows="3" placeholder="الإجابة"
+                                  class="w-full px-4 py-3 bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">{{ $f->answer }}</textarea>
+                        <div class="flex gap-2">
+                            <button class="px-5 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold">حفظ</button>
+                    </form>
+                            <form method="POST" action="{{ route('admin.faqs.destroy', $f) }}" onsubmit="return confirm('حذف؟')">
+                                @csrf @method('DELETE')
+                                <button class="px-5 h-10 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">حذف</button>
+                            </form>
+                        </div>
+                </div>
+            @empty
+                <div class="p-12 text-center text-gray-400">
+                    <i class="fa-regular fa-circle-question text-3xl mb-3 block"></i>
+                    لا توجد أسئلة بعد.
+                </div>
+            @endforelse
+        </div>
+        @if($faqs->hasPages())
+        <div class="p-4 border-t border-gray-100 dark:border-gray-800">{{ $faqs->links() }}</div>
+        @endif
+    </x-admin.card>
 
-    <div class="bg-white p-6 rounded-xl shadow mb-6">
-        <h3 class="font-bold mb-3">إضافة سؤال</h3>
-        <form method="POST" action="{{ route('admin.faqs.store') }}" class="space-y-3">
-            @csrf
-            <div class="grid grid-cols-2 gap-3">
-                <input name="category" placeholder="التصنيف (مثال: الطلبات)" class="px-3 py-2 border rounded-lg">
-                <input name="sort_order" type="number" value="0" placeholder="ترتيب" class="px-3 py-2 border rounded-lg">
-            </div>
-            <input name="question" required placeholder="السؤال" class="w-full px-3 py-2 border rounded-lg">
-            <textarea name="answer" required rows="3" placeholder="الإجابة" class="w-full px-3 py-2 border rounded-lg"></textarea>
-            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="active" value="1" checked> مفعّل</label>
-            <button class="bg-primary-600 text-white px-4 py-2 rounded-lg">إضافة</button>
-        </form>
-    </div>
-
-    <div class="space-y-3">
-        @foreach($faqs as $f)
-            <div class="bg-white p-4 rounded-xl shadow">
-                <form method="POST" action="{{ route('admin.faqs.update', $f) }}" class="space-y-2">@csrf @method('PUT')
-                    <div class="grid grid-cols-3 gap-2">
-                        <input name="category" value="{{ $f->category }}" placeholder="تصنيف" class="px-2 py-1 border rounded text-sm">
-                        <input name="sort_order" type="number" value="{{ $f->sort_order }}" class="px-2 py-1 border rounded text-sm">
-                        <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="active" value="1" @checked($f->active)> مفعّل</label>
-                    </div>
-                    <input name="question" value="{{ $f->question }}" class="w-full px-2 py-1 border rounded font-semibold">
-                    <textarea name="answer" rows="2" class="w-full px-2 py-1 border rounded text-sm">{{ $f->answer }}</textarea>
-                    <div class="flex gap-2">
-                        <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm">حفظ</button>
-                </form>
-                        <form method="POST" action="{{ route('admin.faqs.destroy', $f) }}" onsubmit="return confirm('حذف؟')">@csrf @method('DELETE')<button class="bg-red-600 text-white px-3 py-1 rounded text-sm">حذف</button></form>
-                    </div>
-            </div>
-        @endforeach
-    </div>
-    <div class="mt-4">{{ $faqs->links() }}</div>
-</div>
+    <x-slot:side>
+        <x-admin.card title="إضافة سؤال جديد" icon="fa-plus">
+            <form method="POST" action="{{ route('admin.faqs.store') }}" class="space-y-3">
+                @csrf
+                <input name="category" placeholder="التصنيف (مثال: الطلبات)"
+                       class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                <input name="sort_order" type="number" value="0" placeholder="ترتيب"
+                       class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                <input name="question" required placeholder="السؤال"
+                       class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                <textarea name="answer" required rows="4" placeholder="الإجابة"
+                          class="w-full px-4 py-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none"></textarea>
+                <label class="flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="active" value="1" checked class="accent-primary-600"> مفعّل
+                </label>
+                <button class="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20">
+                    <i class="fa-solid fa-plus"></i> إضافة السؤال
+                </button>
+            </form>
+        </x-admin.card>
+    </x-slot:side>
+</x-admin.page>
 @endsection

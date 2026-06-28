@@ -250,8 +250,6 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     // ── Content Management ──
     // Blog posts
     Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class)->except(['show']);
-    Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class)
-        ->only(['index','store','update','destroy'])->parameters(['blog-categories' => 'category']);
 
     // FAQs
     Route::resource('faqs', \App\Http\Controllers\Admin\FaqController::class)->only(['index','store','update','destroy']);
