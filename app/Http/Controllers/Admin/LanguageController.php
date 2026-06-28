@@ -57,6 +57,82 @@ class LanguageController extends Controller
         return back()->with('success', 'Default language updated.');
     }
 
+    /**
+     * Show translation editor: lists every key from the default-language PHP files
+     * and lets the admin fill in the value for $language. Saved to
+     * resources/lang/{code}/{group}.php.
+     */
+    public function translations(Language $language)
+    {
+        $defaultCode = optional(Language::where('is_default', true)->first())->code ?? 'en';
+        $sourceDir   = base_path("resources/lang/{$defaultCode}");
+        $targetDir   = base_path("resources/lang/{$language->code}");
+
+        $groups = [];
+        if (is_dir($sourceDir)) {
+            foreach (glob($sourceDir.'/*.php') as $file) {
+                $group = basename($file, '.php');
+                $sourceKeys = include $file;
+                $targetFile = $targetDir.'/'.$group.'.php';
+                $targetKeys = is_file($targetFile) ? (include $targetFile) : [];
+                $groups[$group] = [
+                    'keys'   => is_array($sourceKeys) ? array_keys($sourceKeys) : [],
+                    'source' => is_array($sourceKeys) ? $sourceKeys : [],
+                    'target' => is_array($targetKeys) ? $targetKeys : [],
+                ];
+            }
+        }
+
+        $activeTab = 'languages';
+        return view('admin.settings.languages-translations', compact('language', 'groups', 'defaultCode', 'activeTab'));
+    }
+
+    public function saveTranslations(Request $request, Language $language)
+    {
+        $payload = $request->input('t', []); // ['group' => ['key' => 'value', ...]]
+        if (!is_array($payload)) {
+            return back()->with('error', 'Invalid payload.');
+        }
+
+        $targetDir = base_path("resources/lang/{$language->code}");
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0755, true);
+        }
+
+        foreach ($payload as $group => $entries) {
+            if (!is_string($group) || !preg_match('/^[a-z0-9_\-]+$/i', $group) || !is_array($entries)) {
+                continue;
+            }
+            // Merge with existing so untouched keys are preserved.
+            $existing = [];
+            $file = $targetDir.'/'.$group.'.php';
+            if (is_file($file)) {
+                $existing = include $file;
+                if (!is_array($existing)) $existing = [];
+            }
+            foreach ($entries as $k => $v) {
+                if (!is_string($k)) continue;
+                $v = (string) $v;
+                if ($v === '') {
+                    unset($existing[$k]);
+                } else {
+                    $existing[$k] = $v;
+                }
+            }
+            ksort($existing);
+            file_put_contents(
+                $file,
+                "<?php\n\nreturn ".var_export($existing, true).";\n"
+            );
+        }
+
+        // Clear translation cache.
+        if (function_exists('opcache_reset')) { @opcache_reset(); }
+
+        return back()->with('success', 'Translations saved for '.$language->name.'.');
+    }
+
+
     protected function validateData(Request $r, ?int $ignoreId = null): array
     {
         return $r->validate([
