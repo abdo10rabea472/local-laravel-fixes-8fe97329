@@ -61,6 +61,12 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function blogPosts(): HasMany
+    {
+        return $this->hasMany(BlogPost::class, 'blog_category_id');
+    }
+
+
     public function sections(): HasMany
     {
         return $this->hasMany(PageSection::class)->orderBy('sort_order');
