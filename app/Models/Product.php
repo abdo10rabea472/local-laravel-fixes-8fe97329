@@ -112,7 +112,8 @@ class Product extends Model
         return $query
             ->select(['id', 'name', 'slug', 'price', 'sale_price', 'stock', 'category_id', 'short_description', 'featured'])
             ->with([
-                'category:id,name,slug',
+                'category:id,parent_id,name,slug',
+                'category.parent:id,name,slug',
                 'images' => fn ($q) => $q->select(['id', 'product_id', 'thumb', 'medium', 'image'])->orderBy('sort_order'),
                 'activeDiscount',
             ]);

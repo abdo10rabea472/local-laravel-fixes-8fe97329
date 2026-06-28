@@ -303,9 +303,14 @@
         <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
 
             @foreach($products as $product)
+                @php
+                    $productCategory = $product->category;
+                    $productCollegeSlug = $productCategory?->parent?->slug ?? $productCategory?->slug;
+                    $productCategorySlugs = collect([$productCollegeSlug, $productCategory?->slug])->filter()->unique()->implode(' ');
+                @endphp
 
                 <div class="product-item"
-                     data-college="{{ $product->category->parent->slug ?? $product->category->slug }}">
+                     data-colleges="{{ $productCategorySlugs }}">
 
                     @include('components.product-card',['product'=>$product])
 
@@ -347,7 +352,8 @@
             const slug = btn.dataset.college || '';
             setActive(btn);
             items.forEach(item => {
-                item.style.display = (!slug || item.dataset.college === slug) ? '' : 'none';
+                const itemSlugs = (item.dataset.colleges || item.dataset.college || '').split(/\s+/).filter(Boolean);
+                item.style.display = (!slug || itemSlugs.includes(slug)) ? '' : 'none';
             });
         });
     });
