@@ -57,6 +57,49 @@
             @endif
 
             <div class="flex items-center gap-3 shrink-0">
+                {{-- Language & Currency switchers --}}
+                @if(($availableLanguages ?? collect())->count() > 1)
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" type="button" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-globe text-[10px]"></i>
+                        <span>{{ optional($currentLanguage ?? null)->native_name ?? strtoupper(app()->getLocale()) }}</span>
+                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                    </button>
+                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-44 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                        @foreach($availableLanguages as $lang)
+                            <a href="{{ route('locale.switch', $lang->code) }}"
+                               class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-violet-50 {{ app()->getLocale() === $lang->code ? 'font-bold text-violet-700' : '' }}">
+                                @if($lang->flag)<img src="{{ asset('storage/'.$lang->flag) }}" class="w-5 h-3.5 object-cover rounded">@endif
+                                <span>{{ $lang->native_name }}</span>
+                                <span class="ml-auto text-[10px] text-slate-400 uppercase">{{ $lang->code }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                <span class="text-white/40">|</span>
+                @endif
+
+                @if(($availableCurrencies ?? collect())->count() > 1)
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" type="button" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-coins text-[10px]"></i>
+                        <span>{{ optional($currentCurrency ?? null)->code ?? '' }}</span>
+                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                    </button>
+                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-44 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                        @foreach($availableCurrencies as $cur)
+                            <a href="{{ route('currency.switch', $cur->code) }}"
+                               class="flex items-center justify-between px-3 py-2 text-xs hover:bg-violet-50 {{ optional($currentCurrency ?? null)->code === $cur->code ? 'font-bold text-violet-700' : '' }}">
+                                <span>{{ $cur->name }}</span>
+                                <span class="text-slate-400">{{ $cur->symbol }} {{ $cur->code }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                <span class="text-white/40">|</span>
+                @endif
+
+
                 @if(($navTopMenu ?? collect())->isNotEmpty())
                     @foreach($navTopMenu as $item)
                         @if($item->type === 'coupon')
