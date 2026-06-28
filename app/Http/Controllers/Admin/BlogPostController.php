@@ -101,14 +101,10 @@ class BlogPostController extends Controller
             'meta_description' => ['nullable','string','max:320'],
             'meta_keywords' => ['nullable','string','max:255'],
             'og_image' => ['nullable','image','max:4096'],
-            'canonical_url' => ['nullable','string','max:255'],
             'no_index' => ['nullable','boolean'],
         ]);
         $data['no_index'] = $request->boolean('no_index');
-        // Normalize canonical: strip leading slash, accept path only
-        if (!empty($data['canonical_url'])) {
-            $data['canonical_url'] = ltrim($data['canonical_url'], '/');
-        }
+        unset($data['canonical_url']);
         // Auto-publish if no date provided (so the post appears on /blog immediately)
         if (empty($data['published_at'])) {
             $data['published_at'] = now();

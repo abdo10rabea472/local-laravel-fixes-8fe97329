@@ -24,6 +24,7 @@ class BlogPost extends Model
     {
         static::saving(function ($p) {
             $p->slug = static::uniqueSlug($p->slug ?: $p->title, $p->id);
+            $p->canonical_url = 'blog/'.$p->slug;
 
             if (empty($p->published_at)) {
                 $p->published_at = now();
@@ -34,6 +35,19 @@ class BlogPost extends Model
     public static function normalizeSlug(?string $value): string
     {
         $value = trim((string) $value);
+
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            $value = parse_url($value, PHP_URL_PATH) ?: $value;
+        }
+
+        $value = urldecode(preg_replace('/[?#].*$/', '', $value) ?? $value);
+        $value = trim($value, "/ \t\n\r\0\x0B");
+        $value = preg_replace('#^(?:index\.php/)?blog/#iu', '', $value) ?? $value;
+
+        if (str_contains($value, '/')) {
+            $parts = preg_split('#/+#', $value, -1, PREG_SPLIT_NO_EMPTY);
+            $value = $parts ? end($parts) : $value;
+        }
 
         $slug = Str::slug($value);
 

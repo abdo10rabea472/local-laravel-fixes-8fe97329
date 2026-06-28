@@ -28,9 +28,12 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Slug (الرابط)</label>
-                    <input id="slug" name="slug" value="{{ old('slug', $post->slug) }}" dir="ltr"
-                           class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-mono focus:border-primary-500 focus:outline-none">
-                    <p class="text-xs text-gray-500 mt-1">اتركه فارغًا لتوليده تلقائيًا من العنوان.</p>
+                    <div class="flex items-stretch" dir="ltr">
+                        <span class="inline-flex items-center px-3 bg-gray-100 dark:bg-dark-700 border border-r-0 border-gray-200 dark:border-gray-700 rounded-l-xl text-xs text-gray-600 dark:text-gray-300 font-mono">{{ rtrim(url('/blog'), '/') }}/</span>
+                        <input id="slug" name="slug" value="{{ old('slug', $post->slug) }}" dir="ltr" placeholder="your-slug"
+                               class="flex-1 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-r-xl text-sm font-mono focus:border-primary-500 focus:outline-none">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">اكتب الجزء الأخير فقط من الرابط، أو اتركه فارغًا لتوليده تلقائيًا.</p>
                 </div>
 
                 <div>
@@ -126,15 +129,6 @@
                     <p class="text-xs text-gray-500 mt-1">1200×630 يُوصى به.</p>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Canonical URL</label>
-                    <div class="flex items-stretch" dir="ltr">
-                        <span class="inline-flex items-center px-2 bg-gray-100 dark:bg-dark-700 border border-l-0 border-gray-200 dark:border-gray-700 rounded-l-xl text-[10px] text-gray-600 dark:text-gray-300 font-mono">{{ rtrim(url('/'), '/') }}/</span>
-                        <input form="blog-form" name="canonical_url" type="text" value="{{ old('canonical_url', $post->canonical_url) }}" placeholder="blog/your-slug" dir="ltr"
-                               class="flex-1 h-11 px-2 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-r-xl text-xs font-mono focus:border-primary-500 focus:outline-none">
-                    </div>
-                </div>
-
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input form="blog-form" type="hidden" name="no_index" value="0">
                     <input form="blog-form" type="checkbox" name="no_index" value="1" @checked(old('no_index', $post->no_index)) class="accent-primary-600">
@@ -145,7 +139,7 @@
                 <div class="mt-3 p-3 bg-gray-50 dark:bg-dark-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2">معاينة Google:</p>
                     <div class="bg-white p-2 rounded-lg border" dir="ltr">
-                        <p class="text-[10px] text-emerald-700 truncate">{{ url('/blog/'.($post->slug ?: 'your-slug')) }}</p>
+                        <p class="text-[10px] text-emerald-700 truncate" id="serp-url">{{ url('/blog/'.($post->slug ?: 'your-slug')) }}</p>
                         <p class="text-blue-700 text-sm leading-tight truncate" id="serp-title">{{ $post->meta_title ?: ($post->title ?: 'عنوان المقال') }}</p>
                         <p class="text-xs text-slate-600 line-clamp-2" id="serp-desc">{{ $post->meta_description ?: ($post->excerpt ?: 'وصف المقال يظهر هنا...') }}</p>
                     </div>
@@ -179,6 +173,18 @@
     });
     document.querySelector('[name=meta_description]')?.addEventListener('input', e => {
         document.getElementById('serp-desc').textContent = e.target.value || 'وصف المقال يظهر هنا...';
+    });
+
+    const slugInput = document.getElementById('slug');
+    const serpUrl = document.getElementById('serp-url');
+    const blogBaseUrl = @json(rtrim(url('/blog'), '/'));
+    const previewSlug = value => {
+        value = (value || '').trim().replace(/[?#].*$/, '').replace(/^https?:\/\/[^/]+\/?/i, '').replace(/^\/?(?:index\.php\/)?blog\//i, '').replace(/^\/+|\/+$/g, '');
+        if (value.includes('/')) value = value.split('/').filter(Boolean).pop() || '';
+        return value || 'your-slug';
+    };
+    slugInput?.addEventListener('input', e => {
+        serpUrl.textContent = `${blogBaseUrl}/${previewSlug(e.target.value)}`;
     });
 </script>
 @endsection
