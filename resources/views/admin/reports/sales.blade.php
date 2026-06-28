@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'تقرير المبيعات')
+@section('title', 'Sales Report')
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -9,36 +9,36 @@
 <div class="p-6 space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">تقرير المبيعات</h1>
-            <p class="text-sm text-slate-500 mt-1">تحليل تفصيلي للإيرادات والطلبات حسب الفترة.</p>
+            <h1 class="text-2xl font-bold text-slate-800">Sales Report</h1>
+            <p class="text-sm text-slate-500 mt-1">Detailed revenue and order analytics by period.</p>
         </div>
         <a href="{{ route('admin.reports.sales', array_merge(request()->all(), ['export' => 'csv'])) }}"
            class="px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
-            <i class="fa-solid fa-file-csv ml-1"></i> تصدير CSV
+            <i class="fa-solid fa-file-csv mr-1"></i> Export CSV
         </a>
     </div>
 
     {{-- Filters --}}
     <form method="GET" class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
-            <label class="text-xs font-bold text-slate-500">من تاريخ</label>
+            <label class="text-xs font-bold text-slate-500">From date</label>
             <input type="date" name="from" value="{{ $from }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
         </div>
         <div>
-            <label class="text-xs font-bold text-slate-500">إلى تاريخ</label>
+            <label class="text-xs font-bold text-slate-500">To date</label>
             <input type="date" name="to" value="{{ $to }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
         </div>
         <div>
-            <label class="text-xs font-bold text-slate-500">الحالة</label>
+            <label class="text-xs font-bold text-slate-500">Status</label>
             <select name="status" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
-                <option value="">المدفوعة فقط (افتراضي)</option>
+                <option value="">Paid only (default)</option>
                 @foreach($statuses as $s)
-                    <option value="{{ $s }}" @selected($status===$s)>{{ $s }}</option>
+                    <option value="{{ $s }}" @selected($status===$s)>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
         </div>
         <div class="flex items-end">
-            <button class="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold">عرض التقرير</button>
+            <button class="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold">View Report</button>
         </div>
     </form>
 
@@ -46,13 +46,13 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $cards = [
-                ['إجمالي الإيرادات', (float) $kpi->revenue, 'text-emerald-600'],
-                ['عدد الطلبات', (int) $kpi->orders, 'text-violet-600', false],
-                ['متوسط قيمة الطلب', (float) $kpi->aov, 'text-sky-600'],
-                ['إجمالي الخصومات', (float) $kpi->discount, 'text-rose-600'],
-                ['الشحن المُحصَّل', (float) $kpi->shipping, 'text-amber-600'],
-                ['الضرائب', (float) $kpi->tax, 'text-slate-600'],
-                ['صافي قبل الشحن/الضريبة', (float) $kpi->subtotal, 'text-indigo-600'],
+                ['Total Revenue', (float) $kpi->revenue, 'text-emerald-600'],
+                ['Orders', (int) $kpi->orders, 'text-violet-600', false],
+                ['Average Order Value', (float) $kpi->aov, 'text-sky-600'],
+                ['Total Discounts', (float) $kpi->discount, 'text-rose-600'],
+                ['Shipping Collected', (float) $kpi->shipping, 'text-amber-600'],
+                ['Taxes', (float) $kpi->tax, 'text-slate-600'],
+                ['Subtotal (before shipping/tax)', (float) $kpi->subtotal, 'text-indigo-600'],
             ];
         @endphp
         @foreach($cards as $c)
@@ -60,7 +60,7 @@
                 <p class="text-xs font-bold text-slate-500">{{ $c[0] }}</p>
                 <h3 class="text-2xl font-black mt-2 {{ $c[2] }}">
                     {{ number_format($c[1], (($c[3] ?? true) ? 2 : 0)) }}
-                    @if(($c[3] ?? true)) <span class="text-xs">ج.م</span> @endif
+                    @if(($c[3] ?? true)) <span class="text-xs">EGP</span> @endif
                 </h3>
             </div>
         @endforeach
@@ -68,18 +68,18 @@
 
     {{-- Chart --}}
     <div class="bg-white border border-slate-200 rounded-2xl p-5">
-        <h3 class="text-sm font-bold text-slate-700 mb-3">الإيرادات اليومية</h3>
+        <h3 class="text-sm font-bold text-slate-700 mb-3">Daily Revenue</h3>
         <canvas id="salesChart" height="80"></canvas>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Daily table --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">المبيعات اليومية</h3></div>
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Daily Sales</h3></div>
             <div class="overflow-x-auto max-h-96">
                 <table class="w-full text-sm">
                     <thead class="bg-slate-50 text-xs text-slate-500 sticky top-0">
-                        <tr><th class="p-3 text-right">التاريخ</th><th class="p-3">الطلبات</th><th class="p-3">الإيرادات</th></tr>
+                        <tr><th class="p-3 text-left">Date</th><th class="p-3">Orders</th><th class="p-3">Revenue</th></tr>
                     </thead>
                     <tbody>
                     @forelse($daily as $row)
@@ -89,7 +89,7 @@
                             <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$row->revenue, 2) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="3" class="p-8 text-center text-slate-400">لا توجد بيانات</td></tr>
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">No data</td></tr>
                     @endforelse
                     </tbody>
                 </table>
@@ -98,10 +98,10 @@
 
         {{-- Payment methods --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">طرق الدفع</h3></div>
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Payment Methods</h3></div>
             <table class="w-full text-sm">
                 <thead class="bg-slate-50 text-xs text-slate-500">
-                    <tr><th class="p-3 text-right">الطريقة</th><th class="p-3">الطلبات</th><th class="p-3">الإيرادات</th></tr>
+                    <tr><th class="p-3 text-left">Method</th><th class="p-3">Orders</th><th class="p-3">Revenue</th></tr>
                 </thead>
                 <tbody>
                 @forelse($byPayment as $row)
@@ -120,10 +120,10 @@
 
     {{-- Top products --}}
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">أفضل المنتجات مبيعاً في الفترة</h3></div>
+        <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Top-Selling Products in Period</h3></div>
         <table class="w-full text-sm">
             <thead class="bg-slate-50 text-xs text-slate-500">
-                <tr><th class="p-3 text-right">المنتج</th><th class="p-3">الكمية</th><th class="p-3">الإيرادات</th></tr>
+                <tr><th class="p-3 text-left">Product</th><th class="p-3">Quantity</th><th class="p-3">Revenue</th></tr>
             </thead>
             <tbody>
             @forelse($topProducts as $p)
@@ -133,7 +133,7 @@
                     <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$p->revenue, 2) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3" class="p-8 text-center text-slate-400">لا توجد بيانات</td></tr>
+                <tr><td colspan="3" class="p-8 text-center text-slate-400">No data</td></tr>
             @endforelse
             </tbody>
         </table>
@@ -149,7 +149,7 @@
         data: {
             labels: @json($daily->pluck('d')),
             datasets: [{
-                label: 'الإيرادات',
+                label: 'Revenue',
                 data: @json($daily->pluck('revenue')->map(fn($v) => (float)$v)),
                 borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.1)',
                 fill: true, tension: .3, borderWidth: 2,
