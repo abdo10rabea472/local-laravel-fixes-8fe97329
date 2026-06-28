@@ -3,7 +3,7 @@
     <div class="top_cart">
         <h2 class="text flex items-center gap-2">
             <i class="fa-solid fa-bag-shopping"></i>
-            Shopping Cart
+            {{ __('nav.shopping_cart') }}
             <span class="cart-count">(0)</span>
         </h2>
         <span onclick="open_close_cart()" class="close_cart">
@@ -13,12 +13,12 @@
     <div class="items_in_cart"></div>
     <div class="bottom_cart">
         <div class="total">
-            <p>TOTAL</p>
+            <p>{{ __('nav.cart_total') }}</p>
             <p class="price_cart_toral">0 EGP</p>
         </div>
         <div class="button_cart">
-            <a href="{{ route('checkout') }}" class="btn_cart btn">Checkout</a>
-            <span onclick="open_close_cart()" class="btn_cart trans_bg btn">Shop More</span>
+            <a href="{{ route('checkout') }}" class="btn_cart btn">{{ __("nav.checkout") }}</a>
+            <span onclick="open_close_cart()" class="btn_cart trans_bg btn">{{ __("nav.shop_more") }}</span>
         </div>
     </div>
 </div>
@@ -52,11 +52,54 @@
                     onclick="if (typeof openFreeShippingPopup === 'function') { openFreeShippingPopup(); }"
                     class="hidden md:inline-flex items-center gap-1.5 font-bold text-amber-300 hover:text-amber-200 transition-colors bg-transparent border-0 p-0 cursor-pointer">
                 <i class="fa-solid fa-truck-fast text-[10px]"></i>
-                Free shipping over {{ number_format((float) site_setting('free_shipping_threshold', 2000), 0) }} EGP
+                {{ __('nav.free_shipping_over', ['amount' => money(site_setting('free_shipping_threshold', 2000))]) }}
             </button>
             @endif
 
             <div class="flex items-center gap-3 shrink-0">
+                {{-- Language & Currency switchers --}}
+                @if(($availableLanguages ?? collect())->count() > 1)
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" type="button" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-globe text-[10px]"></i>
+                        <span>{{ optional($currentLanguage ?? null)->native_name ?? strtoupper(app()->getLocale()) }}</span>
+                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                    </button>
+                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-44 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                        @foreach($availableLanguages as $lang)
+                            <a href="{{ route('locale.switch', $lang->code) }}"
+                               class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-violet-50 {{ app()->getLocale() === $lang->code ? 'font-bold text-violet-700' : '' }}">
+                                @if($lang->flag)<img src="{{ asset('storage/'.$lang->flag) }}" class="w-5 h-3.5 object-cover rounded">@endif
+                                <span>{{ $lang->native_name }}</span>
+                                <span class="ml-auto text-[10px] text-slate-400 uppercase">{{ $lang->code }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                <span class="text-white/40">|</span>
+                @endif
+
+                @if(($availableCurrencies ?? collect())->count() > 1)
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" type="button" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-coins text-[10px]"></i>
+                        <span>{{ optional($currentCurrency ?? null)->code ?? '' }}</span>
+                        <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                    </button>
+                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-44 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                        @foreach($availableCurrencies as $cur)
+                            <a href="{{ route('currency.switch', $cur->code) }}"
+                               class="flex items-center justify-between px-3 py-2 text-xs hover:bg-violet-50 {{ optional($currentCurrency ?? null)->code === $cur->code ? 'font-bold text-violet-700' : '' }}">
+                                <span>{{ $cur->name }}</span>
+                                <span class="text-slate-400">{{ $cur->symbol }} {{ $cur->code }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                <span class="text-white/40">|</span>
+                @endif
+
+
                 @if(($navTopMenu ?? collect())->isNotEmpty())
                     @foreach($navTopMenu as $item)
                         @if($item->type === 'coupon')
@@ -68,14 +111,14 @@
                 @else
                     @guest('web')
                         @if(!auth()->guard('admin')->check())
-                        <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors">Sign in</a>
+                        <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors">{{ __("nav.sign_in") }}</a>
                         <span class="text-white/40">|</span>
-                        <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">Register</a>
+                        <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">{{ __("nav.register") }}</a>
                         @endif
                     @endguest
                     @auth('web')
                         <a href="{{ route('account.dashboard') }}" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-circle text-[10px]"></i> My Account
+                            <i class="fa-solid fa-user-circle text-[10px]"></i> {{ __("nav.account") }}
                         </a>
                     @endauth
                 @endif
@@ -107,7 +150,7 @@
                     <form action="{{ route('products.index') }}" method="get" class="relative w-full group">
                         <input type="search" name="search" value="{{ request('search') }}"
                                class="w-full h-12 pl-12 pr-4 bg-slate-100 border border-transparent focus:border-violet-400 focus:bg-white rounded-full text-sm outline-none transition-all focus:ring-3 focus:ring-violet-100"
-                               placeholder="Search microscopes, dissection kits, lab glassware...">
+                               placeholder="{{ __('nav.search_long_placeholder') }}">
                         <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
@@ -118,7 +161,7 @@
                 <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     @if(auth()->guard('admin')->check())
                         <a href="{{ route('admin.dashboard') }}" class="hidden lg:inline-flex items-center gap-2 h-11 px-4 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition shadow-md shadow-violet-500/30">
-                            <i class="fa-solid fa-user-shield"></i> Admin
+                            <i class="fa-solid fa-user-shield"></i> {{ __("nav.admin_panel") }}
                         </a>
                     @endif
 
@@ -127,12 +170,12 @@
                         <a href="{{ route('login') }}"
                            class="hidden sm:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-slate-700 border border-slate-200 hover:border-violet-400 hover:text-violet-700 hover:bg-violet-50/50 transition">
                             <i class="fa-solid fa-right-to-bracket text-xs"></i>
-                            <span>Sign in</span>
+                            <span>{{ __("nav.sign_in") }}</span>
                         </a>
                         <a href="{{ route('register') }}"
                            class="hidden md:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition shadow-md shadow-violet-500/30">
                             <i class="fa-solid fa-user-plus text-xs"></i>
-                            <span>Register</span>
+                            <span>{{ __("nav.register") }}</span>
                         </a>
                         @endif
                     @endguest
@@ -323,7 +366,7 @@
 
             @if(auth()->guard('admin')->check())
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-center gap-2 h-11 px-4 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition shadow-md shadow-violet-500/30">
-                    <i class="fa-solid fa-user-shield"></i> Admin
+                    <i class="fa-solid fa-user-shield"></i> {{ __("nav.admin_panel") }}
                 </a>
             @endif
 
@@ -331,10 +374,10 @@
                 @if(!auth()->guard('admin')->check())
                 <div class="grid grid-cols-2 gap-2">
                     <a href="{{ route('login') }}" class="h-11 flex items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700">
-                        <i class="fa-solid fa-right-to-bracket text-xs"></i> Sign in
+                        <i class="fa-solid fa-right-to-bracket text-xs"></i> {{ __("nav.sign_in") }}
                     </a>
                     <a href="{{ route('register') }}" class="h-11 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-bold shadow-md">
-                        <i class="fa-solid fa-user-plus text-xs"></i> Register
+                        <i class="fa-solid fa-user-plus text-xs"></i> {{ __("nav.register") }}
                     </a>
                 </div>
                 @endif
