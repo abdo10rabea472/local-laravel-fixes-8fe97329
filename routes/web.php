@@ -376,3 +376,19 @@ Route::get('/currency/{code}', function (string $code) {
     }
     return back();
 })->name('currency.switch');
+
+// Locale URL prefix support: /{locale} and /{locale}/{any}
+// Sets the locale cookie then redirects to the un-prefixed URL so existing routes match.
+Route::get('/{locale}/{any?}', function (string $locale, ?string $any = null) {
+    $svc = app(\App\Services\LanguageService::class);
+    if (!$svc->exists($locale)) {
+        abort(404);
+    }
+    cookie()->queue(cookie()->forever('locale', $locale));
+    $target = '/' . ($any ?? '');
+    $qs = request()->getQueryString();
+    if ($qs) {
+        $target .= '?' . $qs;
+    }
+    return redirect($target);
+})->where('any', '.*')->name('locale.prefix');
