@@ -52,7 +52,7 @@
                         <span class="absolute top-3 right-3 bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-lg z-10">-{{ $discount }}%</span>
                     @endif
                     <div class="aspect-square bg-slate-100 overflow-hidden">
-                        <img src="{{ $p->images->first() ? asset('storage/'.$p->images->first()->path) : (site_setting_url('default_product_image') ?: asset('imges/products/default.jpg')) }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                        <img src="{{ $p- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">images->first() ? asset('storage/'.$p->images->first()->path) : (site_setting_url('default_product_image') ?: asset('imges/products/default.jpg')) }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-105 transition">
 
                     </div>
                     <div class="p-4">

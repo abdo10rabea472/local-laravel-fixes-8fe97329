@@ -34,10 +34,10 @@ class BlogPostController extends Controller
     {
         $data = $this->validated($request);
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('blog', 'public');
+            $data['image'] = $this->storeAsWebp($request->file('image'), 'blog');
         }
         if ($request->hasFile('og_image')) {
-            $data['og_image'] = $request->file('og_image')->store('blog/og', 'public');
+            $data['og_image'] = $this->storeAsWebp($request->file('og_image'), 'blog/og');
         }
         $data['author_id'] = auth('admin')->id();
         BlogPost::create($data);
@@ -58,16 +58,53 @@ class BlogPostController extends Controller
         $data = $this->validated($request, $blog->id);
         if ($request->hasFile('image')) {
             if ($blog->image) Storage::disk('public')->delete($blog->image);
-            $data['image'] = $request->file('image')->store('blog', 'public');
+            $data['image'] = $this->storeAsWebp($request->file('image'), 'blog');
         }
         if ($request->hasFile('og_image')) {
             if ($blog->og_image) Storage::disk('public')->delete($blog->og_image);
-            $data['og_image'] = $request->file('og_image')->store('blog/og', 'public');
+            $data['og_image'] = $this->storeAsWebp($request->file('og_image'), 'blog/og');
         }
         $blog->update($data);
 
         return redirect()->route('admin.blog.index')->with('success', 'تم تحديث المقال.');
     }
+
+    /**
+     * Store an uploaded image as .webp on the public disk. Falls back to the
+     * original file if GD/WebP support is unavailable.
+     */
+    private function storeAsWebp(\Illuminate\Http\UploadedFile $file, string $dir, int $quality = 85): string
+    {
+        $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $slug = \Illuminate\Support\Str::slug($filename) ?: 'image';
+        $name = $slug.'-'.uniqid().'.webp';
+        $relative = trim($dir, '/').'/'.$name;
+
+        if (!function_exists('imagewebp') || !function_exists('imagecreatefromstring')) {
+            return $file->store($dir, 'public');
+        }
+
+        try {
+            $img = @imagecreatefromstring(file_get_contents($file->getRealPath()));
+            if (!$img) return $file->store($dir, 'public');
+
+            // Preserve transparency
+            imagepalettetotruecolor($img);
+            imagealphablending($img, true);
+            imagesavealpha($img, true);
+
+            $tmp = tempnam(sys_get_temp_dir(), 'webp_');
+            imagewebp($img, $tmp, $quality);
+            imagedestroy($img);
+
+            Storage::disk('public')->put($relative, file_get_contents($tmp));
+            @unlink($tmp);
+            return $relative;
+        } catch (\Throwable $e) {
+            return $file->store($dir, 'public');
+        }
+    }
+
 
     public function destroy(BlogPost $blog)
     {

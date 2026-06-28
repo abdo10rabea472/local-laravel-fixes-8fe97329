@@ -31,7 +31,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16" data-id="{{ $product->id }}" data-price="{{ $displayPrice }}">
             <div class="space-y-4">
                 <div class="relative rounded-3xl overflow-hidden bg-white shadow-xl border border-slate-200">
-                    <img id="main-product-image" src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="eager" fetchpriority="high" decoding="async" class="w-full aspect-square object-contain bg-slate-50 p-6">
+                    <img id="main-product-image" src="{{ $imageUrl }}" alt="{{ $product- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">name }}" loading="eager" fetchpriority="high" decoding="async" class="w-full aspect-square object-contain bg-slate-50 p-6">
                     @if($product->category)
                     <div class="absolute top-4 left-4 text-white text-xs font-bold px-4 py-1.5 rounded-xl shadow-lg" style="background: {{ $accent }}">
                         {{ $product->category->name }}
@@ -43,7 +43,7 @@
                     @foreach($product->images as $image)
                     <button type="button" onclick="document.getElementById('main-product-image').src='{{ $image->getUrl('large') }}'"
                         class="aspect-square rounded-2xl border-2 border-transparent hover:border-violet-300 overflow-hidden bg-white p-1">
-                        <img src="{{ $image->getUrl('thumb') }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-contain">
+                        <img src="{{ $image- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">getUrl('thumb') }}" alt="" loading="lazy" decoding="async" class="w-full h-full object-contain">
                     </button>
                     @endforeach
                 </div>

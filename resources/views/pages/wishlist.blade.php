@@ -22,7 +22,7 @@
                 @if($p)
                 <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
                     <a href="{{ route('product.show', $p->slug) }}" class="block aspect-square bg-slate-100">
-                        <img src="{{ $p->images->first() ? asset('storage/'.$p->images->first()->path) : (site_setting_url('default_product_image') ?: asset('imges/products/default.jpg')) }}" alt="{{ $p->name }}" class="w-full h-full object-cover">
+                        <img src="{{ $p- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">images->first() ? asset('storage/'.$p->images->first()->path) : (site_setting_url('default_product_image') ?: asset('imges/products/default.jpg')) }}" alt="{{ $p->name }}" class="w-full h-full object-cover">
 
                     </a>
                     <div class="p-4">

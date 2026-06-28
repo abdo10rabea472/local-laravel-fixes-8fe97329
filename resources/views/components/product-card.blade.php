@@ -18,7 +18,7 @@
         @if($product->featured ?? false)
             <span class="absolute top-3 right-3 z-10 bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-full">Featured</span>
         @endif
-        <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
+        <img src="{{ $imageUrl }}" alt="{{ $product- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">name }}" loading="lazy"
             class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105">
     </a>
     <div class="p-4 flex flex-col flex-1">

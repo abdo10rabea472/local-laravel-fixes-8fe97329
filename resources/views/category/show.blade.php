@@ -28,7 +28,7 @@
 <section class="relative overflow-hidden"
     style="background: linear-gradient(135deg, {{ $primary }}, {{ $secondary }});">
     @if($category->banner_url ?? $college?->banner_url)
-        <img src="{{ $category->banner_url ?? $college?->banner_url }}" alt=""
+        <img src="{{ $category- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">banner_url ?? $college?->banner_url }}" alt=""
             class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" loading="eager">
     @endif
     <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
@@ -50,7 +50,7 @@
             <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25
                         flex items-center justify-center shadow-xl shrink-0">
                 @if($iconUrl)
-                    <img src="{{ $iconUrl }}" alt="" class="max-h-12 max-w-12 object-contain">
+                    <img src="{{ $iconUrl }}" alt="" class="max-h-12 max-w-12 object-contain" onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">
                 @else
                     <span class="text-3xl sm:text-4xl">{{ $iconEmoji }}</span>
                 @endif
@@ -215,7 +215,7 @@
                                 <span class="absolute inset-0 m-auto h-fit w-fit z-30 px-4 py-2 text-xs font-black rounded-xl bg-slate-900/90 text-white shadow-xl uppercase tracking-widest backdrop-blur-sm border border-white/10 transform -rotate-3">
                                     Sold Out
                                 </span>
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
+                                <img src="{{ $imageUrl }}" alt="{{ $product- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">name }}" loading="lazy"
                                     class="max-h-full max-w-full object-contain filter grayscale opacity-40">
                             </div>
                             <div class="p-6 flex-1 flex flex-col justify-between bg-slate-50/30">
@@ -268,7 +268,7 @@
                                     </div>
                                 @endif
 
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
+                                <img src="{{ $imageUrl }}" alt="{{ $product- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">name }}" loading="lazy"
                                     class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-1">
                             </div>
 
