@@ -245,9 +245,6 @@
                     <a href="{{ route('products.index') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('products.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
                         <i class="fa-solid fa-box-open text-xs"></i> All Products
                     </a>
-                    <a href="{{ route('products.index', ['featured' => 1]) }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
-                        <i class="fa-solid fa-star text-xs text-amber-500"></i> Featured
-                    </a>
                     <a href="{{ route('offers') }}" class="flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('offers') ? 'text-rose-600 border-b-2 border-rose-500' : 'text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-300' }} transition">
                         <i class="fa-solid fa-fire text-xs"></i> Offers
                     </a>
@@ -310,11 +307,6 @@
                         @endif
                     @endforeach
 
-                    <div class="ml-auto flex items-center gap-4 text-xs text-slate-500 font-bold">
-                        <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-violet-500"></i> Fast delivery</span>
-                        <span class="hidden xl:inline-flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Original products</span>
-                        <span class="hidden xl:inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate-left text-amber-500"></i> Easy returns</span>
-                    </div>
                 </nav>
             </div>
         </div>
@@ -378,9 +370,6 @@
                 </a>
                 <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
                     <i class="fa-solid fa-box-open w-5 text-violet-600"></i> All Products
-                </a>
-                <a href="{{ route('products.index', ['featured' => 1]) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-star w-5 text-amber-500"></i> Featured
                 </a>
                 <a href="{{ route('offers') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-rose-600">
                     <i class="fa-solid fa-fire w-5 text-rose-500"></i> Offers
