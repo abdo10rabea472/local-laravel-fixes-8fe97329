@@ -56,17 +56,17 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">إجمالي المبيعات</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalSales) }} ج.م</h3>
-                <span class="text-xs {{ $sC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $sI }}"></i> {{ $sT }} منذ الأسبوع الماضي</span>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Sales</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalSales) }} EGP</h3>
+                <span class="text-xs {{ $sC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $sI }}"></i> {{ $sT }} vs last week</span>
             </div>
             <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 rounded-xl"><i class="fas fa-wallet text-xl"></i></div>
         </div>
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">الطلبات المكتملة</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($completedOrders) }} طلب</h3>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Completed Orders</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($completedOrders) }} orders</h3>
                 <span class="text-xs {{ $oC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $oI }}"></i> {{ $oT }}</span>
             </div>
             <div class="p-3 bg-blue-50 dark:bg-blue-950/30 text-blue-600 rounded-xl"><i class="fas fa-shopping-bag text-xl"></i></div>
@@ -74,8 +74,8 @@
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">العملاء المشتركين</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalCustomers) }} عميل</h3>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Registered Customers</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalCustomers) }} customers</h3>
                 <span class="text-xs {{ $cC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $cI }}"></i> {{ $cT }}</span>
             </div>
             <div class="p-3 bg-purple-50 dark:bg-purple-950/30 text-purple-600 rounded-xl"><i class="fas fa-users text-xl"></i></div>
@@ -83,9 +83,9 @@
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">مخزون منخفض التنبيه</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($lowStockCount + $outOfStockCount) }} منتجاً</h3>
-                <span class="text-xs text-amber-500 font-semibold flex items-center gap-1 mt-2"><i class="fas fa-exclamation-circle"></i> يحتاج إعادة ملء فوراً</span>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Low Stock Alerts</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($lowStockCount + $outOfStockCount) }} products</h3>
+                <span class="text-xs text-amber-500 font-semibold flex items-center gap-1 mt-2"><i class="fas fa-exclamation-circle"></i> Needs restocking soon</span>
             </div>
             <div class="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-600 rounded-xl"><i class="fas fa-exclamation-triangle text-xl"></i></div>
         </div>
