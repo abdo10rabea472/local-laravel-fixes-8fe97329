@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\Category;
+use App\Models\Product;
+use App\Services\AiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -27,8 +29,10 @@ class BlogPostController extends Controller
         return view('admin.content.blog.form', [
             'post' => new BlogPost(),
             'categories' => $this->categoryTree(),
+            'aiProducts' => Product::orderByDesc('id')->limit(200)->get(['id','name']),
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -50,7 +54,93 @@ class BlogPostController extends Controller
         return view('admin.content.blog.form', [
             'post' => $blog,
             'categories' => $this->categoryTree(),
+            'aiProducts' => Product::orderByDesc('id')->limit(200)->get(['id','name']),
         ]);
+    }
+
+    public function aiGenerate(Request $request)
+    {
+        $data = $request->validate([
+            'title'            => ['nullable','string','max:255'],
+            'blog_category_id' => ['nullable','exists:categories,id'],
+            'product_id'       => ['nullable','exists:products,id'],
+            'language'         => ['nullable','in:ar,en'],
+        ]);
+
+        if (!AiService::isEnabled()) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'الذكاء الاصطناعي غير مفعّل. فعّله من إعدادات الموقع → نماذج الذكاء الاصطناعي.',
+            ], 422);
+        }
+
+        $lang = $data['language'] ?? 'ar';
+        $category = !empty($data['blog_category_id']) ? Category::find($data['blog_category_id']) : null;
+        $product  = !empty($data['product_id']) ? Product::find($data['product_id']) : null;
+
+        $context = [];
+        if (!empty($data['title']))  $context[] = 'العنوان المقترح: '.$data['title'];
+        if ($category)                $context[] = 'التصنيف: '.$category->name;
+        if ($product) {
+            $context[] = 'المنتج المُراد الكتابة عنه: '.$product->name;
+            if (!empty($product->short_description)) $context[] = 'وصف قصير: '.$product->short_description;
+            if (!empty($product->description))       $context[] = 'وصف تفصيلي: '.\Illuminate\Support\Str::limit(strip_tags($product->description), 1200);
+            if (isset($product->price))              $context[] = 'السعر: '.$product->price;
+        }
+
+        $system = $lang === 'ar'
+            ? 'أنت كاتب محتوى محترف بالعربية الفصحى. تكتب مقالات مدوّنة عالية الجودة، متوافقة مع SEO، بتنسيق HTML نظيف (عناوين h2/h3، فقرات، قوائم عند الحاجة). لا تستخدم Markdown، فقط HTML. لا تكرر العنوان داخل المحتوى.'
+            : 'You are a professional blog writer. Output clean SEO-friendly HTML (h2/h3, p, ul). No markdown, no code fences. Do not repeat the title inside the body.';
+
+        $userPrompt = ($lang === 'ar'
+                ? "اكتب مقالاً متكاملاً بناءً على المعلومات التالية:\n"
+                : "Write a complete blog article based on the following:\n")
+            .implode("\n", $context)
+            ."\n\n"
+            .($lang === 'ar'
+                ? "أعد JSON صالحًا فقط بدون أي شرح خارجي بالشكل التالي:\n"
+                  ."{\n  \"title\": \"عنوان جذاب\",\n  \"excerpt\": \"مقتطف قصير 1-2 جملة\",\n  \"content\": \"<p>...</p>\",\n  \"meta_title\": \"≤ 60 حرف\",\n  \"meta_description\": \"≤ 160 حرف\",\n  \"meta_keywords\": \"كلمة1, كلمة2, كلمة3\",\n  \"tags\": \"وسم1, وسم2, وسم3\"\n}"
+                : "Return ONLY valid JSON with keys: title, excerpt, content (HTML), meta_title, meta_description, meta_keywords, tags."
+            );
+
+        try {
+            $ai = new AiService();
+            $raw = $ai->chat([
+                ['role' => 'system', 'content' => $system],
+                ['role' => 'user',   'content' => $userPrompt],
+            ], maxTokens: 4096, temperature: 0.8, timeout: 90);
+
+            $json = trim($raw);
+            $json = preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $json);
+            if (preg_match('/\{.*\}/s', $json, $m)) $json = $m[0];
+            $parsed = json_decode($json, true);
+
+            if (!is_array($parsed)) {
+                $parsed = [
+                    'title'   => $data['title'] ?? '',
+                    'content' => '<p>'.nl2br(e(trim($raw))).'</p>',
+                ];
+            }
+
+            return response()->json([
+                'ok'   => true,
+                'data' => [
+                    'title'            => (string) ($parsed['title'] ?? $data['title'] ?? ''),
+                    'excerpt'          => (string) ($parsed['excerpt'] ?? ''),
+                    'content'          => (string) ($parsed['content'] ?? ''),
+                    'meta_title'       => mb_substr((string) ($parsed['meta_title'] ?? ''), 0, 60),
+                    'meta_description' => mb_substr((string) ($parsed['meta_description'] ?? ''), 0, 160),
+                    'meta_keywords'    => (string) ($parsed['meta_keywords'] ?? ''),
+                    'tags'             => (string) ($parsed['tags'] ?? ''),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'تعذّر توليد المقال',
+                'error' => $e->getMessage(),
+            ], 200);
+        }
     }
 
     public function update(Request $request, BlogPost $blog)

@@ -84,38 +84,22 @@ class SiteSettingController extends Controller
             'model'    => ['required','string'],
         ]);
 
-        $base = rtrim($data['base_url'], '/');
-        $endpoint = str_ends_with($base, '/chat/completions') ? $base : $base.'/chat/completions';
-
         try {
-            $resp = \Illuminate\Support\Facades\Http::withToken($data['api_key'])
-                ->acceptJson()
-                ->timeout(20)
-                ->post($endpoint, [
-                    'model' => $data['model'],
-                    'messages' => [['role' => 'user', 'content' => 'ping']],
-                    'max_tokens' => 5,
-                ]);
-
-            if ($resp->successful()) {
-                $reply = data_get($resp->json(), 'choices.0.message.content', '');
-                return response()->json([
-                    'ok' => true,
-                    'message' => 'تم الاتصال بنجاح ✅',
-                    'reply' => is_string($reply) ? mb_substr($reply, 0, 200) : '',
-                ]);
-            }
+            $ai = new \App\Services\AiService($data['base_url'], $data['api_key'], $data['model']);
+            $reply = $ai->chat([
+                ['role' => 'user', 'content' => 'Reply with the single word: pong'],
+            ], maxTokens: 16, temperature: 0.2, timeout: 25);
 
             return response()->json([
-                'ok' => false,
-                'message' => 'فشل الاتصال (HTTP '.$resp->status().')',
-                'error' => data_get($resp->json(), 'error.message', $resp->body()),
-            ], 200);
+                'ok' => true,
+                'message' => 'تم الاتصال بنجاح ✅ ('.($ai->isGemini() ? 'Gemini' : 'OpenAI-Compatible').')',
+                'reply'   => mb_substr(trim($reply), 0, 200),
+            ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'ok' => false,
-                'message' => 'خطأ أثناء الاتصال',
-                'error' => $e->getMessage(),
+                'message' => 'فشل الاتصال',
+                'error'   => $e->getMessage(),
             ], 200);
         }
     }

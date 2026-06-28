@@ -17,6 +17,40 @@
             </div>
         @endif
 
+        {{-- ✨ AI Generator --}}
+        <x-admin.card title="الكتابة بالذكاء الاصطناعي" icon="fa-wand-magic-sparkles">
+            <div class="space-y-4">
+                <p class="text-xs text-gray-500">
+                    اختر منتجًا (اختياري) واكتب عنوانًا مقترحًا أو اتركه فارغًا، ثم اضغط
+                    <b>"كتابة المقال بالذكاء الاصطناعي"</b> ليتم توليد العنوان، المقتطف، المحتوى، وبيانات الـ SEO تلقائيًا.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">المنتج (اختياري)</label>
+                        <select id="ai-product-id" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+                            <option value="">— بدون منتج —</option>
+                            @foreach(($aiProducts ?? collect()) as $p)
+                                <option value="{{ $p->id }}">{{ $p->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">اللغة</label>
+                        <select id="ai-language" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+                            <option value="ar" selected>العربية</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="ai-generate-btn"
+                        class="w-full md:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 bg-gradient-to-l from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span id="ai-generate-label">كتابة المقال بالذكاء الاصطناعي</span>
+                </button>
+                <div id="ai-generate-result" class="hidden p-3 rounded-xl text-sm"></div>
+            </div>
+        </x-admin.card>
+
         {{-- Main content --}}
         <x-admin.card title="بيانات المقال" icon="fa-pen-to-square">
             <div class="space-y-4">
@@ -220,5 +254,78 @@
             serpUrl.textContent = `${blogBaseUrl}/${previewSlug(s)}`;
         }
     });
+
+    // ✨ AI article generator
+    (function(){
+        const btn = document.getElementById('ai-generate-btn');
+        if (!btn) return;
+        const label  = document.getElementById('ai-generate-label');
+        const out    = document.getElementById('ai-generate-result');
+        const url    = @json(route('admin.blog.ai-generate'));
+        const token  = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        const setField = (name, value) => {
+            if (value === undefined || value === null || value === '') return;
+            const el = document.querySelector(`[name="${name}"]`);
+            if (!el) return;
+            el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        const showMsg = (ok, text) => {
+            out.classList.remove('hidden');
+            out.className = 'mt-2 p-3 rounded-xl text-sm border ' +
+                (ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-rose-50 border-rose-200 text-rose-700');
+            out.innerHTML = text;
+        };
+
+        btn.addEventListener('click', async () => {
+            const payload = {
+                title: document.getElementById('title')?.value || '',
+                blog_category_id: document.querySelector('[name="blog_category_id"]')?.value || '',
+                product_id: document.getElementById('ai-product-id')?.value || '',
+                language: document.getElementById('ai-language')?.value || 'ar',
+            };
+
+            btn.disabled = true;
+            label.textContent = 'جارٍ التوليد...';
+            btn.classList.add('opacity-70');
+            showMsg(true, '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ توليد المقال من الذكاء الاصطناعي...');
+
+            try {
+                const res  = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json','X-CSRF-TOKEN':token,'Accept':'application/json'},
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                    showMsg(false, '<b><i class="fa-solid fa-circle-xmark"></i> '+(data.message || 'فشل التوليد')+'</b>' +
+                        (data.error ? '<pre dir="ltr" class="mt-2 text-xs whitespace-pre-wrap opacity-80">'+data.error+'</pre>' : ''));
+                    return;
+                }
+                const d = data.data || {};
+                setField('title', d.title);
+                setField('excerpt', d.excerpt);
+                setField('meta_title', d.meta_title);
+                setField('meta_description', d.meta_description);
+                setField('meta_keywords', d.meta_keywords);
+                setField('tags', d.tags);
+                if (window.tinymce && tinymce.get('content-editor')) {
+                    tinymce.get('content-editor').setContent(d.content || '');
+                } else {
+                    setField('content', d.content);
+                }
+                showMsg(true, '<b><i class="fa-solid fa-circle-check"></i> تم توليد المقال بنجاح. يمكنك المراجعة والتعديل قبل الحفظ.</b>');
+            } catch (e) {
+                showMsg(false, '<b>تعذّر الاتصال بالخادم</b><pre dir="ltr" class="mt-2 text-xs">'+e.message+'</pre>');
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'كتابة المقال بالذكاء الاصطناعي';
+                btn.classList.remove('opacity-70');
+            }
+        });
+    })();
 </script>
 @endsection
