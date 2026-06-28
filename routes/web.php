@@ -145,6 +145,8 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::put('/settings/languages/{language}', [\App\Http\Controllers\Admin\LanguageController::class, 'update'])->name('settings.languages.update');
     Route::delete('/settings/languages/{language}', [\App\Http\Controllers\Admin\LanguageController::class, 'destroy'])->name('settings.languages.destroy');
     Route::post('/settings/languages/{language}/default', [\App\Http\Controllers\Admin\LanguageController::class, 'setDefault'])->name('settings.languages.default');
+    Route::get('/settings/languages/{language}/translations', [\App\Http\Controllers\Admin\LanguageController::class, 'translations'])->name('settings.languages.translations');
+    Route::post('/settings/languages/{language}/translations', [\App\Http\Controllers\Admin\LanguageController::class, 'saveTranslations'])->name('settings.languages.translations.save');
 
     // Currencies
     Route::get('/settings/currencies', [\App\Http\Controllers\Admin\CurrencyController::class, 'index'])->name('settings.currencies.index');
