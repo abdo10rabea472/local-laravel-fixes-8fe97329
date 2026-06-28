@@ -217,8 +217,10 @@
                                 <span class="absolute inset-0 m-auto h-fit w-fit z-30 px-4 py-2 text-xs font-black rounded-xl bg-slate-900/90 text-white shadow-xl uppercase tracking-widest backdrop-blur-sm border border-white/10 transform -rotate-3">
                                     Sold Out
                                 </span>
-                                <img src="{{ $imageUrl }}" alt="{{ $product- onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'">name }}" loading="lazy"
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
+                                    onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'"
                                     class="max-h-full max-w-full object-contain filter grayscale opacity-40">
+
                             </div>
                             <div class="p-6 flex-1 flex flex-col justify-between bg-slate-50/30">
                                 <div>
