@@ -16,7 +16,7 @@
     $reviewsCount = (int) $product->reviews()->approved()->count();
 @endphp
 
-@push('head')
+@push('styles')
 @if($reviewsCount > 0)
 <script type="application/ld+json">
 {!! json_encode([
