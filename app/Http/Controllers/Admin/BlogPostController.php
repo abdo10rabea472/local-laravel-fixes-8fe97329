@@ -29,8 +29,10 @@ class BlogPostController extends Controller
         return view('admin.content.blog.form', [
             'post' => new BlogPost(),
             'categories' => $this->categoryTree(),
+            'aiProducts' => Product::orderByDesc('id')->limit(200)->get(['id','name']),
         ]);
     }
+
 
     public function store(Request $request)
     {
