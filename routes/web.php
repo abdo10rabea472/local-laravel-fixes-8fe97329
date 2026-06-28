@@ -250,6 +250,7 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
 
     // ── Content Management ──
     // Blog posts
+    Route::post('/blog/ai-generate', [\App\Http\Controllers\Admin\BlogPostController::class, 'aiGenerate'])->name('blog.ai-generate');
     Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class)->except(['show']);
 
     // FAQs
