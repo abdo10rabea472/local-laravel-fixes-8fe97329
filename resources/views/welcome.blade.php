@@ -490,9 +490,9 @@
         </div>
         <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3">Stay in the loop</h2>
         <p class="text-slate-500 mb-6">Get new arrivals, semester deals, and lab guides straight to your inbox.</p>
-        <form action="#" method="post" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+        <form action="{{ route('newsletter.subscribe') }}" method="post" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
             @csrf
-            <input type="email" required placeholder="your@email.com" class="flex-1 h-12 px-5 bg-slate-100 text-slate-900 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500 border border-transparent focus:bg-white focus:border-violet-300">
+            <input type="email" name="email" required placeholder="your@email.com" class="flex-1 h-12 px-5 bg-slate-100 text-slate-900 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500 border border-transparent focus:bg-white focus:border-violet-300">
             <button type="submit" class="h-12 px-8 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl transition shadow-lg shadow-violet-500/30">
                 Subscribe
             </button>
