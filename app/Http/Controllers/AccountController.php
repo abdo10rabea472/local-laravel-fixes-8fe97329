@@ -48,15 +48,6 @@ class AccountController extends Controller
         ]);
 
         $user = Auth::user();
-        // Only allow reviewing products the user has actually purchased
-        $hasPurchased = Order::where('user_id', $user->id)
-            ->whereIn('status', ['paid','shipped','delivered'])
-            ->whereHas('items', fn ($q) => $q->where('product_id', $data['product_id']))
-            ->exists();
-
-        if (! $hasPurchased) {
-            return back()->with('error', 'يمكنك مراجعة المنتجات التي اشتريتها فقط.');
-        }
 
         Review::updateOrCreate(
             ['product_id' => $data['product_id'], 'user_id' => $user->id],
