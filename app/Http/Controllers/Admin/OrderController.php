@@ -206,10 +206,10 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        $order->delete();
-        cache()->forget('admin.orders.stats');
-        return back()->with('success', 'تم حذف الطلب.');
+        // حذف الطلبات معطّل نهائياً للحفاظ على السجلات المحاسبية.
+        return back()->with('error', 'لا يمكن حذف الطلبات. يمكنك تغيير حالتها (مثلاً: ملغي) بدلاً من ذلك.');
     }
+
 
     /** تصدير الطلبات (المصفّاة حاليًا) كـ CSV. */
     public function exportCsv(Request $request)
