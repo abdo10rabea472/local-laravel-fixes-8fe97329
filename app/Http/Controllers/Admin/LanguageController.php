@@ -64,7 +64,8 @@ class LanguageController extends Controller
      */
     public function translations(Language $language)
     {
-        $defaultCode = optional(Language::where('is_default', true)->first())->code ?? 'en';
+        // Always use English as the reference / source language for translation keys.
+        $defaultCode = 'en';
         $sourceDir   = base_path("resources/lang/{$defaultCode}");
         $targetDir   = base_path("resources/lang/{$language->code}");
 
