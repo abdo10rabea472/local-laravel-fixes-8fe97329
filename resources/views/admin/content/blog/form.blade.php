@@ -17,6 +17,40 @@
             </div>
         @endif
 
+        {{-- ✨ AI Generator --}}
+        <x-admin.card title="الكتابة بالذكاء الاصطناعي" icon="fa-wand-magic-sparkles">
+            <div class="space-y-4">
+                <p class="text-xs text-gray-500">
+                    اختر منتجًا (اختياري) واكتب عنوانًا مقترحًا أو اتركه فارغًا، ثم اضغط
+                    <b>"كتابة المقال بالذكاء الاصطناعي"</b> ليتم توليد العنوان، المقتطف، المحتوى، وبيانات الـ SEO تلقائيًا.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">المنتج (اختياري)</label>
+                        <select id="ai-product-id" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+                            <option value="">— بدون منتج —</option>
+                            @foreach(($aiProducts ?? collect()) as $p)
+                                <option value="{{ $p->id }}">{{ $p->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">اللغة</label>
+                        <select id="ai-language" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+                            <option value="ar" selected>العربية</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="ai-generate-btn"
+                        class="w-full md:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 bg-gradient-to-l from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span id="ai-generate-label">كتابة المقال بالذكاء الاصطناعي</span>
+                </button>
+                <div id="ai-generate-result" class="hidden p-3 rounded-xl text-sm"></div>
+            </div>
+        </x-admin.card>
+
         {{-- Main content --}}
         <x-admin.card title="بيانات المقال" icon="fa-pen-to-square">
             <div class="space-y-4">
