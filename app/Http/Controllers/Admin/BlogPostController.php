@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class BlogPostController extends Controller
 {
@@ -83,10 +84,14 @@ class BlogPostController extends Controller
 
     private function validated(Request $request, ?int $id = null): array
     {
+        if ($request->filled('slug')) {
+            $request->merge(['slug' => BlogPost::normalizeSlug($request->input('slug'))]);
+        }
+
         $data = $request->validate([
             'blog_category_id' => ['nullable','exists:categories,id'],
             'title' => ['required','string','max:255'],
-            'slug' => ['nullable','string','max:255','unique:blog_posts,slug,'.($id ?? 'NULL')],
+            'slug' => ['nullable','string','max:255', Rule::unique('blog_posts', 'slug')->ignore($id)],
             'excerpt' => ['nullable','string','max:500'],
             'content' => ['required','string'],
             'image' => ['nullable','image','max:4096'],
