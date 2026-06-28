@@ -264,7 +264,7 @@
                     {{-- Dynamic menu items --}}
                     @foreach($navHeaderMenu ?? collect() as $item)
                         @if($item->children->isNotEmpty())
-                            <div class="relative group">
+                            <div class="relative group shrink-0">
                                 <button type="button" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300 transition">
                                     @if($item->icon)<i class="fa-solid {{ $item->icon }} text-xs"></i>@endif
                                     <span>{{ $item->title }}</span>
