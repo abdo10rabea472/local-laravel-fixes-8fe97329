@@ -16,14 +16,16 @@ return new class extends Migration {
             if (! Schema::hasColumn('users', 'shipping_postcode'))  $table->string('shipping_postcode', 20)->nullable()->after('shipping_address');
         });
 
-        // 2) Payment fields on orders
-        Schema::table('orders', function (Blueprint $table) {
-            if (! Schema::hasColumn('orders', 'payment_gateway'))   $table->string('payment_gateway', 50)->nullable()->after('payment_status')->index();
-            if (! Schema::hasColumn('orders', 'payment_reference')) $table->string('payment_reference')->nullable()->after('payment_gateway')->index();
-            if (! Schema::hasColumn('orders', 'payment_response'))  $table->json('payment_response')->nullable()->after('payment_reference');
-            if (! Schema::hasColumn('orders', 'payment_fees'))      $table->decimal('payment_fees', 12, 2)->default(0)->after('payment_response');
-            if (! Schema::hasColumn('orders', 'paid_at'))           $table->timestamp('paid_at')->nullable()->after('payment_fees');
-        });
+        // 2) Payment fields on orders (only if orders table already exists)
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                if (! Schema::hasColumn('orders', 'payment_gateway'))   $table->string('payment_gateway', 50)->nullable()->index();
+                if (! Schema::hasColumn('orders', 'payment_reference')) $table->string('payment_reference')->nullable()->index();
+                if (! Schema::hasColumn('orders', 'payment_response'))  $table->json('payment_response')->nullable();
+                if (! Schema::hasColumn('orders', 'payment_fees'))      $table->decimal('payment_fees', 12, 2)->default(0);
+                if (! Schema::hasColumn('orders', 'paid_at'))           $table->timestamp('paid_at')->nullable();
+            });
+        }
 
         // 3) Payment gateways admin table
         Schema::create('payment_gateways', function (Blueprint $table) {
