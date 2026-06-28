@@ -1,0 +1,162 @@
+@extends('admin.layouts.app')
+@section('title', 'تقرير المبيعات')
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+@endpush
+
+@section('content')
+<div class="p-6 space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">تقرير المبيعات</h1>
+            <p class="text-sm text-slate-500 mt-1">تحليل تفصيلي للإيرادات والطلبات حسب الفترة.</p>
+        </div>
+        <a href="{{ route('admin.reports.sales', array_merge(request()->all(), ['export' => 'csv'])) }}"
+           class="px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+            <i class="fa-solid fa-file-csv ml-1"></i> تصدير CSV
+        </a>
+    </div>
+
+    {{-- Filters --}}
+    <form method="GET" class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div>
+            <label class="text-xs font-bold text-slate-500">من تاريخ</label>
+            <input type="date" name="from" value="{{ $from }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+        </div>
+        <div>
+            <label class="text-xs font-bold text-slate-500">إلى تاريخ</label>
+            <input type="date" name="to" value="{{ $to }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+        </div>
+        <div>
+            <label class="text-xs font-bold text-slate-500">الحالة</label>
+            <select name="status" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <option value="">المدفوعة فقط (افتراضي)</option>
+                @foreach($statuses as $s)
+                    <option value="{{ $s }}" @selected($status===$s)>{{ $s }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button class="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold">عرض التقرير</button>
+        </div>
+    </form>
+
+    {{-- KPIs --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        @php
+            $cards = [
+                ['إجمالي الإيرادات', (float) $kpi->revenue, 'text-emerald-600'],
+                ['عدد الطلبات', (int) $kpi->orders, 'text-violet-600', false],
+                ['متوسط قيمة الطلب', (float) $kpi->aov, 'text-sky-600'],
+                ['إجمالي الخصومات', (float) $kpi->discount, 'text-rose-600'],
+                ['الشحن المُحصَّل', (float) $kpi->shipping, 'text-amber-600'],
+                ['الضرائب', (float) $kpi->tax, 'text-slate-600'],
+                ['صافي قبل الشحن/الضريبة', (float) $kpi->subtotal, 'text-indigo-600'],
+            ];
+        @endphp
+        @foreach($cards as $c)
+            <div class="bg-white border border-slate-200 rounded-2xl p-5">
+                <p class="text-xs font-bold text-slate-500">{{ $c[0] }}</p>
+                <h3 class="text-2xl font-black mt-2 {{ $c[2] }}">
+                    {{ number_format($c[1], (($c[3] ?? true) ? 2 : 0)) }}
+                    @if(($c[3] ?? true)) <span class="text-xs">ج.م</span> @endif
+                </h3>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Chart --}}
+    <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-3">الإيرادات اليومية</h3>
+        <canvas id="salesChart" height="80"></canvas>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {{-- Daily table --}}
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">المبيعات اليومية</h3></div>
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50 text-xs text-slate-500 sticky top-0">
+                        <tr><th class="p-3 text-right">التاريخ</th><th class="p-3">الطلبات</th><th class="p-3">الإيرادات</th></tr>
+                    </thead>
+                    <tbody>
+                    @forelse($daily as $row)
+                        <tr class="border-t border-slate-100">
+                            <td class="p-3 font-mono">{{ $row->d }}</td>
+                            <td class="p-3 text-center">{{ $row->orders }}</td>
+                            <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$row->revenue, 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">لا توجد بيانات</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Payment methods --}}
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">طرق الدفع</h3></div>
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-xs text-slate-500">
+                    <tr><th class="p-3 text-right">الطريقة</th><th class="p-3">الطلبات</th><th class="p-3">الإيرادات</th></tr>
+                </thead>
+                <tbody>
+                @forelse($byPayment as $row)
+                    <tr class="border-t border-slate-100">
+                        <td class="p-3">{{ $row->method }}</td>
+                        <td class="p-3 text-center">{{ $row->orders }}</td>
+                        <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$row->revenue, 2) }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="3" class="p-8 text-center text-slate-400">—</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- Top products --}}
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">أفضل المنتجات مبيعاً في الفترة</h3></div>
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs text-slate-500">
+                <tr><th class="p-3 text-right">المنتج</th><th class="p-3">الكمية</th><th class="p-3">الإيرادات</th></tr>
+            </thead>
+            <tbody>
+            @forelse($topProducts as $p)
+                <tr class="border-t border-slate-100">
+                    <td class="p-3 font-bold text-slate-800">{{ $p->name }}</td>
+                    <td class="p-3 text-center">{{ (int) $p->qty }}</td>
+                    <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$p->revenue, 2) }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="3" class="p-8 text-center text-slate-400">لا توجد بيانات</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+(function(){
+    const ctx = document.getElementById('salesChart');
+    if (!ctx || !window.Chart) return;
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @json($daily->pluck('d')),
+            datasets: [{
+                label: 'الإيرادات',
+                data: @json($daily->pluck('revenue')->map(fn($v) => (float)$v)),
+                borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.1)',
+                fill: true, tension: .3, borderWidth: 2,
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+})();
+</script>
+@endsection

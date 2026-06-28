@@ -206,6 +206,7 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
 
     // Reports & Analytics
     Route::get('/reports/analytics', [\App\Http\Controllers\Admin\ReportController::class, 'analytics'])->name('reports.analytics');
+    Route::get('/reports/sales',     [\App\Http\Controllers\Admin\ReportController::class, 'sales'])->name('reports.sales');
     Route::get('/reports/inventory', [\App\Http\Controllers\Admin\ReportController::class, 'inventory'])->name('reports.inventory');
     Route::get('/reports/coupons',   [\App\Http\Controllers\Admin\ReportController::class, 'coupons'])->name('reports.coupons');
 

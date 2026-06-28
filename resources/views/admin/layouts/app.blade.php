@@ -67,6 +67,7 @@
         ['title' => 'الكوبونات والخصومات',  'icon' => 'fa-ticket-alt',    'route' => 'admin.coupons.index'],
         ['title' => 'التقارير المتقدمة', 'icon' => 'fa-chart-line', 'children' => [
             ['title' => 'تحليلات المبيعات', 'route' => 'admin.reports.analytics'],
+            ['title' => 'تقرير المبيعات',   'route' => 'admin.reports.sales'],
             ['title' => 'تقارير المخزون',   'route' => 'admin.reports.inventory'],
             ['title' => 'تقارير الكوبونات', 'route' => 'admin.reports.coupons'],
         ]],

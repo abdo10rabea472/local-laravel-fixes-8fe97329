@@ -156,4 +156,74 @@ class ReportController extends Controller
 
         return view('admin.reports.coupons', compact('coupons','totals','top'));
     }
+
+    /** تقرير المبيعات التفصيلي مع فلترة + تصدير CSV. */
+    public function sales(Request $request)
+    {
+        $from = $request->date('from') ?: now()->subDays(30)->startOfDay();
+        $to   = $request->date('to')   ?: now()->endOfDay();
+        $status = $request->string('status')->value();
+
+        $paidStatuses = ['paid','shipped','delivered'];
+
+        $base = Order::query()
+            ->whereBetween('created_at', [$from, $to])
+            ->when($status, fn($q) => $q->where('status', $status), fn($q) => $q->whereIn('status', $paidStatuses));
+
+        // KPIs
+        $kpi = (clone $base)->selectRaw('
+            COUNT(*) as orders,
+            COALESCE(SUM(subtotal),0)        as subtotal,
+            COALESCE(SUM(discount_total),0)  as discount,
+            COALESCE(SUM(shipping_total),0)  as shipping,
+            COALESCE(SUM(tax_total),0)       as tax,
+            COALESCE(SUM(total),0)           as revenue,
+            COALESCE(AVG(total),0)           as aov
+        ')->first();
+
+        // سلسلة يومية
+        $daily = (clone $base)
+            ->selectRaw('DATE(created_at) as d, COUNT(*) as orders, SUM(total) as revenue')
+            ->groupBy('d')->orderBy('d')->get();
+
+        // طرق الدفع
+        $byPayment = (clone $base)
+            ->selectRaw('COALESCE(payment_method, "—") as method, COUNT(*) as orders, SUM(total) as revenue')
+            ->groupBy('method')->orderByDesc('revenue')->get();
+
+        // أفضل المنتجات في الفترة
+        $topProducts = DB::table('order_items')
+            ->join('orders','orders.id','=','order_items.order_id')
+            ->whereBetween('orders.created_at', [$from, $to])
+            ->when($status,
+                fn($q) => $q->where('orders.status', $status),
+                fn($q) => $q->whereIn('orders.status', $paidStatuses))
+            ->selectRaw('order_items.product_name as name,
+                         SUM(order_items.quantity)   as qty,
+                         SUM(order_items.line_total) as revenue')
+            ->groupBy('order_items.product_name')
+            ->orderByDesc('revenue')
+            ->limit(15)->get();
+
+        // تصدير CSV
+        if ($request->get('export') === 'csv') {
+            $filename = 'sales-'.now()->format('Ymd-His').'.csv';
+            $rows = $daily;
+            return response()->streamDownload(function () use ($rows) {
+                $h = fopen('php://output', 'w');
+                fwrite($h, "\xEF\xBB\xBF");
+                fputcsv($h, ['التاريخ','عدد الطلبات','الإيرادات']);
+                foreach ($rows as $r) fputcsv($h, [$r->d, $r->orders, number_format((float)$r->revenue, 2, '.', '')]);
+                fclose($h);
+            }, $filename, ['Content-Type' => 'text/csv']);
+        }
+
+        return view('admin.reports.sales', [
+            'kpi' => $kpi, 'daily' => $daily, 'byPayment' => $byPayment,
+            'topProducts' => $topProducts,
+            'from' => $from->toDateString(), 'to' => $to->toDateString(),
+            'status' => $status, 'statuses' => Order::STATUSES,
+        ]);
+    }
 }
+
