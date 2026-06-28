@@ -138,7 +138,7 @@
 
                 document.querySelectorAll('.product-item').forEach(item => {
 
-                    if (college === '' || item.dataset.college === college) {
+                    if (college === '' || (item.dataset.colleges || '').split(/\s+/).includes(college)) {
                         item.classList.remove('hidden');
                     } else {
                         item.classList.add('hidden');
