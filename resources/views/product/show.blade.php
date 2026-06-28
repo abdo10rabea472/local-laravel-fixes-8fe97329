@@ -12,7 +12,38 @@
     $displayPrice = $product->effective_price;
     $college = $product->category?->parent;
     $accent = $college?->primary_color ?? '#6366f1';
+    $reviewsAvg = round((float) $product->reviews()->approved()->avg('rating'), 1);
+    $reviewsCount = (int) $product->reviews()->approved()->count();
 @endphp
+
+@push('head')
+@if($reviewsCount > 0)
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $product->name,
+    'image' => [$imageUrl],
+    'description' => $product->short_description ?: $product->description,
+    'sku' => $product->sku,
+    'offers' => [
+        '@type' => 'Offer',
+        'price' => number_format((float)$displayPrice, 2, '.', ''),
+        'priceCurrency' => 'EGP',
+        'availability' => $product->isInStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'url' => url()->current(),
+    ],
+    'aggregateRating' => [
+        '@type' => 'AggregateRating',
+        'ratingValue' => $reviewsAvg,
+        'reviewCount' => $reviewsCount,
+        'bestRating' => 5,
+        'worstRating' => 1,
+    ],
+], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endif
+@endpush
 
 <main class="bg-slate-50 min-h-screen py-8 sm:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
