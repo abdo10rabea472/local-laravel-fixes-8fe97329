@@ -312,6 +312,15 @@
                 setField('meta_description', d.meta_description);
                 setField('meta_keywords', d.meta_keywords);
                 setField('tags', d.tags);
+                // ضبط تصنيف المقال تلقائيًا من تصنيف المنتج
+                if (d.blog_category_id) {
+                    const catEl = document.querySelector('[name="blog_category_id"]');
+                    if (catEl) {
+                        catEl.value = d.blog_category_id;
+                        if (catEl.tomselect) catEl.tomselect.setValue(d.blog_category_id, true);
+                        catEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
                 if (window.tinymce && tinymce.get('content-editor')) {
                     tinymce.get('content-editor').setContent(d.content || '');
                 } else {
