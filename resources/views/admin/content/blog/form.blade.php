@@ -186,5 +186,25 @@
     slugInput?.addEventListener('input', e => {
         serpUrl.textContent = `${blogBaseUrl}/${previewSlug(e.target.value)}`;
     });
+
+    // Auto-fill slug from title when slug is empty (supports Arabic)
+    const titleInput = document.getElementById('title');
+    const slugify = (str) => {
+        return (str || '').toString().trim().toLowerCase()
+            .replace(/[\u064B-\u065F\u0670]/g, '')      // strip Arabic diacritics
+            .replace(/[^\p{L}\p{N}]+/gu, '-')           // non letters/numbers -> dash
+            .replace(/^-+|-+$/g, '')
+            .replace(/-+/g, '-');
+    };
+    let slugTouched = !!(slugInput && slugInput.value);
+    slugInput?.addEventListener('input', () => { slugTouched = true; });
+    titleInput?.addEventListener('input', e => {
+        if (slugTouched) return;
+        const s = slugify(e.target.value);
+        if (slugInput) {
+            slugInput.value = s;
+            serpUrl.textContent = `${blogBaseUrl}/${previewSlug(s)}`;
+        }
+    });
 </script>
 @endsection
