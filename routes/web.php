@@ -1,5 +1,15 @@
 <?php
 
+use App\Http\Controllers\PagesController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\TrackOrderController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\CompareController;
+use App\Http\Controllers\OffersController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\FaqController;
+
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
