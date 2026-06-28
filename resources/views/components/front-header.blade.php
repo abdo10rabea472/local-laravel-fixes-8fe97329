@@ -181,7 +181,7 @@
         {{-- ═══ Navigation bar ═══ --}}
         <div class="hidden lg:block border-t border-slate-100 bg-white">
             <div class="max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8">
-                <nav class="flex flex-nowrap items-center gap-1 h-12 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <nav class="flex flex-nowrap items-center gap-1 h-12 whitespace-nowrap">
                     {{-- Categories mega menu --}}
                     @if(($navCategories ?? collect())->isNotEmpty())
                     <div class="relative group" id="colleges-dropdown">
