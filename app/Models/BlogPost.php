@@ -87,6 +87,13 @@ class BlogPost extends Model
         return $this->belongsTo(Admin::class, 'author_id');
     }
 
+    public function getImageUrlAttribute(): string
+    {
+        return $this->image
+            ? asset('storage/'.$this->image)
+            : (site_setting_url('default_product_image') ?: asset('imges/products/default.jpg'));
+    }
+
     public function scopePublished($q)
     {
         return $q->where(function ($query) {
