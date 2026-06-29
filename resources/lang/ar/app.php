@@ -155,6 +155,7 @@ return [
     'home_why_5_desc' => 'وفّر أكثر عند الطلب مع زملائك أو اتحاد طلابك.',
     'home_why_6_title' => 'دعم حقيقي',
     'home_why_6_desc' => 'تحدّث مع أشخاص يفهمون فعلًا ما طلبه أستاذك.',
+    'home_newsletter_title' => 'ابقَ على اطلاع',
     'home_newsletter_subtitle' => 'استلم أحدث المنتجات وعروض الفصل وأدلّة المعامل مباشرة في بريدك.',
     'home_newsletter_placeholder' => 'بريدك@الإلكتروني.كوم',
     'product_buy_now' => 'اشترِ الآن',
