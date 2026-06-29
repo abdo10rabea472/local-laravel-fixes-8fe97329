@@ -77,6 +77,7 @@ Route::get('/payment/success', [PageController::class, 'paymentSuccess'])->name(
 Route::get('/faqs', [PageController::class, 'faqs'])->name('pages.faqs');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
 Route::get('/returns-refunds', [PageController::class, 'returns'])->name('pages.returns');
+Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('category.show');
 Route::get('/product/{slug}', [FrontProductController::class, 'show'])->name('product.show');
