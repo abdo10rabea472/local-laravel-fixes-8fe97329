@@ -199,13 +199,60 @@
             content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; }',
         });
     } else {
-        const list = document.getElementById('faq-list');
-        const hidden = document.getElementById('content-editor');
-        const form = hidden.closest('form');
+        const list      = document.getElementById('faq-list');
+        const hidden    = document.getElementById('content-editor');
+        const form      = hidden.closest('form');
+        const search    = document.getElementById('faq-search');
+        const perPageEl = document.getElementById('faq-perpage');
+        const pager     = document.getElementById('faq-pager');
+        const prevBtn   = document.getElementById('faq-prev');
+        const nextBtn   = document.getElementById('faq-next');
+        const pageEl    = document.getElementById('faq-page');
+        const pagesEl   = document.getElementById('faq-pages');
+        const shownEl   = document.getElementById('faq-shown');
+        const totalEl   = document.getElementById('faq-total');
+        const emptyEl   = document.getElementById('faq-empty');
 
-        const reindex = () => list.querySelectorAll('.faq-row').forEach((row, i) => {
+        let currentPage = 1;
+        let perPage = parseInt(perPageEl.value, 10) || 20;
+
+        const rows = () => Array.from(list.querySelectorAll('.faq-row'));
+
+        const reindex = () => rows().forEach((row, i) => {
             row.querySelector('.faq-index').textContent = i + 1;
         });
+
+        const matches = (row, term) => {
+            if (!term) return true;
+            const q = row.querySelector('.faq-q').value.toLowerCase();
+            const a = row.querySelector('.faq-a').value.toLowerCase();
+            const c = row.querySelector('.faq-cat').value.toLowerCase();
+            return q.includes(term) || a.includes(term) || c.includes(term);
+        };
+
+        const render = () => {
+            const term = (search.value || '').trim().toLowerCase();
+            const all = rows();
+            totalEl.textContent = all.length;
+
+            const filtered = all.filter(r => matches(r, term));
+            const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            const visibleSet = new Set(filtered.slice(start, end));
+
+            all.forEach(r => { r.style.display = visibleSet.has(r) ? '' : 'none'; });
+
+            pageEl.textContent = currentPage;
+            pagesEl.textContent = totalPages;
+            shownEl.textContent = visibleSet.size;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            emptyEl.classList.toggle('hidden', filtered.length !== 0);
+            pager.classList.toggle('hidden', filtered.length === 0);
+        };
 
         const rowTemplate = () => {
             const wrap = document.createElement('div');
@@ -225,25 +272,50 @@
         };
 
         document.getElementById('faq-add').addEventListener('click', () => {
-            list.appendChild(rowTemplate());
+            const row = rowTemplate();
+            list.appendChild(row);
             reindex();
+            // Jump to last page so the new row is visible
+            search.value = '';
+            const totalPages = Math.max(1, Math.ceil(rows().length / perPage));
+            currentPage = totalPages;
+            render();
+            row.querySelector('.faq-q')?.focus();
         });
 
         list.addEventListener('click', (e) => {
             const btn = e.target.closest('.faq-remove');
             if (!btn) return;
-            if (list.querySelectorAll('.faq-row').length <= 1) {
+            const all = rows();
+            if (all.length <= 1) {
                 const row = btn.closest('.faq-row');
                 row.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                render();
                 return;
             }
             btn.closest('.faq-row').remove();
             reindex();
+            render();
         });
+
+        let searchTimer;
+        search.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => { currentPage = 1; render(); }, 120);
+        });
+
+        perPageEl.addEventListener('change', () => {
+            perPage = parseInt(perPageEl.value, 10) || 20;
+            currentPage = 1;
+            render();
+        });
+
+        prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); window.scrollTo({ top: list.offsetTop - 80, behavior: 'smooth' }); } });
+        nextBtn.addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: list.offsetTop - 80, behavior: 'smooth' }); });
 
         form.addEventListener('submit', () => {
             const items = [];
-            list.querySelectorAll('.faq-row').forEach(row => {
+            rows().forEach(row => {
                 const q = row.querySelector('.faq-q').value.trim();
                 const a = row.querySelector('.faq-a').value.trim();
                 const cat = row.querySelector('.faq-cat').value.trim();
@@ -255,6 +327,8 @@
             });
             hidden.value = JSON.stringify(items);
         });
+
+        render();
     }
 </script>
 @endpush
