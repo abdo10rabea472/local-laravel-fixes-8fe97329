@@ -607,7 +607,7 @@ return [
     'admin_product_form_description_ph' => 'Write specs and technical details...',
     'admin_product_form_short_description' => 'Short Description',
     'admin_product_form_short_description_ph' => 'One or two sentences shown at the top of the product page...',
-    'admin_product_form_short_description_hint' => 'Max 200 characters. Appears right under the product name.',
+    'admin_product_form_short_description_hint' => 'Max 300 characters. Appears right under the product name.',
     'admin_product_form_pricing' => 'Pricing & Stock',
     'admin_product_form_currency_notice_title' => 'Heads up about the currency!',
     'admin_product_form_currency_notice' => 'The store\'s default currency is :name (:currency), so the price you enter will be saved in :currency. Double-check that the price you type is actually in :currency before saving.',
