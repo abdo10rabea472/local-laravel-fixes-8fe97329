@@ -11,7 +11,7 @@
          style="background-image: radial-gradient(circle at 20% 20%, rgba(139,92,246,.35), transparent 40%), radial-gradient(circle at 80% 0%, rgba(59,130,246,.25), transparent 45%);"></div>
     <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-slate-50"></div>
 
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+    <div class="relative mx-auto px-4 sm:px-6 py-16 sm:py-20" style="max-width: 121rem;">
         <nav class="flex items-center gap-2 text-xs text-slate-300 mb-6">
             <a href="{{ url('/') }}" class="hover:text-white transition-colors">{{ __('messages.home') ?? 'Home' }}</a>
             <i class="fa-solid fa-angle-left text-[10px] opacity-60"></i>
@@ -47,21 +47,24 @@
 </section>
 
 <main class="bg-slate-50 pb-20 -mt-10 relative">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="mx-auto px-4 sm:px-6" style="max-width: 121rem;">
         <article class="bg-white rounded-3xl shadow-xl shadow-slate-900/5 border border-slate-100 overflow-hidden">
             <div class="h-1.5 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500"></div>
             <div class="p-6 sm:p-10 lg:p-14">
                 @if(trim((string) $page->content) !== '')
-                    <div class="prose prose-slate prose-lg max-w-none
+                    <div class="prose prose-slate prose-lg max-w-none break-words [overflow-wrap:anywhere]
                                 prose-headings:font-black prose-headings:tracking-tight
                                 prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-4
                                 prose-h3:text-2xl prose-h3:mt-8
-                                prose-a:text-violet-600 prose-a:no-underline hover:prose-a:text-violet-700 hover:prose-a:underline
+                                prose-p:break-words
+                                prose-a:text-violet-600 prose-a:no-underline prose-a:break-all hover:prose-a:text-violet-700 hover:prose-a:underline
                                 prose-strong:text-slate-900
                                 prose-blockquote:border-violet-500 prose-blockquote:bg-violet-50/40 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:py-1
                                 prose-img:rounded-2xl prose-img:shadow-md
                                 prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-violet-700 prose-code:before:content-none prose-code:after:content-none
+                                prose-pre:whitespace-pre-wrap prose-pre:break-words
                                 prose-table:rounded-xl prose-table:overflow-hidden">
+
                         {!! $page->content !!}
                     </div>
                 @else
