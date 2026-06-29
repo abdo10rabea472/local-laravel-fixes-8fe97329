@@ -411,7 +411,9 @@ class PaymentService
 
             $paymobOrderId = $paymobOrder->json('id');
             if (! $paymobOrder->successful() || ! $paymobOrderId) {
-                return ['ok' => false, 'message' => 'تعذر إنشاء طلب Paymob: ' . $this->paymobError($paymobOrder->json(), $paymobOrder->body())];
+                $msg = $this->paymobError($paymobOrder->json(), $paymobOrder->body());
+                Log::error('paymob.create_order.failed', ['order_id' => $order->id, 'status' => $paymobOrder->status(), 'amount_cents' => $amountCents, 'currency' => $currencyCode, 'response' => $paymobOrder->json() ?? $paymobOrder->body(), 'message' => $msg]);
+                return ['ok' => false, 'message' => 'تعذر إنشاء طلب Paymob: ' . $msg];
             }
 
             $paymentKey = \Illuminate\Support\Facades\Http::timeout(20)
