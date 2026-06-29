@@ -96,14 +96,15 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
         </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-6 items-start">
+    <div class="flex flex-col md:flex-row gap-6 items-start">
         {{-- Main Content --}}
-        <div class="flex-1 min-w-0 order-2 lg:order-1 w-full">
+        <div class="flex-1 min-w-0 order-2 md:order-1 w-full">
             @yield('settings-content')
         </div>
 
         {{-- Sidebar Tabs --}}
-        <div class="w-full lg:w-72 shrink-0 order-1 lg:order-2">
+        <div class="w-full md:w-64 lg:w-72 shrink-0 order-1 md:order-2">
+
             <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
                 <div class="p-4 border-b border-slate-100">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">General Settings</h3>

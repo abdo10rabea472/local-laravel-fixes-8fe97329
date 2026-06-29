@@ -21,7 +21,7 @@
         </div>
 
         <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[1100px]">
+        <table class="w-full text-sm min-w-[900px]">
             <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                     <th class="p-3 text-left">Flag</th>
