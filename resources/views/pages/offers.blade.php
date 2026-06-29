@@ -21,7 +21,7 @@
                         <div class="text-2xl font-bold text-violet-700">{{ $c->code }}</div>
                     </div>
                     <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-sm font-bold">
-                        @if($c->type==='percent') {{ rtrim(rtrim($c->value,'0'),'.') }}% @else {{ number_format($c->value,2) }} {{ __('app.shared_currency') }} @endif
+                        @if($c->type==='percent') {{ rtrim(rtrim($c->value,'0'),'.') }}% @else {{ number_format($c->value,2) }} {{ __('app.shared_currency_egp') }} @endif
                     </span>
                 </div>
                 @if($c->description)<p class="text-sm text-slate-600 mb-2">{{ $c->description }}</p>@endif
