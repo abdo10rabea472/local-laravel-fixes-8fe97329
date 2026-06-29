@@ -8,8 +8,10 @@ use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LanguageController extends Controller
@@ -61,28 +63,64 @@ class LanguageController extends Controller
         $admin = Auth::guard('admin')->user();
         abort_unless($admin, 403);
 
-        // Rate-limit: 5 attempts / 10 min per admin+IP
         $key = 'lang-default:'.$admin->id.'|'.$request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
-                'confirm_code' => "Too many attempts. Try again in {$seconds}s.",
+                'otp' => "Too many attempts. Try again in {$seconds}s.",
             ]);
         }
 
+        $sessionKey = 'lang_default_otp:'.$language->id;
+
+        // ---------- STEP 2: OTP submission ----------
+        if ($request->filled('otp')) {
+            $payload = $request->session()->get($sessionKey);
+            if (!$payload || ($payload['admin_id'] ?? null) !== $admin->id || ($payload['expires_at'] ?? 0) < time()) {
+                $request->session()->forget($sessionKey);
+                throw ValidationException::withMessages(['otp' => 'OTP expired. Please restart the process.']);
+            }
+            $otp = preg_replace('/\D/', '', (string) $request->input('otp'));
+            if (!hash_equals((string) $payload['hash'], hash('sha256', $otp))) {
+                RateLimiter::hit($key, 600);
+                throw ValidationException::withMessages(['otp' => 'Invalid OTP code.']);
+            }
+
+            RateLimiter::clear($key);
+            $request->session()->forget($sessionKey);
+
+            $previous = Language::where('is_default', true)->where('id', '!=', $language->id)->pluck('code')->all();
+            $language->update(['is_default' => true, 'is_active' => true]);
+
+            AuditLog::create([
+                'action'     => 'language.set_default',
+                'actor_type' => 'admin',
+                'actor_id'   => $admin->id,
+                'ip'         => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 500),
+                'context'    => json_encode([
+                    'language_id'   => $language->id,
+                    'language_code' => $language->code,
+                    'previous'      => $previous,
+                    'verified_via'  => 'email_otp',
+                ]),
+            ]);
+
+            return back()->with('success', 'Default language updated securely (OTP verified).');
+        }
+
+        // ---------- STEP 1: password + typed code → send OTP ----------
         $request->validate([
             'password'     => ['required', 'string'],
             'confirm_code' => ['required', 'string'],
             'understand'   => ['accepted'],
         ]);
 
-        // Verify admin password
         if (!Hash::check($request->password, $admin->password)) {
             RateLimiter::hit($key, 600);
             throw ValidationException::withMessages(['password' => 'Incorrect password.']);
         }
 
-        // Verify typed confirmation matches the language code exactly (case-sensitive)
         if (!hash_equals((string) $language->code, (string) $request->confirm_code)) {
             RateLimiter::hit($key, 600);
             throw ValidationException::withMessages([
@@ -90,13 +128,32 @@ class LanguageController extends Controller
             ]);
         }
 
-        RateLimiter::clear($key);
+        // Generate 6-digit OTP, store hashed in session, email it.
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $request->session()->put($sessionKey, [
+            'admin_id'   => $admin->id,
+            'hash'       => hash('sha256', $otp),
+            'expires_at' => time() + 600, // 10 minutes
+        ]);
 
-        $previous = Language::where('is_default', true)->where('id', '!=', $language->id)->pluck('code')->all();
-        $language->update(['is_default' => true, 'is_active' => true]);
+        try {
+            Mail::raw(
+                "Your verification code to set \"{$language->name}\" ({$language->code}) as the default language is:\n\n"
+                ."  {$otp}\n\n"
+                ."This code expires in 10 minutes.\n"
+                ."IP: {$request->ip()}\nUser-Agent: ".substr((string) $request->userAgent(), 0, 200)."\n\n"
+                ."If you did not request this, ignore this email and change your admin password immediately.",
+                function ($m) use ($admin) {
+                    $m->to($admin->email)->subject('[Security] Verification code — change default language');
+                }
+            );
+        } catch (\Throwable $e) {
+            $request->session()->forget($sessionKey);
+            throw ValidationException::withMessages(['confirm_code' => 'Could not send OTP email: '.$e->getMessage()]);
+        }
 
         AuditLog::create([
-            'action'     => 'language.set_default',
+            'action'     => 'language.set_default.otp_sent',
             'actor_type' => 'admin',
             'actor_id'   => $admin->id,
             'ip'         => $request->ip(),
@@ -104,11 +161,13 @@ class LanguageController extends Controller
             'context'    => json_encode([
                 'language_id'   => $language->id,
                 'language_code' => $language->code,
-                'previous'      => $previous,
+                'email_to_mask' => Str::mask((string) $admin->email, '*', 2, max(1, strpos((string) $admin->email, '@') - 4)),
             ]),
         ]);
 
-        return back()->with('success', 'Default language updated securely.');
+        return back()
+            ->with('otp_sent_for_language', $language->id)
+            ->with('success', 'A verification code was emailed to '.Str::mask((string) $admin->email, '*', 2, max(1, strpos((string) $admin->email, '@') - 4)).'. Enter it to complete the change.');
     }
 
     /**

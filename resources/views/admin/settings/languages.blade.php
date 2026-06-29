@@ -186,5 +186,42 @@
             </div>
         </form>
     </div>
+
+    {{-- OTP Step Modal: auto-opens after step 1 succeeds --}}
+    @php
+        $otpLangId = session('otp_sent_for_language');
+        $otpLang   = $otpLangId ? $languages->firstWhere('id', $otpLangId) : null;
+    @endphp
+    @if($otpLang)
+    <div x-data="{ otpOpen:true, code:'' }" x-init="$nextTick(()=>$refs.otpInput && $refs.otpInput.focus())">
+        <div x-show="otpOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @keydown.escape.window="otpOpen=false">
+            <form method="POST" action="{{ route('admin.settings.languages.default', $otpLang) }}" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-emerald-500">
+                @csrf
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">Email verification</h3>
+                        <p class="text-xs text-slate-500">Enter the 6-digit code we sent to your admin email.</p>
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-700">
+                    Setting <span class="font-black">{{ $otpLang->name }}</span> (<span class="font-mono">{{ $otpLang->code }}</span>) as default. Code expires in 10 minutes.
+                </div>
+                <label class="block text-sm">
+                    <span class="text-xs font-bold text-slate-600">Verification code</span>
+                    <input x-ref="otpInput" type="text" name="otp" x-model="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required
+                        class="w-full h-12 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:border-emerald-400 focus:ring-emerald-200">
+                </label>
+                <div class="flex gap-2 justify-end pt-2 border-t">
+                    <button type="button" @click="otpOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                    <button type="submit" :disabled="code.length !== 6" :class="code.length!==6?'opacity-50 cursor-not-allowed':''"
+                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold">
+                        <i class="fa-solid fa-check mr-1"></i> Verify &amp; Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
