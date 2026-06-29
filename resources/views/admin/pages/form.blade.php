@@ -305,6 +305,22 @@
         });
 
         list.addEventListener('click', (e) => {
+            const newBtn = e.target.closest('.faq-cat-new');
+            if (newBtn) {
+                const input = newBtn.parentElement.querySelector('.faq-cat');
+                const val = (prompt('اسم التصنيف الجديد:', input.value || '') || '').trim();
+                if (val) {
+                    input.value = val;
+                    const dl = document.getElementById('faq-categories');
+                    if (dl && !Array.from(dl.options).some(o => o.value.toLowerCase() === val.toLowerCase())) {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        dl.appendChild(opt);
+                    }
+                }
+                return;
+            }
+
             const btn = e.target.closest('.faq-remove');
             if (!btn) return;
             const all = rows();
