@@ -30,10 +30,6 @@ return [
     'featured_eyebrow'        => "Editor's Pick",
     'featured_title'          => 'Top picks for students',
 
-    'cta_badge'               => 'Bulk orders',
-    'cta_title'               => 'Equip your entire department',
-    'cta_subtitle'            => 'Special pricing for faculties, research labs, and student associations placing bulk orders.',
-    'cta_button'              => 'Request a quote',
 
     'deals_eyebrow'           => 'Best deals',
     'deals_title'             => 'Latest equipment & lowest prices',

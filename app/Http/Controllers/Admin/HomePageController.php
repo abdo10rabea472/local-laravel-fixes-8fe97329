@@ -21,8 +21,6 @@ class HomePageController extends Controller
             'hero_title','hero_subtitle','hero_badge','hero_background',
             'featured_section_title','featured_section_subtitle',
             'products_section_title','products_section_subtitle',
-            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
-            'cta_bg_image','cta_image_1','cta_image_2','cta_image_3','cta_image_4',
         ];
         $settings = SiteSetting::whereIn('key', $keys)->get()->keyBy('key');
 
@@ -35,7 +33,6 @@ class HomePageController extends Controller
             'hero_title','hero_subtitle','hero_badge',
             'featured_section_title','featured_section_subtitle','featured_limit',
             'products_section_title','products_section_subtitle','products_limit',
-            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
         ];
 
         foreach ($textKeys as $key) {
@@ -48,7 +45,7 @@ class HomePageController extends Controller
         }
 
         // Image fields (single file each, with optional removal).
-        $imageKeys = ['hero_background', 'cta_bg_image', 'cta_image_1', 'cta_image_2', 'cta_image_3', 'cta_image_4'];
+        $imageKeys = ['hero_background'];
         foreach ($imageKeys as $key) {
             if ($request->hasFile($key)) {
                 $setting = SiteSetting::firstOrNew(['key' => $key]);
@@ -84,16 +81,6 @@ class HomePageController extends Controller
             'products_section_title' => 'عنوان قسم جميع المنتجات',
             'products_section_subtitle' => 'نص قسم جميع المنتجات',
             'products_limit' => 'عدد المنتجات في الصفحة',
-            'cta_badge' => 'شارة قسم الطلبات بالجملة',
-            'cta_title' => 'عنوان قسم الطلبات بالجملة',
-            'cta_subtitle' => 'وصف قسم الطلبات بالجملة',
-            'cta_button' => 'نص الزر',
-            'cta_url' => 'رابط الزر',
-            'cta_bg_image' => 'خلفية قسم الطلبات بالجملة',
-            'cta_image_1' => 'صورة 1 — معرض CTA',
-            'cta_image_2' => 'صورة 2 — معرض CTA',
-            'cta_image_3' => 'صورة 3 — معرض CTA',
-            'cta_image_4' => 'صورة 4 — معرض CTA',
             default => $key,
         };
     }

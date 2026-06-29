@@ -87,63 +87,7 @@
             </div>
         </div>
 
-        {{-- ═══════════ CTA / BULK ORDERS BANNER ═══════════ --}}
-        <div class="border-t border-slate-100 pt-6">
-            <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <span class="h-6 w-1 rounded-full bg-indigo-500"></span>
-                قسم الطلبات بالجملة (CTA)
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">الشارة</label>
-                    <input type="text" name="cta_badge" value="{{ site_setting('cta_badge', __('home.cta_badge')) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">نص الزر</label>
-                    <input type="text" name="cta_button" value="{{ site_setting('cta_button', __('home.cta_button')) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                </div>
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">العنوان</label>
-                    <input type="text" name="cta_title" value="{{ site_setting('cta_title', __('home.cta_title')) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                </div>
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">النص الفرعي</label>
-                    <textarea name="cta_subtitle" rows="2" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ site_setting('cta_subtitle', __('home.cta_subtitle')) }}</textarea>
-                </div>
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">رابط الزر</label>
-                    <input type="text" name="cta_url" value="{{ site_setting('cta_url') }}" placeholder="/contact أو https://..." class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                </div>
 
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">صورة الخلفية</label>
-                    <input type="file" name="cta_bg_image" accept="image/*" class="w-full text-sm">
-                    @if(site_setting_url('cta_bg_image'))
-                        <div class="mt-2 flex items-center gap-3">
-                            <img src="{{ site_setting_url('cta_bg_image') }}" class="h-20 rounded-xl object-cover">
-                            <label class="flex items-center gap-2 text-sm text-rose-600 cursor-pointer">
-                                <input type="checkbox" name="remove_cta_bg_image" value="1"> حذف
-                            </label>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    @foreach([1,2,3,4] as $i)
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500">صورة المعرض {{ $i }}</label>
-                            <input type="file" name="cta_image_{{ $i }}" accept="image/*" class="w-full text-xs">
-                            @if(site_setting_url('cta_image_'.$i))
-                                <img src="{{ site_setting_url('cta_image_'.$i) }}" class="h-20 w-full object-cover rounded-xl">
-                                <label class="flex items-center gap-2 text-xs text-rose-600 cursor-pointer">
-                                    <input type="checkbox" name="remove_cta_image_{{ $i }}" value="1"> حذف
-                                </label>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
 
 
         <div class="flex justify-end pt-4 border-t border-slate-100">
