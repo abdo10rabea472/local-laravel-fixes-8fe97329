@@ -250,6 +250,11 @@
     let appliedCouponCode = null;
     let shippingCost = 0;
 
+    // Currency-aware formatter — uses global formatMoney() which applies exchange rate + symbol.
+    const fmt = (n) => (typeof window.formatMoney === 'function')
+        ? window.formatMoney(n)
+        : ((Number(n) || 0).toLocaleString() + ' EGP');
+
     function cartHasDiscountedItem() {
         return cart.some(i => discountedProductIds.includes(String(i.id)));
     }
