@@ -345,17 +345,18 @@
                 style="background: linear-gradient(135deg, {{ $primary }}22, {{ $secondary }}22);">
                 <i class="fa-solid fa-box-open text-3xl" style="color: {{ $primary }}"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-800">No products found</h3>
+            <h3 class="text-lg font-bold text-slate-800">{{ __('app.cat_no_products_title') }}</h3>
             <p class="text-slate-500 text-sm mt-2">
                 @if(request('search'))
-                    Try another search term.
+                    {{ __('app.cat_try_another_search') }}
                 @else
-                    Products will appear here once added to this {{ $isCollege ? 'college' : 'department' }}.
+                    {{ $isCollege ? __('app.cat_no_products_college') : __('app.cat_no_products_department') }}
                 @endif
             </p>
             @if(request('search'))
                 <a href="{{ route('category.show', $category->slug) }}"
-                   class="inline-block mt-4 font-bold text-sm" style="color: {{ $primary }}">Clear search</a>
+                   class="inline-block mt-4 font-bold text-sm" style="color: {{ $primary }}">{{ __('app.cat_clear_search') }}</a>
+
             @endif
         </div>
         @endif
