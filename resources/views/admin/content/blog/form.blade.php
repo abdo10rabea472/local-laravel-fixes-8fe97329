@@ -212,21 +212,26 @@
 {{-- TinyMCE rich editor --}}
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-    tinymce.init({
-        selector: '#content-editor',
-        license_key: 'gpl',
-        height: 600,
-        directionality: 'ltr',
-        language: 'en',
-        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount emoticons codesample',
-        toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | removeformat code fullscreen preview',
-        toolbar_mode: 'wrap',
-        menubar: 'edit view insert format tools table help',
-        image_advtab: true,
-        branding: false,
-        promotion: false,
-        content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; }',
-    });
+    (function () {
+        const isDark = document.documentElement.classList.contains('dark');
+        tinymce.init({
+            selector: '#content-editor',
+            license_key: 'gpl',
+            height: 600,
+            directionality: 'ltr',
+            language: 'en',
+            skin: isDark ? 'oxide-dark' : 'oxide',
+            content_css: isDark ? 'dark' : 'default',
+            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount emoticons codesample',
+            toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | removeformat code fullscreen preview',
+            toolbar_mode: 'wrap',
+            menubar: 'edit view insert format tools table help',
+            image_advtab: true,
+            branding: false,
+            promotion: false,
+            content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; ' + (isDark ? 'background:#1f2430;color:#e5e7eb;' : '') + ' }',
+        });
+    })();
 
     document.querySelector('[name=meta_title]')?.addEventListener('input', e => {
         document.getElementById('serp-title').textContent = e.target.value || document.getElementById('title').value || 'Post title';
