@@ -75,5 +75,6 @@ class FaqController extends Controller
     private function clearCache(): void
     {
         Cache::forget('faqs.grouped');
+        Cache::forget('faqs.public');
     }
 }
