@@ -606,6 +606,7 @@ return [
     'admin_product_form_description' => 'الوصف التفصيلي',
     'admin_product_form_description_ph' => 'اكتب المواصفات والتفاصيل الفنية...',
     'admin_product_form_pricing' => 'التسعير والمخزون',
+    'admin_product_form_currency_notice' => 'تنبيه: جميع الأسعار التي تُدخلها هنا تُحفظ بالعملة الافتراضية للمتجر (:currency)، وسيتم تحويلها تلقائيًا عند العرض للعميل حسب العملة المختارة.',
     'admin_product_form_cost_price' => 'سعر التكلفة',
     'admin_product_form_sale_price' => 'سعر البيع',
     'admin_product_form_discount_price' => 'سعر الخصم (للطلاب)',
