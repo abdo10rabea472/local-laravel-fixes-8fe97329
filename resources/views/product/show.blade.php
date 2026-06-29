@@ -109,9 +109,6 @@
                     @endif
                 </div>
 
-                @if($product->short_description)
-                <p class="text-slate-600 leading-relaxed text-lg">{{ $product->short_description }}</p>
-                @endif
 
                 <p class="font-semibold {{ $product->isInStock() ? 'text-emerald-600' : 'text-rose-600' }}">
                     {{ $product->isInStock() ? 'In stock · ' . $product->stock . ' available' : 'Out of stock' }}
@@ -135,17 +132,27 @@
                     <div class="text-center"><i class="fa-solid fa-rotate text-2xl mb-2" style="color: {{ $accent }}"></i><p class="text-xs font-semibold text-slate-600">30-Day Return</p></div>
                 </div>
 
-                @if($product->description)
+                @if($product->short_description)
                 <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                     <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
                         <span class="h-6 w-1 rounded-full" style="background: {{ $accent }}"></span>
-                        Description
+                        {{ __('app.product_short_description') ?? 'Description' }}
                     </h2>
-                    <div class="text-slate-700 leading-relaxed whitespace-pre-line">{{ $product->description }}</div>
+                    <div class="text-slate-700 leading-relaxed whitespace-pre-line">{{ $product->short_description }}</div>
                 </div>
                 @endif
             </div>
         </div>
+
+        @if($product->description)
+        <div class="mt-10 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+            <h2 class="text-2xl font-bold mb-5 flex items-center gap-2">
+                <span class="h-7 w-1.5 rounded-full" style="background: {{ $accent }}"></span>
+                {{ __('app.product_detailed_description') ?? 'Detailed Description' }}
+            </h2>
+            <div class="text-slate-700 leading-relaxed whitespace-pre-line text-base">{{ $product->description }}</div>
+        </div>
+        @endif
 
         @if($relatedProducts->isNotEmpty())
         <div class="mt-16">
