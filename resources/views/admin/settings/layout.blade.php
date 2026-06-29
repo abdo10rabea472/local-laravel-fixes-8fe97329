@@ -79,7 +79,50 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
 @endphp
 
 @section('content')
-<div class="space-y-6">
+<style>
+    /* Dark-mode overrides scoped to the settings area */
+    .dark .settings-area .bg-white { background-color: #1f2937 !important; }
+    .dark .settings-area .bg-slate-50,
+    .dark .settings-area .bg-gray-50 { background-color: #111827 !important; }
+    .dark .settings-area .bg-slate-100 { background-color: #1f2937 !important; }
+    .dark .settings-area .border-slate-100 { border-color: #374151 !important; }
+    .dark .settings-area .border-slate-200,
+    .dark .settings-area .border-gray-200 { border-color: #374151 !important; }
+    .dark .settings-area .text-slate-800,
+    .dark .settings-area .text-slate-700,
+    .dark .settings-area .text-gray-800,
+    .dark .settings-area .text-gray-900 { color: #f3f4f6 !important; }
+    .dark .settings-area .text-slate-600 { color: #d1d5db !important; }
+    .dark .settings-area .text-slate-500,
+    .dark .settings-area .text-slate-400,
+    .dark .settings-area .text-gray-500 { color: #9ca3af !important; }
+    .dark .settings-area input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
+    .dark .settings-area textarea,
+    .dark .settings-area select {
+        background-color: #111827 !important;
+        border-color: #374151 !important;
+        color: #f3f4f6 !important;
+    }
+    .dark .settings-area input::placeholder,
+    .dark .settings-area textarea::placeholder { color: #6b7280 !important; }
+    .dark .settings-area .hover\:bg-slate-50:hover,
+    .dark .settings-area .hover\:bg-gray-50:hover { background-color: #374151 !important; }
+    .dark .settings-area .bg-amber-50 { background-color: rgba(245,158,11,0.10) !important; }
+    .dark .settings-area .bg-red-50,
+    .dark .settings-area .bg-rose-50 { background-color: rgba(239,68,68,0.10) !important; }
+    .dark .settings-area .bg-emerald-50,
+    .dark .settings-area .bg-green-50 { background-color: rgba(16,185,129,0.10) !important; }
+    .dark .settings-area .bg-blue-50,
+    .dark .settings-area .bg-sky-50 { background-color: rgba(59,130,246,0.10) !important; }
+    .dark .settings-area .bg-violet-50,
+    .dark .settings-area .bg-indigo-50 { background-color: rgba(139,92,246,0.10) !important; }
+    .dark .settings-area table tbody tr { background-color: transparent !important; }
+    .dark .settings-area table thead { background-color: #111827 !important; }
+    .dark .settings-area .divide-slate-100 > * + *,
+    .dark .settings-area .divide-gray-100 > * + * { border-color: #374151 !important; }
+</style>
+<div class="settings-area space-y-6">
+
     {{-- Header --}}
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r bg-violet-600 text-white group bg-violet-600 text-white shadow-lg">
         <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
