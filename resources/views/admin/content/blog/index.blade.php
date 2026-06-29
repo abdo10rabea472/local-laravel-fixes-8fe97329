@@ -33,7 +33,7 @@
                                 <a href="{{ route('blog.show', $p->slug) }}" target="_blank" class="text-emerald-600 hover:underline text-xs font-bold"><i class="fa-solid fa-eye"></i> {{ __('app.admin_blog_action_view') }}</a>
                             @endif
                             <a href="{{ route('admin.blog.edit', $p) }}" class="text-primary-600 hover:underline text-xs font-bold ml-2">{{ __('app.admin_blog_action_edit') }}</a>
-                            <form action="{{ route('admin.blog.destroy', $p) }}" method="POST" class="inline" onsubmit="return confirm('{{ __(\'app.admin_blog_confirm_delete\') }}')">
+                            <form action="{{ route('admin.blog.destroy', $p) }}" method="POST" class="inline" onsubmit="return confirm({{ Js::from(__('app.admin_blog_confirm_delete')) }})">
                                 @csrf @method('DELETE')
                                 <button class="text-rose-600 hover:underline text-xs font-bold ml-2">{{ __('app.admin_blog_action_delete') }}</button>
                             </form>
