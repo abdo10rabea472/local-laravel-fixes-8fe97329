@@ -4,6 +4,8 @@ return [
     'shared_home' => 'Home',
     'shared_products' => 'Products',
     'shared_all_products' => 'All Products',
+    'products_page_title' => 'All Products',
+    'products_page_subtitle' => 'Browse all available products',
     'shared_all_colleges' => 'All Colleges',
     'shared_blog' => 'Blog',
     'shared_offers' => 'Offers',
