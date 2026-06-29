@@ -192,5 +192,26 @@ return [
     'products_empty_title' => 'No products found',
     'products_empty_subtitle' => 'Try adjusting your filters or search term.',
     'products_empty_clear' => 'Clear all filters',
-    'products_card_out_of_stock' => 'Out',
+    'shared_clear_filters' => 'Clear filters',
+
+    // Blog
+    'blog_eyebrow'          => 'Digital Journal',
+    'blog_hero_title_1'     => 'Ideas that shape the',
+    'blog_hero_title_2'     => 'Future',
+    'blog_hero_subtitle'    => 'A modern space for articles, insights and field experiences.',
+    'blog_latest'           => 'Latest Articles',
+    'blog_search_results'   => 'Search Results',
+    'blog_category'         => 'Category',
+    'blog_tag'              => 'Tag',
+    'blog_empty'            => 'No articles found.',
+    'blog_views'            => 'views',
+    'blog_comments'         => 'comments',
+    'blog_search_title'     => 'Search',
+    'blog_search_placeholder' => 'Search articles...',
+    'blog_featured'         => 'Featured Article',
+    'blog_most_viewed'      => 'Most Viewed',
+    'blog_categories'       => 'Categories',
+    'blog_all'              => 'All',
+    'blog_tags'             => 'Tags',
 ];
+

@@ -11,12 +11,12 @@
         </div>
         <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold tracking-wide uppercase ring-1 ring-inset ring-indigo-500/20 mb-5">
-                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Digital Journal
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> {{ __('app.blog_eyebrow') }}
             </span>
             <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
-                Ideas that shape the <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Future</span>
+                {{ __('app.blog_hero_title_1') }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ __('app.blog_hero_title_2') }}</span>
             </h1>
-            <p class="text-slate-600 max-w-2xl mx-auto">A modern space for articles, insights and field experiences.</p>
+            <p class="text-slate-600 max-w-2xl mx-auto">{{ __('app.blog_hero_subtitle') }}</p>
         </div>
     </section>
 
@@ -27,17 +27,17 @@
         <main class="lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-900">
-                    {{ request('q') ? 'Search Results' : (request('category') ? 'Category' : (request('tag') ? 'Tag: '.request('tag') : 'Latest Articles')) }}
+                    {{ request('q') ? __('app.blog_search_results') : (request('category') ? __('app.blog_category') : (request('tag') ? __('app.blog_tag').': '.request('tag') : __('app.blog_latest'))) }}
                 </h2>
                 @if(request('q') || request('category') || request('tag'))
-                    <a href="{{ route('blog.index') }}" class="text-xs font-medium text-indigo-600 hover:underline">Clear filters</a>
+                    <a href="{{ route('blog.index') }}" class="text-xs font-medium text-indigo-600 hover:underline">{{ __('app.shared_clear_filters') }}</a>
                 @endif
             </div>
 
             @if($posts->isEmpty())
                 <div class="p-12 bg-white rounded-2xl ring-1 ring-slate-100 text-center">
                     <i class="fas fa-search text-3xl text-slate-300 mb-3"></i>
-                    <p class="text-slate-500">No articles found.</p>
+                    <p class="text-slate-500">{{ __('app.blog_empty') }}</p>
                 </div>
             @else
                 @foreach($posts as $post)
@@ -59,8 +59,8 @@
                         <p class="hidden sm:block text-sm text-slate-600 leading-relaxed line-clamp-2 mb-3">{{ $post->excerpt }}</p>
                         <div class="mt-auto flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 font-medium">
                             <span class="flex items-center gap-1.5"><i class="far fa-calendar"></i> {{ $post->published_at?->format('M d, Y') }}</span>
-                            <span class="flex items-center gap-1.5"><i class="far fa-eye"></i> {{ $post->views }} views</span>
-                            <span class="flex items-center gap-1.5"><i class="far fa-comment"></i> {{ $post->comments_count ?? 0 }} comments</span>
+                            <span class="flex items-center gap-1.5"><i class="far fa-eye"></i> {{ $post->views }} {{ __('app.blog_views') }}</span>
+                            <span class="flex items-center gap-1.5"><i class="far fa-comment"></i> {{ $post->comments_count ?? 0 }} {{ __('app.blog_comments') }}</span>
                         </div>
                     </div>
                 </article>
@@ -75,9 +75,9 @@
 
             {{-- Search --}}
             <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
-                <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fas fa-search text-indigo-600"></i> Search</h4>
+                <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fas fa-search text-indigo-600"></i> {{ __('app.blog_search_title') }}</h4>
                 <form method="GET" class="relative">
-                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Search articles..."
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('app.blog_search_placeholder') }}"
                            class="w-full h-11 ps-4 pe-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none">
                     <button class="absolute inset-y-0 end-0 px-3 text-slate-400 hover:text-indigo-600"><i class="fas fa-arrow-right"></i></button>
                 </form>
@@ -86,7 +86,7 @@
             {{-- Featured --}}
             @if($featured)
             <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
-                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-star text-amber-500"></i> Featured Article</h4>
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-star text-amber-500"></i> {{ __('app.blog_featured') }}</h4>
                 <a href="{{ route('blog.show', $featured->slug) }}" class="group block">
                     <div class="aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-slate-100">
                         <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
@@ -103,7 +103,7 @@
             {{-- Popular --}}
             @if($popular && $popular->count())
             <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
-                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-fire text-rose-500"></i> Most Viewed</h4>
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-fire text-rose-500"></i> {{ __('app.blog_most_viewed') }}</h4>
                 <ul class="space-y-4">
                     @foreach($popular as $i => $p)
                     <li>
@@ -126,10 +126,10 @@
             {{-- Categories --}}
             @if($categories->count())
             <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
-                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-folder text-indigo-600"></i> Categories</h4>
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-folder text-indigo-600"></i> {{ __('app.blog_categories') }}</h4>
                 <div class="space-y-1">
                     <a href="{{ route('blog.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ !request('category') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50' }}">
-                        <span>All</span>
+                        <span>{{ __('app.blog_all') }}</span>
                     </a>
                     @foreach($categories as $cat)
                     <a href="{{ route('blog.index', ['category' => $cat->slug]) }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request('category')===$cat->slug ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50' }}">
@@ -144,7 +144,7 @@
             {{-- Tags --}}
             @if($tags && $tags->count())
             <div class="p-5 bg-white rounded-2xl ring-1 ring-slate-100 shadow-sm">
-                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-tags text-purple-600"></i> Tags</h4>
+                <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fas fa-tags text-purple-600"></i> {{ __('app.blog_tags') }}</h4>
                 <div class="flex flex-wrap gap-2">
                     @foreach($tags as $tag)
                     <a href="{{ route('blog.index', ['tag' => $tag]) }}"

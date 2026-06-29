@@ -192,5 +192,26 @@ return [
     'products_empty_title' => 'لا توجد منتجات',
     'products_empty_subtitle' => 'حاول تعديل الفلاتر أو كلمة البحث.',
     'products_empty_clear' => 'مسح كل الفلاتر',
-    'products_card_out_of_stock' => 'نفد',
+    'shared_clear_filters' => 'مسح الفلاتر',
+
+    // Blog
+    'blog_eyebrow'          => 'مجلّة رقمية',
+    'blog_hero_title_1'     => 'أفكار تصنع',
+    'blog_hero_title_2'     => 'المستقبل',
+    'blog_hero_subtitle'    => 'مساحة عصرية للمقالات والرؤى والتجارب الميدانية.',
+    'blog_latest'           => 'أحدث المقالات',
+    'blog_search_results'   => 'نتائج البحث',
+    'blog_category'         => 'القسم',
+    'blog_tag'              => 'الوسم',
+    'blog_empty'            => 'لا توجد مقالات.',
+    'blog_views'            => 'مشاهدة',
+    'blog_comments'         => 'تعليق',
+    'blog_search_title'     => 'بحث',
+    'blog_search_placeholder' => 'ابحث في المقالات...',
+    'blog_featured'         => 'مقال مميّز',
+    'blog_most_viewed'      => 'الأكثر مشاهدة',
+    'blog_categories'       => 'الأقسام',
+    'blog_all'              => 'الكل',
+    'blog_tags'             => 'الوسوم',
 ];
+
