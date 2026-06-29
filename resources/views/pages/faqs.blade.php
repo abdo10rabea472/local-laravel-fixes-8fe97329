@@ -44,6 +44,7 @@
         @endforeach
     </div>
 </main>
+@endif
 @endsection
 
 @push('scripts')
