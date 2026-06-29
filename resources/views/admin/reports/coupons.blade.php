@@ -51,7 +51,7 @@
                         <td class="px-4 py-3 text-rose-600 font-semibold">{{ money($c->total_discount ?? 0) }}</td>
                         <td class="px-4 py-3 text-emerald-600 font-semibold">{{ money($c->total_revenue ?? 0) }}</td>
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $c->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }} dark:bg-dark-800 dark:text-gray-400 dark:bg-emerald-900/30 dark:text-emerald-300">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $c->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-dark-800 dark:text-gray-400' }}">
                                 {{ $c->is_active ? __('app.admin_reports_coupons_status_active') : __('app.admin_reports_coupons_status_inactive') }}
                             </span>
                         </td>
