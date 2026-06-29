@@ -98,7 +98,7 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
 
     <div class="flex flex-col lg:flex-row gap-6 items-start">
         {{-- Main Content --}}
-        <div class="flex-1 order-2 lg:order-1 w-full">
+        <div class="flex-1 min-w-0 order-2 lg:order-1 w-full">
             @yield('settings-content')
         </div>
 
