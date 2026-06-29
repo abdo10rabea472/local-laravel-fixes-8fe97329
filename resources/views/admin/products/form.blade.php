@@ -286,25 +286,49 @@
         <x-slot:side>
             <x-admin.card :title="__('app.admin_product_form_assign')" icon="fa-sitemap">
                 <div class="space-y-4">
+                    @php
+                        $parents = $categories->whereNull('parent_id')->values();
+                        $selectedChildId = (int) old('category_id', $product->category_id);
+                        $selectedChild = $categories->firstWhere('id', $selectedChildId);
+                        $selectedParentId = old('parent_category_id', $selectedChild?->parent_id);
+                    @endphp
                     <div>
-                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_product_form_main_college') }}</label>
-                        <select class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none" disabled>
-                            <option>{{ __('app.admin_product_form_main_college_default') }}</option>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_product_form_main_college') }} *</label>
+                        <select id="parent-category" class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                            <option value="">{{ __('app.admin_product_form_main_college_default') }}</option>
+                            @foreach($parents as $parent)
+                                <option value="{{ $parent->id }}" @selected($selectedParentId == $parent->id)>{{ $parent->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_product_form_subcategory') }} *</label>
-                        <select name="category_id" required class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                        <select id="child-category" name="category_id" required class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                             <option value="">{{ __('app.admin_product_form_choose_category') }}</option>
-                            @foreach($categories->whereNull('parent_id') as $parent)
-                                <optgroup label="{{ $parent->name }}">
-                                    @foreach($categories->where('parent_id', $parent->id) as $child)
-                                        <option value="{{ $child->id }}" @selected(old('category_id', $product->category_id) == $child->id)>{{ $child->name }}</option>
-                                    @endforeach
-                                </optgroup>
-                            @endforeach
                         </select>
+                        @error('category_id') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
+                    <script>
+                    (function(){
+                        const allChildren = @json($categories->whereNotNull('parent_id')->map(fn($c) => ['id'=>$c->id,'parent_id'=>$c->parent_id,'name'=>$c->name])->values());
+                        const parentSel = document.getElementById('parent-category');
+                        const childSel = document.getElementById('child-category');
+                        const preselectChild = {{ $selectedChildId ?: 'null' }};
+                        function refresh(){
+                            const pid = parseInt(parentSel.value);
+                            const current = childSel.value;
+                            childSel.innerHTML = '<option value="">{{ __('app.admin_product_form_choose_category') }}</option>';
+                            allChildren.filter(c => !pid || c.parent_id === pid).forEach(c => {
+                                const o = document.createElement('option');
+                                o.value = c.id; o.textContent = c.name;
+                                if (String(c.id) === String(current) || c.id === preselectChild) o.selected = true;
+                                childSel.appendChild(o);
+                            });
+                        }
+                        parentSel.addEventListener('change', refresh);
+                        refresh();
+                    })();
+                    </script>
                     <div>
                         <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_product_form_brand') }}</label>
                         <input type="text" name="brand" value="{{ old('brand', $product->brand ?? '') }}" placeholder="Littmann Germany"
