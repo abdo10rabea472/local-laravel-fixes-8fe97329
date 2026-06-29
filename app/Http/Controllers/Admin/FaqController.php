@@ -35,7 +35,7 @@ class FaqController extends Controller
 
         $seoPage = Page::firstOrCreate(
             ['slug' => 'faqs'],
-            ['title' => 'Frequently Asked Questions', 'content' => '', 'active' => true]
+            ['title' => 'Frequently Asked Questions', 'content' => '', 'status' => true]
         );
 
         $nextSort = (int) Faq::max('sort_order') + 1;
