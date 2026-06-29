@@ -419,6 +419,12 @@ class CheckoutController extends Controller
             'number_of_pieces' => $totalQty,
         ], 'EGP');
 
+        if (!empty($res['ok']) && isset($res['data']['amount'])) {
+            // Persist the quoted amount so placeOrder can verify the
+            // client-submitted shipping_cost against a server-known value.
+            session(['aramex.last_quote' => (float) $res['data']['amount']]);
+        }
+
         return response()->json($res, $res['ok'] ? 200 : 422);
     }
 
