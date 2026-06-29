@@ -89,30 +89,186 @@
         </x-admin.card>
 
         <x-admin.card :title="__('app.admin_product_form_images')" icon="fa-images">
-            @php $currentCount = $product->exists ? $product->images->count() : 0; $remaining = max(0, 5 - $currentCount); @endphp
-            <label for="product-images" class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-10 text-center block cursor-pointer hover:border-primary-500 transition-colors">
-                <i class="fas fa-cloud-arrow-up text-4xl text-gray-400 mb-3"></i>
-                <p class="font-bold text-gray-700 dark:text-gray-200">{{ __('app.admin_product_form_images_drop') }}</p>
-                <p class="text-xs text-gray-400 mt-1">{{ __('app.admin_product_form_images_hint', ['n' => $remaining]) }}</p>
-                <input id="product-images" type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/gif"
-                       class="hidden" @if($remaining === 0) disabled @endif>
-            </label>
+            @php $currentCount = $product->exists ? $product->images->count() : 0; $remaining = max(0, 8 - $currentCount); @endphp
+            <div id="img-uploader" data-max="8" data-existing="{{ $currentCount }}">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <label for="product-images" class="inline-flex items-center gap-2 px-4 h-10 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-xl cursor-pointer">
+                        <i class="fas fa-upload"></i> {{ __('app.admin_product_form_images_drop') }}
+                    </label>
+                    <button type="button" id="open-library-btn" class="inline-flex items-center gap-2 px-4 h-10 bg-gray-100 dark:bg-dark-800 hover:bg-gray-200 dark:hover:bg-dark-700 text-sm font-bold rounded-xl">
+                        <i class="fas fa-photo-film"></i> اختر من المكتبة
+                    </button>
+                    <span class="text-xs text-gray-500" id="img-counter">0 / 8</span>
+                </div>
+
+                <label for="product-images" class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-8 text-center block cursor-pointer hover:border-primary-500 transition-colors">
+                    <i class="fas fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                    <p class="font-bold text-gray-700 dark:text-gray-200 text-sm">اسحب الصور هنا أو اضغط للاختيار</p>
+                    <p class="text-xs text-gray-400 mt-1">JPG / PNG / WEBP — حد أقصى 4MB لكل صورة، 8 صور إجمالاً</p>
+                </label>
+                <input id="product-images" type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/gif" class="hidden">
+
+                <div id="upload-previews" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"></div>
+                <div id="library-picked" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3"></div>
+            </div>
+
             @error('images') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
             @error('images.*') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
 
             @if($product->exists && $product->images->count())
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                @foreach($product->images as $image)
-                <label class="relative border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
-                    <img src="{{ $image->getUrl('thumb') }}" alt="" class="w-full h-28 object-cover">
-                    <div class="p-2 text-xs flex items-center gap-1.5 bg-white dark:bg-dark-800">
-                        <input type="checkbox" name="remove_images[]" value="{{ $image->id }}"> {{ __('app.admin_common_remove') }}
-                    </div>
-                </label>
-                @endforeach
+            <div class="mt-5">
+                <p class="text-xs font-bold text-gray-500 mb-2">الصور الحالية</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    @foreach($product->images as $image)
+                    <label class="relative border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+                        <img src="{{ $image->getUrl('thumb') }}" alt="" class="w-full h-28 object-cover">
+                        <div class="p-2 text-xs flex items-center gap-1.5 bg-white dark:bg-dark-800">
+                            <input type="checkbox" name="remove_images[]" value="{{ $image->id }}"> {{ __('app.admin_common_remove') }}
+                        </div>
+                    </label>
+                    @endforeach
+                </div>
             </div>
             @endif
         </x-admin.card>
+
+        {{-- Library modal --}}
+        <div id="lib-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+            <div class="bg-white dark:bg-dark-900 w-full max-w-4xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                    <h3 class="font-bold">مكتبة الصور</h3>
+                    <div class="flex gap-2">
+                        <input id="lib-search" type="text" placeholder="بحث بالمنتج..." class="h-10 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                        <button type="button" id="lib-close" class="h-10 px-4 bg-gray-100 dark:bg-dark-800 rounded-lg text-sm font-bold">إغلاق</button>
+                    </div>
+                </div>
+                <div id="lib-grid" class="p-4 grid grid-cols-3 md:grid-cols-6 gap-3 overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <script>
+        (function(){
+            const MAX = 8;
+            const existing = {{ $currentCount }};
+            const fileInput = document.getElementById('product-images');
+            const previews = document.getElementById('upload-previews');
+            const libraryPicked = document.getElementById('library-picked');
+            const counter = document.getElementById('img-counter');
+            const libModal = document.getElementById('lib-modal');
+            const libGrid = document.getElementById('lib-grid');
+            const libSearch = document.getElementById('lib-search');
+
+            let selectedFiles = []; // {file, id}
+            let pickedLibIds = new Set();
+
+            function updateCounter(){
+                const total = existing + selectedFiles.length + pickedLibIds.size;
+                counter.textContent = total + ' / ' + MAX;
+                counter.className = 'text-xs font-bold ' + (total > MAX ? 'text-red-600' : 'text-gray-500');
+            }
+
+            function syncFileInput(){
+                const dt = new DataTransfer();
+                selectedFiles.forEach(s => dt.items.add(s.file));
+                fileInput.files = dt.files;
+            }
+
+            function renderPreviews(){
+                previews.innerHTML = '';
+                selectedFiles.forEach((s, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'relative border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden';
+                    const isImg = s.file.type.startsWith('image/');
+                    const tooBig = s.file.size > 4 * 1024 * 1024;
+                    const ok = isImg && !tooBig;
+                    const url = URL.createObjectURL(s.file);
+                    card.innerHTML = `
+                        <img src="${url}" class="w-full h-28 object-cover ${ok ? '' : 'opacity-40'}">
+                        <div class="absolute top-1 right-1 flex gap-1">
+                            <button type="button" data-idx="${idx}" class="rm-file w-7 h-7 bg-red-600 text-white rounded-full text-xs"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="p-2 text-[11px] ${ok ? 'bg-white dark:bg-dark-800' : 'bg-red-50 text-red-700'}">
+                            ${ok ? '<i class="fas fa-check text-green-600"></i> جاهز' : (tooBig ? 'فشل: حجم كبير (>4MB)' : 'فشل: ليست صورة')}
+                            <div class="h-1 bg-gray-200 rounded mt-1 overflow-hidden"><div class="h-full bg-primary-500" style="width:${ok ? 100 : 0}%"></div></div>
+                        </div>`;
+                    previews.appendChild(card);
+                });
+                previews.querySelectorAll('.rm-file').forEach(b => b.addEventListener('click', e => {
+                    const i = parseInt(b.dataset.idx);
+                    selectedFiles.splice(i, 1);
+                    syncFileInput(); renderPreviews(); updateCounter();
+                }));
+            }
+
+            function renderLibPicked(){
+                libraryPicked.innerHTML = '';
+                pickedLibIds.forEach(id => {
+                    const meta = window.__libCache?.[id];
+                    if (!meta) return;
+                    const card = document.createElement('div');
+                    card.className = 'relative border-2 border-primary-500 rounded-2xl overflow-hidden';
+                    card.innerHTML = `
+                        <input type="hidden" name="library_image_ids[]" value="${id}">
+                        <img src="${meta.thumb}" class="w-full h-28 object-cover">
+                        <div class="absolute top-1 right-1">
+                            <button type="button" data-id="${id}" class="rm-lib w-7 h-7 bg-red-600 text-white rounded-full text-xs"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="p-2 text-[11px] bg-primary-50 text-primary-700"><i class="fas fa-book"></i> من المكتبة</div>`;
+                    libraryPicked.appendChild(card);
+                });
+                libraryPicked.querySelectorAll('.rm-lib').forEach(b => b.addEventListener('click', () => {
+                    pickedLibIds.delete(parseInt(b.dataset.id));
+                    renderLibPicked(); updateCounter();
+                }));
+            }
+
+            fileInput.addEventListener('change', e => {
+                Array.from(e.target.files).forEach(f => selectedFiles.push({file: f}));
+                syncFileInput(); renderPreviews(); updateCounter();
+            });
+
+            // Drag & drop
+            const dropZone = fileInput.previousElementSibling;
+            ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('border-primary-500'); }));
+            ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('border-primary-500'); }));
+            dropZone.addEventListener('drop', e => {
+                Array.from(e.dataTransfer.files).forEach(f => selectedFiles.push({file: f}));
+                syncFileInput(); renderPreviews(); updateCounter();
+            });
+
+            // Library
+            window.__libCache = {};
+            async function loadLibrary(q=''){
+                libGrid.innerHTML = '<p class="col-span-full text-center text-sm text-gray-500 py-8">جارٍ التحميل...</p>';
+                const res = await fetch('{{ route('admin.products.image-library') }}?search=' + encodeURIComponent(q), {headers: {'Accept':'application/json'}});
+                const data = await res.json();
+                libGrid.innerHTML = '';
+                if (!data.images.length) { libGrid.innerHTML = '<p class="col-span-full text-center text-sm text-gray-500 py-8">لا توجد صور.</p>'; return; }
+                data.images.forEach(img => {
+                    window.__libCache[img.id] = img;
+                    const div = document.createElement('div');
+                    const selected = pickedLibIds.has(img.id);
+                    div.className = 'relative cursor-pointer rounded-xl overflow-hidden border-2 ' + (selected ? 'border-primary-500' : 'border-transparent');
+                    div.innerHTML = `<img src="${img.thumb}" class="w-full h-24 object-cover"><div class="p-1 text-[10px] truncate bg-white dark:bg-dark-800">${img.product||''}</div>`;
+                    div.addEventListener('click', () => {
+                        if (pickedLibIds.has(img.id)) pickedLibIds.delete(img.id);
+                        else pickedLibIds.add(img.id);
+                        loadLibrary(libSearch.value); renderLibPicked(); updateCounter();
+                    });
+                    libGrid.appendChild(div);
+                });
+            }
+            document.getElementById('open-library-btn').addEventListener('click', () => {
+                libModal.classList.remove('hidden'); libModal.classList.add('flex'); loadLibrary();
+            });
+            document.getElementById('lib-close').addEventListener('click', () => {
+                libModal.classList.add('hidden'); libModal.classList.remove('flex');
+            });
+            let t; libSearch.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => loadLibrary(libSearch.value), 300); });
+
+            updateCounter();
+        })();
+        </script>
 
         <x-admin.card :title="__('app.admin_common_seo_settings')" icon="fa-magnifying-glass-chart">
             <div class="space-y-3">

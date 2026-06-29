@@ -128,6 +128,7 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::get('/categories/{category}/children', [AdminCategoryController::class, 'children'])->name('categories.children');
 
     Route::get('/products/export/csv', [ProductController::class, 'exportCsv'])->name('products.export');
+    Route::get('/products/image-library', [ProductController::class, 'imageLibrary'])->name('products.image-library');
     Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
     Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::resource('products', ProductController::class)->except(['show']);

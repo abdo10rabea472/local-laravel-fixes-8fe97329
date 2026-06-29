@@ -219,12 +219,12 @@ class ProductController extends Controller
             'og_description' => 'nullable|string',
             'og_image' => 'nullable|string|max:255',
             'schema_markup' => 'nullable|string',
-            'images' => ($ignoreId ? 'nullable' : 'required') . '|array|min:4|max:5',
+            'images' => 'nullable|array|max:8',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:4096',
+            'library_image_ids' => 'nullable|array|max:8',
+            'library_image_ids.*' => 'integer|exists:product_images,id',
         ], [
-            'images.required' => 'يجب رفع 4 صور على الأقل لكل منتج.',
-            'images.min' => 'يجب رفع 4 صور على الأقل لكل منتج.',
-            'images.max' => 'الحد الأقصى 5 صور لكل منتج.',
+            'images.max' => 'الحد الأقصى 8 صور لكل منتج.',
             'images.*.image' => 'الملف المرفوع يجب أن يكون صورة.',
             'images.*.max' => 'حجم الصورة يجب أن لا يتجاوز 4 ميجابايت.',
         ]);
@@ -232,27 +232,63 @@ class ProductController extends Controller
 
     private function storeImages(Request $request, Product $product): void
     {
-        if (! $request->hasFile('images')) {
-            return;
-        }
-
-        // فرض الحد الأقصى الإجمالي = 5 (الصور الحالية + الجديدة)
+        // الحد الأقصى الإجمالي = 8
         $existingCount = $product->images()->count();
         $removeCount = is_array($request->input('remove_images')) ? count($request->input('remove_images')) : 0;
-        $availableSlots = max(0, 5 - ($existingCount - $removeCount));
-
-        $files = array_slice($request->file('images'), 0, $availableSlots);
-        if (empty($files)) {
-            return;
-        }
+        $availableSlots = max(0, 8 - ($existingCount - $removeCount));
+        if ($availableSlots <= 0) return;
 
         $sortOrder = $product->images()->max('sort_order') ?? 0;
 
-        foreach ($files as $file) {
-            $sortOrder++;
-            $paths = $this->imageService->storeProductImages($file, $product->id);
-            $product->images()->create(array_merge($paths, ['sort_order' => $sortOrder]));
+        // 1) صور من المكتبة (نسخ مرجع للمسارات نفسها)
+        $libraryIds = (array) $request->input('library_image_ids', []);
+        if ($libraryIds && $availableSlots > 0) {
+            $libImages = ProductImage::whereIn('id', $libraryIds)->limit($availableSlots)->get();
+            foreach ($libImages as $img) {
+                $sortOrder++;
+                $availableSlots--;
+                $product->images()->create([
+                    'image' => $img->image,
+                    'thumb' => $img->thumb,
+                    'medium' => $img->medium,
+                    'large' => $img->large,
+                    'sort_order' => $sortOrder,
+                ]);
+                if ($availableSlots <= 0) return;
+            }
         }
+
+        // 2) ملفات مرفوعة
+        if ($request->hasFile('images') && $availableSlots > 0) {
+            $files = array_slice($request->file('images'), 0, $availableSlots);
+            foreach ($files as $file) {
+                $sortOrder++;
+                $paths = $this->imageService->storeProductImages($file, $product->id);
+                $product->images()->create(array_merge($paths, ['sort_order' => $sortOrder]));
+            }
+        }
+    }
+
+    /** AJAX: مكتبة صور لإعادة الاستخدام عند إنشاء/تعديل المنتجات. */
+    public function imageLibrary(Request $request)
+    {
+        $q = ProductImage::query()
+            ->select(['id', 'product_id', 'thumb', 'medium', 'image'])
+            ->with('product:id,name')
+            ->orderByDesc('id');
+
+        if ($request->filled('search')) {
+            $term = '%' . $request->search . '%';
+            $q->whereHas('product', fn($p) => $p->where('name', 'like', $term));
+        }
+
+        $images = $q->limit(60)->get()->map(fn($img) => [
+            'id' => $img->id,
+            'thumb' => $img->getUrl('thumb'),
+            'product' => $img->product?->name,
+        ]);
+
+        return response()->json(['images' => $images]);
     }
 
     private function removeImages(Product $product, array $imageIds): void
