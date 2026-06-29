@@ -154,7 +154,7 @@
                                         </div>
                                     @endif
                                     @if((float)$g->extra_fees > 0)
-                                        <p class="text-xs text-amber-600 font-semibold mt-1">+ رسوم {{ number_format((float)$g->extra_fees, 2) }} {{ config('app.currency','EGP') }}</p>
+                                        <p class="text-xs text-amber-600 font-semibold mt-1">+ رسوم {{ money((float)$g->extra_fees) }}</p>
                                     @endif
                                 </div>
                             </label>
