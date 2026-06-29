@@ -141,5 +141,50 @@
             </form>
         </div>
     </div>
+
+    {{-- Secure Make-Default Modal --}}
+    <div x-show="defOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="defOpen=false" @keydown.escape.window="defOpen=false">
+        <form method="POST" :action="defLang.url" x-data="{ typed:'', pwd:'', ack:false }" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-rose-500">
+            @csrf
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">High-risk action</h3>
+                    <p class="text-xs text-slate-500">Changing the default language affects the entire site.</p>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-xs text-rose-700">
+                You are about to set <span class="font-black" x-text="defLang.name"></span> (<span class="font-mono" x-text="defLang.code"></span>) as the default language. This is logged with your IP and user agent.
+            </div>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Type the language code <span class="font-mono text-rose-600" x-text="defLang.code"></span> to confirm</span>
+                <input type="text" name="confirm_code" x-model="typed" autocomplete="off" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Your admin password</span>
+                <input type="password" name="password" x-model="pwd" autocomplete="current-password" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="flex items-start gap-2 text-xs text-slate-600">
+                <input type="checkbox" name="understand" value="1" x-model="ack" required class="mt-0.5 rounded">
+                <span>I understand this change applies immediately to all users and is recorded in the audit log.</span>
+            </label>
+
+            <div class="flex gap-2 justify-end pt-2 border-t">
+                <button type="button" @click="defOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                <button type="submit"
+                    :disabled="!ack || !pwd || typed !== defLang.code"
+                    :class="(!ack || !pwd || typed !== defLang.code) ? 'opacity-50 cursor-not-allowed' : ''"
+                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Confirm &amp; Set Default
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection
