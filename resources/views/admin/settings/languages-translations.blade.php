@@ -3,7 +3,15 @@
 @section('title', 'Translations — '.$language->name)
 
 @section('settings-content')
-<div class="space-y-6" x-data="{ tab: '{{ array_key_first($groups) ?? '' }}', q: '' }">
+<div class="space-y-6"
+     x-data="{
+        tab: '{{ array_key_first($groups) ?? '__new__' }}',
+        q: '',
+        newRows: [{ group: '{{ array_key_first($groups) ?? '' }}', key: '', en: '', value: '' }],
+        addRow() { this.newRows.push({ group: this.tab !== '__new__' ? this.tab : '{{ array_key_first($groups) ?? '' }}', key: '', en: '', value: '' }); },
+        removeRow(i) { this.newRows.splice(i, 1); if(!this.newRows.length) this.addRow(); }
+     }">
+
     @if(session('success'))<div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold">{{ session('success') }}</div>@endif
     @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold">{{ session('error') }}</div>@endif
 
