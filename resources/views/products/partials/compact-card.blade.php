@@ -32,9 +32,9 @@
         <div class="mt-2 pt-2 flex items-center justify-between gap-1 border-t border-slate-100">
             <div class="min-w-0">
                 @if($hasDiscount)
-                    <del class="text-[10px] text-slate-400 block leading-none">{{ number_format($compareAt, 0) }}</del>
+                    <del class="text-[10px] text-slate-400 block leading-none">{{ money($compareAt) }}</del>
                 @endif
-                <span class="text-sm font-black text-slate-900 leading-tight">{{ number_format($displayPrice, 0) }} <span class="text-[10px] font-bold text-slate-500">{{ __('app.shared_currency_egp') }}</span></span>
+                <span class="text-sm font-black text-slate-900 leading-tight">{{ money($displayPrice) }}</span>
             </div>
             @if($inStock)
                 <button type="button" onclick="event.preventDefault(); addToCart(this);"
