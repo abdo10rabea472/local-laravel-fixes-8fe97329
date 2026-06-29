@@ -312,13 +312,14 @@
 
                                 <div class="flex items-center justify-between mt-6 pt-5 border-t border-slate-100">
                                     <div class="flex flex-col">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Investment</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ __('app.cat_investment') }}</span>
                                         @if($hasDiscount)
-                                            <del class="text-[11px] text-slate-400 font-bold">{{ number_format($compareAt, 2) }} EGP</del>
+                                            <del class="text-[11px] text-slate-400 font-bold">{{ number_format($compareAt, 2) }} {{ __('app.cat_egp') }}</del>
                                         @endif
                                         <span class="text-xl font-black text-slate-900 font-mono tracking-tight">
                                             {{ number_format($displayPrice, 2) }}
-                                            <span class="text-[11px] font-extrabold ml-0.5" style="color: {{ $primary }}">EGP</span>
+                                            <span class="text-[11px] font-extrabold ml-0.5" style="color: {{ $primary }}">{{ __('app.cat_egp') }}</span>
+
                                         </span>
                                     </div>
                                     <button type="button"
