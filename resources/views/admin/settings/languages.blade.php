@@ -11,7 +11,9 @@
     @if(session('success'))<div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100">{{ session('success') }}</div>@endif
     @if(session('warning'))<div class="p-4 rounded-2xl bg-amber-50 text-amber-800 text-sm font-bold border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ session('warning') }}</div>@endif
     @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold border border-rose-100"><i class="fa-solid fa-circle-xmark mr-2"></i>{{ session('error') }}</div>@endif
-    @if($errors->any())<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm border border-rose-100">{{ $errors->first() }}</div>@endif
+    {{-- Hide top error banner for default-modal field errors (shown inline inside the modal) --}}
+    @php $modalErrorKeys = ['password','confirm_code','understand']; $otherErrors = collect($errors->keys())->diff($modalErrorKeys); @endphp
+    @if($otherErrors->count())<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm border border-rose-100">{{ $errors->first($otherErrors->first()) }}</div>@endif
 
     {{-- Main Container --}}
     <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
@@ -144,8 +146,16 @@
     </div>
 
     {{-- Secure Make-Default Modal --}}
-    <div x-show="defOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="defOpen=false" @keydown.escape.window="defOpen=false">
-        <form method="POST" :action="defLang.url" x-data="{ typed:'', pwd:'', ack:false }" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-rose-500">
+    {{-- Auto-reopen on validation error --}}
+    @php
+        $errLangId = session('default_error_for_language');
+        $errLang   = $errLangId ? $languages->firstWhere('id', $errLangId) : null;
+    @endphp
+    <div x-show="defOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="defOpen=false" @keydown.escape.window="defOpen=false"
+        @if($errLang)
+        x-init="defOpen=true; defLang={id:{{ $errLang->id }}, code:'{{ addslashes($errLang->code) }}', name:'{{ addslashes($errLang->name) }}', url:'{{ route('admin.settings.languages.default', $errLang) }}'}"
+        @endif>
+        <form method="POST" :action="defLang.url" x-data="{ typed:@js(old('confirm_code','')), pwd:'', ack:false }" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-rose-500">
             @csrf
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
@@ -162,13 +172,15 @@
             <label class="block text-sm">
                 <span class="text-xs font-bold text-slate-600">Type the language code <span class="font-mono text-rose-600" x-text="defLang.code"></span> to confirm</span>
                 <input type="text" name="confirm_code" x-model="typed" autocomplete="off" required
-                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:border-rose-400 focus:ring-rose-200">
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border rounded-xl text-sm font-mono focus:ring-2 @error('confirm_code') border-rose-400 ring-rose-200 @else border-slate-200 focus:border-rose-400 focus:ring-rose-200 @enderror">
+                @error('confirm_code')<p class="mt-1 text-xs font-bold text-rose-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>@enderror
             </label>
 
             <label class="block text-sm">
                 <span class="text-xs font-bold text-slate-600">Your admin password</span>
                 <input type="password" name="password" x-model="pwd" autocomplete="current-password" required
-                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-rose-400 focus:ring-rose-200">
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border rounded-xl text-sm focus:ring-2 @error('password') border-rose-400 ring-rose-200 @else border-slate-200 focus:border-rose-400 focus:ring-rose-200 @enderror">
+                @error('password')<p class="mt-1 text-xs font-bold text-rose-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>@enderror
             </label>
 
             <label class="flex items-start gap-2 text-xs text-slate-600">
@@ -187,6 +199,7 @@
             </div>
         </form>
     </div>
+
 
     {{-- OTP Step Modal: auto-opens after step 1 succeeds --}}
     @php

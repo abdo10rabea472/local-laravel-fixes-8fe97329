@@ -125,14 +125,16 @@ class CurrencyController extends Controller
 
         if (!Hash::check($request->password, $admin->password)) {
             RateLimiter::hit($key, 600);
-            throw ValidationException::withMessages(['password' => 'Incorrect password.']);
+            return back()
+                ->withErrors(['password' => 'Incorrect password.'])
+                ->with('default_error_for_currency', $currency->id);
         }
 
         if (!hash_equals(strtoupper((string) $currency->code), strtoupper((string) $request->confirm_code))) {
             RateLimiter::hit($key, 600);
-            throw ValidationException::withMessages([
-                'confirm_code' => 'Confirmation text does not match the currency code.',
-            ]);
+            return back()
+                ->withErrors(['confirm_code' => 'Confirmation text does not match the currency code.'])
+                ->with('default_error_for_currency', $currency->id);
         }
 
         if ($reason = MailHealth::failureReason()) {

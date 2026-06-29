@@ -119,14 +119,16 @@ class LanguageController extends Controller
 
         if (!Hash::check($request->password, $admin->password)) {
             RateLimiter::hit($key, 600);
-            throw ValidationException::withMessages(['password' => 'Incorrect password.']);
+            return back()
+                ->withErrors(['password' => 'Incorrect password.'])
+                ->with('default_error_for_language', $language->id);
         }
 
         if (!hash_equals((string) $language->code, (string) $request->confirm_code)) {
             RateLimiter::hit($key, 600);
-            throw ValidationException::withMessages([
-                'confirm_code' => 'Confirmation text does not match the language code.',
-            ]);
+            return back()
+                ->withErrors(['confirm_code' => 'Confirmation text does not match the language code.'])
+                ->with('default_error_for_language', $language->id);
         }
 
         // Pre-flight: ensure mail is configured before we generate an OTP.
