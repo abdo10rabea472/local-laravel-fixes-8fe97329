@@ -46,39 +46,38 @@
     $r = fn($name) => \Illuminate\Support\Facades\Route::has($name) ? route($name) : '#';
 
     $menu = [
-        ['title' => 'Dashboard', 'icon' => 'fa-chart-pie', 'route' => 'admin.dashboard'],
-        ['title' => 'Product Management', 'icon' => 'fa-boxes', 'children' => [
-            ['title' => 'All Products',         'route' => 'admin.products.index'],
-            ['title' => 'Add New Product',      'route' => 'admin.products.create'],
-            ['title' => 'Main Categories',      'route' => 'admin.colleges.index'],
-            ['title' => 'Subcategories',        'route' => 'admin.subcategories.index'],
-            ['title' => 'Product Discounts',    'route' => 'admin.product-discounts.index'],
+        ['title' => __('app.admin_menu_dashboard'), 'icon' => 'fa-chart-pie', 'route' => 'admin.dashboard'],
+        ['title' => __('app.admin_menu_products'), 'icon' => 'fa-boxes', 'children' => [
+            ['title' => __('app.admin_menu_products_all'),       'route' => 'admin.products.index'],
+            ['title' => __('app.admin_menu_products_create'),    'route' => 'admin.products.create'],
+            ['title' => __('app.admin_menu_products_categories'),'route' => 'admin.colleges.index'],
+            ['title' => __('app.admin_menu_products_subcats'),   'route' => 'admin.subcategories.index'],
+            ['title' => __('app.admin_menu_products_discounts'), 'route' => 'admin.product-discounts.index'],
         ]],
-        ['title' => 'Orders & Sales', 'icon' => 'fa-shopping-cart', 'route' => 'admin.orders.index'],
-        ['title' => 'Customers',      'icon' => 'fa-users',         'route' => 'admin.customers.index'],
-        ['title' => 'Customer Groups','icon' => 'fa-layer-group',   'route' => 'admin.customer-groups.index'],
-        ['title' => 'Stock & Supply', 'icon' => 'fa-warehouse', 'children' => [
-            ['title' => 'Stock Management', 'route' => 'admin.stock.index'],
-            ['title' => 'Stock History',    'route' => 'admin.stock.history'],
-            ['title' => 'Shipping Carriers','route' => 'admin.shipping-carriers.index'],
-            ['title' => 'Returns',          'route' => 'admin.returns.index'],
+        ['title' => __('app.admin_menu_orders'),         'icon' => 'fa-shopping-cart', 'route' => 'admin.orders.index'],
+        ['title' => __('app.admin_menu_customers'),      'icon' => 'fa-users',         'route' => 'admin.customers.index'],
+        ['title' => __('app.admin_menu_customer_groups'),'icon' => 'fa-layer-group',   'route' => 'admin.customer-groups.index'],
+        ['title' => __('app.admin_menu_stock'), 'icon' => 'fa-warehouse', 'children' => [
+            ['title' => __('app.admin_menu_stock_manage'),  'route' => 'admin.stock.index'],
+            ['title' => __('app.admin_menu_stock_history'), 'route' => 'admin.stock.history'],
+            ['title' => __('app.admin_menu_stock_carriers'),'route' => 'admin.shipping-carriers.index'],
+            ['title' => __('app.admin_menu_stock_returns'), 'route' => 'admin.returns.index'],
         ]],
-        ['title' => 'Reviews & Ratings', 'icon' => 'fa-star',          'route' => 'admin.reviews.index'],
-        ['title' => 'Coupons & Discounts','icon' => 'fa-ticket-alt',   'route' => 'admin.coupons.index'],
-        ['title' => 'Advanced Reports', 'icon' => 'fa-chart-line', 'children' => [
-            ['title' => 'Sales Analytics',  'route' => 'admin.reports.analytics'],
-            ['title' => 'Sales Report',     'route' => 'admin.reports.sales'],
-            ['title' => 'Inventory Reports','route' => 'admin.reports.inventory'],
-            ['title' => 'Coupon Reports',   'route' => 'admin.reports.coupons'],
+        ['title' => __('app.admin_menu_reviews'),  'icon' => 'fa-star',        'route' => 'admin.reviews.index'],
+        ['title' => __('app.admin_menu_coupons'),  'icon' => 'fa-ticket-alt',  'route' => 'admin.coupons.index'],
+        ['title' => __('app.admin_menu_reports'), 'icon' => 'fa-chart-line', 'children' => [
+            ['title' => __('app.admin_menu_reports_analytics'), 'route' => 'admin.reports.analytics'],
+            ['title' => __('app.admin_menu_reports_sales'),     'route' => 'admin.reports.sales'],
+            ['title' => __('app.admin_menu_reports_inventory'), 'route' => 'admin.reports.inventory'],
+            ['title' => __('app.admin_menu_reports_coupons'),   'route' => 'admin.reports.coupons'],
         ]],
-        ['title' => 'Content Management', 'icon' => 'fa-newspaper', 'children' => [
-            ['title' => 'Blog Posts',       'route' => 'admin.blog.index'],
-
-            ['title' => 'FAQs',             'route' => 'admin.faqs.index'],
-            ['title' => 'Contact Messages', 'route' => 'admin.messages.index'],
-            ['title' => 'Newsletter Subscribers', 'route' => 'admin.subscribers.index'],
+        ['title' => __('app.admin_menu_content'), 'icon' => 'fa-newspaper', 'children' => [
+            ['title' => __('app.admin_menu_content_blog'),        'route' => 'admin.blog.index'],
+            ['title' => __('app.admin_menu_content_faqs'),        'route' => 'admin.faqs.index'],
+            ['title' => __('app.admin_menu_content_messages'),    'route' => 'admin.messages.index'],
+            ['title' => __('app.admin_menu_content_subscribers'), 'route' => 'admin.subscribers.index'],
         ]],
-        ['title' => 'General Settings', 'icon' => 'fa-sliders-h', 'route' => 'admin.settings.index'],
+        ['title' => __('app.admin_menu_settings'), 'icon' => 'fa-sliders-h', 'route' => 'admin.settings.index'],
     ];
 
 
@@ -149,13 +148,13 @@
             <div class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
                 <a href="{{ url('/') }}" target="_blank"
                    class="flex items-center gap-3 py-2.5 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 rounded-lg transition-colors">
-                    <i class="fas fa-globe text-gray-400 w-5"></i><span>Visit Store</span>
+                    <i class="fas fa-globe text-gray-400 w-5"></i><span>{{ __('app.admin_menu_visit_store') }}</span>
                 </a>
                 <form method="POST" action="{{ $r('admin.logout') }}">
                     @csrf
                     <button type="submit"
                             class="w-full flex items-center gap-3 py-2.5 px-4 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt text-red-500 w-5"></i><span>Logout</span>
+                        <i class="fas fa-sign-out-alt text-red-500 w-5"></i><span>{{ __('app.admin_menu_logout') }}</span>
                     </button>
                 </form>
             </div>
