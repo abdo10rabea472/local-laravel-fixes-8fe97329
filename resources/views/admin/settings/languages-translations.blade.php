@@ -24,16 +24,16 @@
                     {{ $language->name }} <span class="text-slate-400">({{ $language->code }})</span>
                 </h2>
                 <p class="text-sm text-slate-500">
-                    Source: <span class="font-mono">{{ $defaultCode }}</span> · {{ count($groups) }} group(s)
+                    {{ __('app.admin_settings_translations_source_label') }} <span class="font-mono">{{ $defaultCode }}</span> · {{ count($groups) }} {{ __('app.admin_settings_translations_groups_label') }}
                 </p>
             </div>
             <a href="{{ route('admin.settings.languages.index') }}" class="text-sm text-slate-500 hover:text-slate-800">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                <i class="fa-solid fa-arrow-left mr-1"></i> {{ __('app.admin_settings_translations_back') }}
             </a>
         </div>
 
         @if(empty($groups))
-            <div class="p-8 text-center text-slate-400">No translation files found in <span class="font-mono">resources/lang/{{ $defaultCode }}/</span></div>
+            <div class="p-8 text-center text-slate-400">{{ __('app.admin_settings_translations_no_files') }} <span class="font-mono">resources/lang/{{ $defaultCode }}/</span></div>
         @else
         <form method="POST" action="{{ route('admin.settings.languages.translations.save', $language) }}">
             @csrf
@@ -49,23 +49,23 @@
                 <button type="button" @click="tab='__new__'"
                         :class="tab==='__new__' ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-700 border border-emerald-300'"
                         class="px-3 py-1.5 rounded-xl text-xs font-bold">
-                    <i class="fa-solid fa-plus mr-1"></i> Add new keys
+                    {{ __('app.admin_settings_translations_btn_add_new') }}
                 </button>
                 <div class="ml-auto flex items-center gap-2">
                     <button type="button" @click="aiTranslateVisible(false)" x-show="!running"
                             :disabled="running"
                             class="h-9 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold disabled:opacity-50">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Translate empty with AI
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> {{ __('app.admin_settings_translations_btn_translate_empty') }}
                     </button>
                     <button type="button" @click="aiTranslateVisible(true)" x-show="!running"
                             class="h-9 px-3 rounded-xl bg-white border border-violet-300 text-violet-700 text-xs font-bold">
-                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Re-translate all
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> {{ __('app.admin_settings_translations_btn_retranslate') }}
                     </button>
                     <button type="button" @click="cancel()" x-show="running" x-cloak
                             class="h-9 px-3 rounded-xl bg-rose-600 text-white text-xs font-bold">
-                        <i class="fa-solid fa-stop mr-1"></i> Stop
+                        <i class="fa-solid fa-stop mr-1"></i> {{ __('app.admin_settings_translations_btn_stop') }}
                     </button>
-                    <input type="text" x-model="q" placeholder="Search keys…"
+                    <input type="text" x-model="q" placeholder="{{ __('app.admin_settings_translations_search_placeholder') }}"
                            class="h-9 px-3 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
             </div>
@@ -89,7 +89,7 @@
                 <div x-show="q==='' ? tab==='{{ $group }}' : tab!=='__new__'" x-cloak class="divide-y divide-slate-100">
                     @if($loop->first)
                         <div x-show="q!==''" class="px-4 py-2 bg-amber-50 text-amber-800 text-xs font-bold">
-                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Searching across all groups…
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> {{ __('app.admin_settings_translations_searching') }}
                         </div>
                     @endif
                     @php $groupHasMatch = false; @endphp
@@ -121,17 +121,17 @@
             <div x-show="tab==='__new__'" x-cloak class="p-5 space-y-3 bg-emerald-50/40">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-sm font-black text-slate-800">Add new translation keys</h3>
-                        <p class="text-xs text-slate-500">Saved to <span class="font-mono">resources/lang/en/{group}.php</span> (source) and <span class="font-mono">{{ $language->code }}/{group}.php</span>.</p>
+                        <h3 class="text-sm font-black text-slate-800">{{ __('app.admin_settings_translations_add_keys_title') }}</h3>
+                        <p class="text-xs text-slate-500">{{ __('app.admin_settings_translations_add_keys_subtitle') }}</p>
                     </div>
                     <button type="button" @click="addRow()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold">
-                        <i class="fa-solid fa-plus mr-1"></i> Add row
+                        {{ __('app.admin_settings_translations_btn_add_row') }}
                     </button>
                 </div>
                 <div class="grid grid-cols-12 gap-2 text-[11px] font-bold text-slate-500 uppercase px-1">
-                    <div class="col-span-2">Group</div>
-                    <div class="col-span-3">Key</div>
-                    <div class="col-span-3">English (source)</div>
+                    <div class="col-span-2">{{ __('app.admin_settings_translations_col_group') }}</div>
+                    <div class="col-span-3">{{ __('app.admin_settings_translations_col_key') }}</div>
+                    <div class="col-span-3">{{ __('app.admin_settings_translations_col_english') }}</div>
                     <div class="col-span-3">{{ $language->native_name }}</div>
                     <div class="col-span-1"></div>
                 </div>
@@ -161,9 +161,9 @@
             </div>
 
             <div class="p-5 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
-                <a href="{{ route('admin.settings.languages.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700">Cancel</a>
+                <a href="{{ route('admin.settings.languages.index') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700">{{ __('app.admin_settings_translations_btn_cancel') }}</a>
                 <button class="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold">
-                    <i class="fa-solid fa-save mr-1"></i> Save Translations
+                    {{ __('app.admin_settings_translations_btn_save') }}
                 </button>
             </div>
         </form>

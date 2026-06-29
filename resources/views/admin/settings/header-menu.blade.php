@@ -19,11 +19,11 @@
     <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 border-b border-slate-100">
             <div>
-                <h3 class="text-base font-bold text-slate-800">التحكم في الهيدر</h3>
-                <p class="text-xs text-slate-500 mt-1">أضف، عدّل، ورتّب عناصر القائمة بالسحب والإفلات.</p>
+                <h3 class="text-base font-bold text-slate-800">{{ __('app.admin_settings_header_menu_title') }}</h3>
+                <p class="text-xs text-slate-500 mt-1">{{ __('app.admin_settings_header_menu_subtitle') }}</p>
             </div>
             <button @click="openCreate()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-md shadow-emerald-500/20 transition-colors">
-                <i class="fa-solid fa-plus ml-2"></i> إضافة عنصر
+                <i class="fa-solid fa-plus ml-2"></i> {{ __('app.admin_settings_header_menu_add_btn') }}
             </button>
         </div>
 
@@ -58,21 +58,21 @@
                                 @endif
                                 {{ $item->title }}
                                 @if($item->children->isNotEmpty())
-                                    <span class="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">{{ $item->children->count() }} فرعي</span>
+                                    <span class="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">{{ $item->children->count() }} {{ __('app.admin_settings_header_menu_child_badge') }}</span>
                                 @endif
                             </div>
                             <div class="text-xs text-slate-500 mt-0.5 truncate">{{ $item->url }}</div>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
                             @if($item->status)
-                                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">نشط</span>
+                                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">{{ __('app.admin_settings_header_menu_badge_active') }}</span>
                             @else
-                                <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">معطل</span>
+                                <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">{{ __('app.admin_settings_header_menu_badge_inactive') }}</span>
                             @endif
                             <button @click="openEdit(@js($item))" class="text-violet-600 hover:text-violet-800">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $item) }}" data-ajax-confirm="حذف العنصر؟" data-ajax-remove class="inline">
+                            <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $item) }}" data-ajax-confirm="{{ __('app.admin_settings_header_menu_confirm_delete') }}" data-ajax-remove class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-rose-500 hover:text-rose-700">
                                     <i class="fa-solid fa-trash"></i>
@@ -99,14 +99,14 @@
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
                                 @if($child->status)
-                                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">نشط</span>
+                                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">{{ __('app.admin_settings_header_menu_badge_active') }}</span>
                                 @else
-                                    <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">معطل</span>
+                                    <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">{{ __('app.admin_settings_header_menu_badge_inactive') }}</span>
                                 @endif
                                 <button @click="openEdit(@js($child))" class="text-violet-600 hover:text-violet-800 text-sm">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $child) }}" data-ajax-confirm="حذف العنصر الفرعي؟" data-ajax-remove class="inline">
+                                <form method="POST" action="{{ route('admin.settings.header-menu.destroy', $child) }}" data-ajax-confirm="{{ __('app.admin_settings_header_menu_confirm_delete_child') }}" data-ajax-remove class="inline">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-rose-500 hover:text-rose-700 text-sm">
                                         <i class="fa-solid fa-trash"></i>
@@ -123,8 +123,8 @@
             @else
             <div class="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                 <i class="fa-solid fa-bars text-4xl text-slate-300 mb-4"></i>
-                <p class="text-slate-500">لا توجد عناصر في {{ $locations[$currentLocation] }}.</p>
-                <button @click="openCreate()" class="mt-4 text-sm font-bold text-violet-600 hover:text-violet-800">إضافة أول عنصر</button>
+                <p class="text-slate-500">{{ __('app.admin_settings_header_menu_empty') }} {{ $locations[$currentLocation] }}.</p>
+                <button @click="openCreate()" class="mt-4 text-sm font-bold text-violet-600 hover:text-violet-800">{{ __('app.admin_settings_header_menu_add_first') }}</button>
             </div>
             @endif
         </div>
@@ -133,61 +133,61 @@
     {{-- Modal --}}
     <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6" @click.outside="showModal = false">
-            <h4 class="text-lg font-bold mb-4" x-text="isEdit ? 'تعديل عنصر' : 'إضافة عنصر'"></h4>
+            <h4 class="text-lg font-bold mb-4" :class="{'': true}" x-text="isEdit ? '{{ __('app.admin_settings_header_menu_modal_edit_title') }}' : '{{ __('app.admin_settings_header_menu_modal_add_title') }}'"></h4>
             <form :action="isEdit ? '{{ url('admin/settings/header-menu') }}/' + form.id : '{{ route('admin.settings.header-menu.store') }}'" method="POST" class="space-y-4">
                 @csrf
                 <template x-if="isEdit"><input type="hidden" name="_method" value="PUT"></template>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">العنوان *</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_title') }}</label>
                         <input type="text" name="title" x-model="form.title" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">الأيقونة (Font Awesome class)</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_icon') }}</label>
                         <input type="text" name="icon" x-model="form.icon" placeholder="fa-house" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">نوع العنصر</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_type') }}</label>
                     <select name="type" x-model="form.type" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                        <option value="link">رابط</option>
-                        <option value="coupon">كود خصم (يفتح النافذة المنبثقة)</option>
+                        <option value="link">{{ __('app.admin_settings_header_menu_type_link') }}</option>
+                        <option value="coupon">{{ __('app.admin_settings_header_menu_type_coupon') }}</option>
                     </select>
                 </div>
 
                 <template x-if="form.type === 'coupon'">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500">كود الخصم</label>
+                            <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_coupon_code') }}</label>
                             <input type="text" name="coupon_code" x-model="form.coupon_code" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500">نسبة الخصم (%)</label>
+                            <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_coupon_percent') }}</label>
                             <input type="number" min="0" max="100" name="coupon_percent" x-model="form.coupon_percent" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                         </div>
                     </div>
                 </template>
 
                 <div class="space-y-2" x-show="form.type === 'link'">
-                    <label class="text-xs font-bold text-slate-500">الرابط</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_url') }}</label>
                     <input type="text" name="url" x-model="form.url" placeholder="/products أو https://..." class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                    <p class="text-xs text-slate-400">اتركه فارغاً إذا كان عنصراً رئيسياً للقائمة المنسدلة.</p>
+                    <p class="text-xs text-slate-400">{{ __('app.admin_settings_header_menu_field_url_hint') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">عنصر رئيسي</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_parent') }}</label>
                         <select name="parent_id" x-model="form.parent_id" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                            <option value="">بدون</option>
+                            <option value="">{{ __('app.admin_settings_header_menu_option_none') }}</option>
                             @foreach($items as $parent)
                                 <option value="{{ $parent->id }}">{{ $parent->title }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">المكان</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_location') }}</label>
                         <select name="location" x-model="form.location" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                             @foreach($locations as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
@@ -195,30 +195,28 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">فتح في</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_target') }}</label>
                         <select name="target" x-model="form.target" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
-                            <option value="_self">نفس النافذة</option>
-                            <option value="_blank">نافذة جديدة</option>
+                            <option value="_self">{{ __('app.admin_settings_header_menu_target_self') }}</option>
+                            <option value="_blank">{{ __('app.admin_settings_header_menu_target_blank') }}</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">الترتيب</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_header_menu_field_position') }}</label>
                         <input type="number" name="position" x-model="form.position" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                     </div>
                     <div class="flex items-center gap-2 h-11 mt-6">
                         <input type="checkbox" name="status" value="1" x-model="form.status" class="rounded">
-                        <label class="text-sm font-semibold text-slate-700">نشط</label>
+                        <label class="text-sm font-semibold text-slate-700">{{ __('app.admin_settings_header_menu_field_active') }}</label>
                     </div>
                 </div>
 
                 <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-colors">
-                        حفظ
-                    </button>
-                    <button type="button" @click="showModal = false" class="h-11 px-6 bg-slate-100 rounded-2xl font-bold">إلغاء</button>
+                    <button type="submit" class="flex-1 h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-colors">{{ __('app.admin_settings_header_menu_btn_save') }}</button>
+                    <button type="button" @click="showModal = false" class="h-11 px-6 bg-slate-100 rounded-2xl font-bold">{{ __('app.admin_settings_header_menu_btn_cancel') }}</button>
                 </div>
             </form>
         </div>
@@ -264,10 +262,10 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ items }),
         }).then(r => r.json()).then(data => {
             if (data.success) {
-                showToast('تم حفظ الترتيب');
+                showToast('{{ __('app.admin_settings_header_menu_btn_save') }}');
             }
         }).catch(() => {
-            showToast('حدث خطأ أثناء حفظ الترتيب');
+            showToast('Error saving order');
         });
     }
 

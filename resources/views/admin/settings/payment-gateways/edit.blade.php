@@ -46,7 +46,7 @@
                 </div>
             </div>
             <a href="{{ route('admin.settings.payment-gateways.index') }}" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors shrink-0">
-                <i class="fa-solid fa-arrow-right ml-1"></i> القائمة
+                <i class="fa-solid fa-arrow-right ml-1"></i> {{ __('app.admin_settings_payment_edit_back') }}
             </a>
         </div>
 
@@ -62,48 +62,48 @@
             @csrf @method('PUT')
 
             <div>
-                <h4 class="text-sm font-bold text-slate-800 mb-4">المعلومات الأساسية</h4>
+                <h4 class="text-sm font-bold text-slate-800 mb-4">{{ __('app.admin_settings_payment_edit_basic_info') }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">الاسم</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_name') }}</label>
                         <input name="name" value="{{ old('name', $gateway->name) }}" required
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">الوصف</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_description') }}</label>
                         <input name="description" value="{{ old('description', $gateway->description) }}"
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                     </div>
                     <div class="space-y-2 md:col-span-2">
-                        <label class="text-xs font-bold text-slate-500">مسار الشعار (Logo URL)</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_logo') }}</label>
                         <input name="logo" value="{{ old('logo', $gateway->logo) }}" placeholder="/images/payments/{{ $gateway->code }}.svg"
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">رسوم إضافية (EGP)</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_extra_fees') }}</label>
                         <input type="number" step="0.01" min="0" name="extra_fees" value="{{ old('extra_fees', $gateway->extra_fees) }}"
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:border-indigo-400 focus:bg-white focus:outline-none transition">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500">الوضع</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_mode') }}</label>
                         <select name="sandbox" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:border-indigo-400 focus:bg-white focus:outline-none transition">
-                            <option value="1" @selected(old('sandbox', $gateway->sandbox))>Sandbox (تجريبي)</option>
-                            <option value="0" @selected(!old('sandbox', $gateway->sandbox))>Live (مباشر)</option>
+                            <option value="1" @selected(old('sandbox', $gateway->sandbox))>{{ __('app.admin_settings_payment_edit_mode_sandbox') }}</option>
+                            <option value="0" @selected(!old('sandbox', $gateway->sandbox))>{{ __('app.admin_settings_payment_edit_mode_live') }}</option>
                         </select>
                     </div>
                     <div class="space-y-2 md:col-span-2">
-                        <label class="text-xs font-bold text-slate-500">الدول المسموح بها</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_payment_edit_field_countries') }}</label>
                         <input name="allowed_countries" value="{{ old('allowed_countries', implode(',', (array) $gateway->allowed_countries)) }}" placeholder="EG,SA,AE"
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono focus:border-indigo-400 focus:bg-white focus:outline-none transition">
-                        <p class="text-[11px] text-slate-400">أكواد ISO مفصولة بفاصلة — اتركه فارغًا للسماح لجميع الدول.</p>
+                        <p class="text-[11px] text-slate-400">{{ __('app.admin_settings_payment_edit_field_countries_hint') }}</p>
                     </div>
                 </div>
             </div>
 
             @if(!empty($fields))
                 <div class="border-t border-slate-100 pt-6">
-                    <h4 class="text-sm font-bold text-slate-800 mb-1">إعدادات البوابة</h4>
-                    <p class="text-xs text-slate-500 mb-4">Paymob الآن كارد واحد: البطاقة تستخدم IFRAME، والمحافظ تظهر فقط عند تفعيلها هنا.</p>
+                    <h4 class="text-sm font-bold text-slate-800 mb-1">{{ __('app.admin_settings_payment_edit_gateway_settings') }}</h4>
+                    <p class="text-xs text-slate-500 mb-4">{{ __('app.admin_settings_payment_edit_wallet_note') }}</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach($fields as $field)
                             @php $isWalletField = in_array($field, ['PAYMOB_WALLET_INTEGRATION_ID','PAYMOB_WALLET_IFRAME_ID'], true); @endphp
@@ -111,8 +111,8 @@
                                 <label class="text-xs font-bold text-slate-500 font-mono">{{ $field }}</label>
                                 @if($field === 'PAYMOB_WALLET_ENABLED')
                                     <select name="config[{{ $field }}]" id="paymob-wallet-enabled" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:border-indigo-400 focus:bg-white focus:outline-none transition">
-                                        <option value="0" @selected(old('config.'.$field, $gateway->configValue($field, '0')) !== '1')>إيقاف المحافظ</option>
-                                        <option value="1" @selected(old('config.'.$field, $gateway->configValue($field, '0')) === '1')>تفعيل المحافظ</option>
+                                        <option value="0" @selected(old('config.'.$field, $gateway->configValue($field, '0')) !== '1')>{{ __('app.admin_settings_payment_edit_wallet_disable') }}</option>
+                                        <option value="1" @selected(old('config.'.$field, $gateway->configValue($field, '0')) === '1')>{{ __('app.admin_settings_payment_edit_wallet_enable') }}</option>
                                     </select>
                                 @else
                                     <input name="config[{{ $field }}]" value="{{ old('config.'.$field, $gateway->configValue($field)) }}" autocomplete="off"
@@ -137,14 +137,14 @@
                         data-url="{{ route('admin.settings.payment-gateways.test', $gateway) }}"
                         class="h-11 px-5 inline-flex items-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold rounded-xl text-sm transition-colors">
                     <i class="fa-solid fa-plug ml-1"></i>
-                    <span class="btn-label">اختبار الاتصال الحقيقي بالبوابة</span>
+                    <span class="btn-label">{{ __('app.admin_settings_payment_edit_btn_test') }}</span>
                 </button>
                 <div class="flex gap-2">
                     <a href="{{ route('admin.settings.payment-gateways.index') }}" class="h-11 px-5 inline-flex items-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors">
-                        إلغاء
+                        {{ __('app.admin_settings_payment_edit_btn_cancel') }}
                     </a>
                     <button type="submit" class="h-11 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-colors shadow-md shadow-indigo-500/20">
-                        <i class="fa-solid fa-floppy-disk ml-1"></i> حفظ الإعدادات
+                        <i class="fa-solid fa-floppy-disk ml-1"></i> {{ __('app.admin_settings_payment_edit_btn_save') }}
                     </button>
                 </div>
             </div>
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn.addEventListener('click', async function () {
         btn.disabled = true;
-        label.textContent = 'جاري الاختبار...';
+        label.textContent = '{{ __('app.admin_settings_payment_edit_testing') }}';
         box.className = 'p-4 rounded-2xl text-sm whitespace-pre-line bg-slate-50 border border-slate-200 text-slate-600';
         box.textContent = '⏳ جاري الاتصال الفعلي بالبوابة والتحقق من المفاتيح المحفوظة حاليًا...';
         box.classList.remove('hidden');

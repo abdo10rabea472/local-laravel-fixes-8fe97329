@@ -10,8 +10,8 @@
                 <i class="fa-solid fa-credit-card"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800">بوابات الدفع</h3>
-                <p class="text-xs text-slate-500 mt-0.5">إدارة بوابات الدفع المتاحة للعملاء، الرسوم الإضافية، والدول المسموح بها.</p>
+                <h3 class="text-base font-bold text-slate-800">{{ __('app.admin_settings_payment_title') }}</h3>
+                <p class="text-xs text-slate-500 mt-0.5">إدارة {{ __('app.admin_settings_payment_title') }} المتاحة للعملاء، الرسوم الإضافية، والدول المسموح بها.</p>
             </div>
         </div>
 
@@ -30,8 +30,8 @@
             @if($gateways->isEmpty())
                 <div class="p-12 text-center text-slate-500 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                     <i class="fa-solid fa-credit-card text-5xl text-slate-300 mb-3"></i>
-                    <p class="font-semibold">لا توجد بوابات دفع.</p>
-                    <p class="text-xs text-slate-400 mt-1">شغّل الأمر: <code class="bg-slate-100 px-2 py-1 rounded">php artisan db:seed --class=PaymentGatewaySeeder</code></p>
+                    <p class="font-semibold">{{ __('app.admin_settings_payment_empty') }}</p>
+                    <p class="text-xs text-slate-400 mt-1">{{ __('app.admin_settings_payment_empty_hint') }}</p>
                 </div>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -62,9 +62,9 @@
 
                             <div class="flex flex-wrap gap-2 mb-4">
                                 @if($g->is_active)
-                                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">مفعّلة</span>
+                                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">{{ __('app.admin_settings_payment_badge_active') }}</span>
                                 @else
-                                    <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">معطّلة</span>
+                                    <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">{{ __('app.admin_settings_payment_badge_inactive') }}</span>
                                 @endif
                                 @if($g->sandbox)
                                     <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-full border border-amber-200">Sandbox</span>
@@ -75,16 +75,16 @@
 
                             <dl class="text-xs text-slate-600 space-y-1.5 mb-5 flex-1">
                                 <div class="flex justify-between">
-                                    <dt class="text-slate-500">الرسوم الإضافية</dt>
-                                    <dd class="font-bold text-slate-800">{{ number_format((float)$g->extra_fees, 2) }} EGP</dd>
+                                    <dt class="text-slate-500">{{ __('app.admin_settings_payment_extra_fees') }}</dt>
+                                    <dd class="font-bold text-slate-800">{{ money($g->extra_fees) }}</dd>
                                 </div>
                                 <div class="flex justify-between gap-3">
-                                    <dt class="text-slate-500 shrink-0">الدول</dt>
+                                    <dt class="text-slate-500 shrink-0">{{ __('app.admin_settings_payment_countries') }}</dt>
                                     <dd class="font-bold text-slate-800 text-left truncate">
                                         @if(!empty($g->allowed_countries))
                                             {{ implode(', ', $g->allowed_countries) }}
                                         @else
-                                            <span class="text-emerald-600">الكل</span>
+                                            <span class="text-emerald-600">{{ __('app.admin_settings_payment_countries_all') }}</span>
                                         @endif
                                     </dd>
                                 </div>
@@ -92,7 +92,7 @@
 
                             <div class="flex items-center gap-2 pt-3 border-t border-slate-100">
                                 <a href="{{ route('admin.settings.payment-gateways.edit', $g) }}" class="flex-1 text-center text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl transition-colors">
-                                    <i class="fa-solid fa-pen ml-1"></i> تعديل
+                                    <i class="fa-solid fa-pen ml-1"></i> {{ __('app.admin_settings_payment_btn_edit') }}
                                 </a>
                                 <button type="button" onclick="testGateway({{ $g->id }}, this)" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2.5 rounded-xl transition-colors">
                                     <i class="fa-solid fa-plug-circle-check ml-1"></i> اختبار
@@ -110,7 +110,7 @@
 function testGateway(id, btn) {
     const orig = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1"></i> جاري الاختبار';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1"></i> {{ __('app.admin_settings_payment_testing') }}';
     fetch('{{ url('admin/settings/payment-gateways') }}/' + id + '/test', {
         method: 'POST',
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
