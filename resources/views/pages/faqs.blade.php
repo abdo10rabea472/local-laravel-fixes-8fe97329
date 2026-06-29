@@ -137,7 +137,7 @@
             <p class="text-slate-300">Our team usually replies within a few hours during business days.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="{{ url(app()->getLocale() . '/contact') }}"
+            <a href="{{ route('contact') }}"
                class="inline-flex items-center gap-2 bg-white text-slate-900 hover:bg-violet-50 font-bold px-6 py-3 rounded-xl transition">
                 <i class="fa-solid fa-envelope"></i> Contact us
             </a>
