@@ -39,15 +39,15 @@
     {{-- Page header --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">System Overview</h1>
-            <p class="text-sm text-gray-500 mt-1">Welcome back, {{ $adminName }}. Here's your store performance today.</p>
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ __('app.admin_dashboard_overview') }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ __('app.admin_dashboard_welcome', ['name' => $adminName]) }}</p>
         </div>
         <div class="flex items-center gap-3">
             <button type="button" class="bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
-                <i class="fas fa-calendar-alt"></i> Last 30 days
+                <i class="fas fa-calendar-alt"></i> {{ __('app.admin_dashboard_last_30_days') }}
             </button>
             <a href="{{ route('admin.products.create') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-lg shadow-primary-500/20 flex items-center gap-2">
-                <i class="fas fa-plus"></i> Add Product
+                <i class="fas fa-plus"></i> {{ __('app.admin_dashboard_add_product') }}
             </a>
         </div>
     </div>
@@ -56,17 +56,17 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Sales</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalSales) }} EGP</h3>
-                <span class="text-xs {{ $sC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $sI }}"></i> {{ $sT }} vs last week</span>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ __('app.admin_dashboard_total_sales') }}</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ money($totalSales) }}</h3>
+                <span class="text-xs {{ $sC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $sI }}"></i> {{ $sT }} {{ __('app.admin_dashboard_vs_last_week') }}</span>
             </div>
             <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 rounded-xl"><i class="fas fa-wallet text-xl"></i></div>
         </div>
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Completed Orders</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($completedOrders) }} orders</h3>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ __('app.admin_dashboard_completed_orders') }}</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($completedOrders) }} {{ __('app.admin_dashboard_orders_unit') }}</h3>
                 <span class="text-xs {{ $oC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $oI }}"></i> {{ $oT }}</span>
             </div>
             <div class="p-3 bg-blue-50 dark:bg-blue-950/30 text-blue-600 rounded-xl"><i class="fas fa-shopping-bag text-xl"></i></div>
@@ -74,8 +74,8 @@
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Registered Customers</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalCustomers) }} customers</h3>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ __('app.admin_dashboard_registered_customers') }}</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($totalCustomers) }} {{ __('app.admin_dashboard_customers_unit') }}</h3>
                 <span class="text-xs {{ $cC }} font-semibold flex items-center gap-1 mt-2"><i class="fas {{ $cI }}"></i> {{ $cT }}</span>
             </div>
             <div class="p-3 bg-purple-50 dark:bg-purple-950/30 text-purple-600 rounded-xl"><i class="fas fa-users text-xl"></i></div>
@@ -83,9 +83,9 @@
 
         <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between items-start">
             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Low Stock Alerts</span>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($lowStockCount + $outOfStockCount) }} products</h3>
-                <span class="text-xs text-amber-500 font-semibold flex items-center gap-1 mt-2"><i class="fas fa-exclamation-circle"></i> Needs restocking soon</span>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ __('app.admin_dashboard_low_stock_alerts') }}</span>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $fmt($lowStockCount + $outOfStockCount) }} {{ __('app.admin_dashboard_products_unit') }}</h3>
+                <span class="text-xs text-amber-500 font-semibold flex items-center gap-1 mt-2"><i class="fas fa-exclamation-circle"></i> {{ __('app.admin_dashboard_needs_restocking') }}</span>
             </div>
             <div class="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-600 rounded-xl"><i class="fas fa-exclamation-triangle text-xl"></i></div>
         </div>
