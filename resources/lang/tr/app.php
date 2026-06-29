@@ -787,6 +787,7 @@ return array (
     'admin_settings_layout_tab_header' => 'Başlık',
     'admin_settings_layout_tab_shipping' => 'Kargo',
     'admin_settings_layout_tab_payment' => 'Ödeme Geçitleri',
+    'admin_settings_layout_tab_seo' => 'SEO',
     'admin_settings_layout_sidebar_general' => 'Genel Ayarlar',
     'admin_settings_layout_sidebar_seo' => 'SEO & İçerik',
     'admin_settings_layout_tab_homepage' => 'Ana Sayfa',

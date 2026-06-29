@@ -1149,6 +1149,7 @@ return [
     'admin_settings_layout_tab_header' => 'الهيدر',
     'admin_settings_layout_tab_shipping' => 'الشحن',
     'admin_settings_layout_tab_payment' => 'بوابات الدفع',
+    'admin_settings_layout_tab_seo' => 'SEO',
     'admin_settings_layout_sidebar_general' => 'الإعدادات العامة',
     'admin_settings_layout_sidebar_seo' => 'السيو والمحتوى',
     'admin_settings_layout_tab_homepage' => 'الصفحة الرئيسية',

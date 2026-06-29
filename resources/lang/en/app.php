@@ -1149,6 +1149,7 @@ return [
     'admin_settings_layout_tab_header' => 'Header',
     'admin_settings_layout_tab_shipping' => 'Shipping',
     'admin_settings_layout_tab_payment' => 'Payment Gateways',
+    'admin_settings_layout_tab_seo' => 'SEO',
     'admin_settings_layout_sidebar_general' => 'General Settings',
     'admin_settings_layout_sidebar_seo' => 'SEO & Content',
     'admin_settings_layout_tab_homepage' => 'Homepage',
