@@ -32,7 +32,7 @@ $fixedAmount = $coupon && $coupon->type === 'fixed' ? (float) $coupon->value : 0
 $discountLabel = $coupon
     ? ($coupon->type === 'percent'
         ? $percent . '% OFF your order'
-        : number_format($fixedAmount, 0) . ' EGP OFF your order')
+        : money($fixedAmount) . ' OFF your order')
     : ($percent > 0 ? $percent . '% OFF your first order' : '');
 @endphp
 
