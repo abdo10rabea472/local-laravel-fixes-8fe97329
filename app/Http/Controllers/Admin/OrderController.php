@@ -239,14 +239,23 @@ class OrderController extends Controller
             // BOM لدعم العربية في Excel
             fwrite($h, "\xEF\xBB\xBF");
             fputcsv($h, ['رقم الطلب','العميل','الإيميل','الهاتف','عدد العناصر','الإجمالي','العملة','الحالة','حالة الدفع','التاريخ']);
-            $q->chunk(200, function ($rows) use ($h) {
+            $sanitize = function ($v) {
+                $s = (string) $v;
+                if ($s === '') return $s;
+                // Prevent CSV formula injection (Excel/LibreOffice)
+                if (in_array($s[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+                    $s = "'" . $s;
+                }
+                return $s;
+            };
+            $q->chunk(200, function ($rows) use ($h, $sanitize) {
                 foreach ($rows as $o) {
-                    fputcsv($h, [
+                    fputcsv($h, array_map($sanitize, [
                         $o->order_number, $o->customer_name, $o->email, $o->phone,
                         $o->items->count(), number_format($o->total, 2, '.', ''),
                         $o->currency, $o->status, $o->payment_status,
                         $o->created_at?->format('Y-m-d H:i'),
-                    ]);
+                    ]));
                 }
             });
             fclose($h);
