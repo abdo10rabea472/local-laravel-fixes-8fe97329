@@ -40,10 +40,27 @@ class PageController extends Controller
                 ->all();
         }
 
+        // FAQPage JSON-LD for rich results
+        $seo = $this->buildSeo($page, 'FAQs | UNI-LAB MARKET', 'Frequently asked questions about ordering, shipping, returns, and payments.');
+        if (! empty($faqs)) {
+            $seo['schema_markup'] = json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => array_map(fn ($f) => [
+                    '@type' => 'Question',
+                    'name' => $f['q'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => strip_tags((string) $f['a']),
+                    ],
+                ], $faqs),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
         return view('pages.faqs', [
             'page' => $page,
             'faqs' => $faqs,
-            'seo' => $this->buildSeo($page, 'FAQs | UNI-LAB MARKET', 'Frequently asked questions about ordering, shipping, returns, and payments.'),
+            'seo' => $seo,
         ]);
     }
 
