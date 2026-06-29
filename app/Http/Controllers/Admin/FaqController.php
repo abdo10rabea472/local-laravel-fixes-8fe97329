@@ -31,7 +31,26 @@ class FaqController extends Controller
         $categories = Faq::query()->whereNotNull('category')->where('category', '!=', '')
             ->distinct()->orderBy('category')->pluck('category');
 
-        return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories'));
+        $seoPage = Page::firstOrCreate(
+            ['slug' => 'faqs'],
+            ['title' => 'Frequently Asked Questions', 'content' => '', 'active' => true]
+        );
+
+        return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories', 'seoPage'));
+    }
+
+    public function updateSeo(Request $request)
+    {
+        $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:255'],
+            'seo_title' => ['nullable', 'string', 'max:255'],
+            'seo_description' => ['nullable', 'string', 'max:500'],
+            'seo_keywords' => ['nullable', 'string', 'max:500'],
+        ]);
+        $page = Page::firstOrCreate(['slug' => 'faqs'], ['title' => 'FAQs', 'content' => '', 'active' => true]);
+        $page->fill(array_filter($data, fn ($v) => $v !== null))->save();
+        $this->clearCache();
+        return back()->with('success', 'تم تحديث بيانات السيو.');
     }
 
     public function store(Request $request)
