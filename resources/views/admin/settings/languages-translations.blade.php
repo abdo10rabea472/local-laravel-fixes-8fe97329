@@ -57,14 +57,21 @@
             </div>
 
             @foreach($groups as $group => $data)
-                <div x-show="tab==='{{ $group }}'" x-cloak class="divide-y divide-slate-100">
+                <div x-show="q==='' ? tab==='{{ $group }}' : tab!=='__new__'" x-cloak class="divide-y divide-slate-100">
+                    @if($loop->first)
+                        <div x-show="q!==''" class="px-4 py-2 bg-amber-50 text-amber-800 text-xs font-bold">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Searching across all groups…
+                        </div>
+                    @endif
+                    @php $groupHasMatch = false; @endphp
                     @foreach($data['keys'] as $key)
                         @php
                             $source = is_array($data['source'][$key] ?? null) ? json_encode($data['source'][$key]) : ($data['source'][$key] ?? '');
                             $value  = is_array($data['target'][$key] ?? null) ? json_encode($data['target'][$key]) : ($data['target'][$key] ?? '');
+                            $haystack = strtolower($group.'.'.$key.' '.$source.' '.$value);
                         @endphp
                         <div class="p-4 grid grid-cols-12 gap-3 items-start"
-                             x-show="q==='' || '{{ addslashes($key) }}'.toLowerCase().includes(q.toLowerCase())">
+                             x-show="q==='' || `{{ addslashes($haystack) }}`.includes(q.toLowerCase())">
                             <div class="col-span-4">
                                 <div class="text-xs font-mono text-slate-500">{{ $group }}.{{ $key }}</div>
                                 <div class="text-sm text-slate-700 mt-1" dir="auto">{{ $source }}</div>
