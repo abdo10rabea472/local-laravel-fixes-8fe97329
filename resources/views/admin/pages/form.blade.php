@@ -271,6 +271,16 @@
             pager.classList.toggle('hidden', filtered.length === 0);
         };
 
+        const catOptionsHTML = () => {
+            const opts = new Set();
+            rows().forEach(r => {
+                const sel = r.querySelector('.faq-cat');
+                if (sel) Array.from(sel.options).forEach(o => { if (o.value) opts.add(o.value); });
+            });
+            return '<option value="">— اختر تصنيف —</option>' +
+                Array.from(opts).map(v => `<option value="${v}">${v}</option>`).join('');
+        };
+
         const rowTemplate = () => {
             const wrap = document.createElement('div');
             wrap.className = 'faq-row bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3';
@@ -284,7 +294,7 @@
                 <input type="text" class="faq-q w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm" placeholder="السؤال">
                 <textarea class="faq-a w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm" rows="3" placeholder="الإجابة"></textarea>
                 <div class="flex items-center gap-2">
-                    <input type="text" list="faq-categories" class="faq-cat flex-1 h-10 px-4 bg-white border border-slate-200 rounded-xl text-xs" placeholder="اختر تصنيف أو اكتب جديد…">
+                    <select class="faq-cat flex-1 h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs">${catOptionsHTML()}</select>
                     <button type="button" class="faq-cat-new inline-flex items-center gap-1 h-10 px-3 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl text-xs font-bold whitespace-nowrap">
                         <i class="fa-solid fa-plus"></i> تصنيف جديد
                     </button>
@@ -295,29 +305,32 @@
 
         document.getElementById('faq-add').addEventListener('click', () => {
             const row = rowTemplate();
-            list.appendChild(row);
+            list.insertBefore(row, list.firstChild);
             reindex();
-            // Jump to last page so the new row is visible
             search.value = '';
-            const totalPages = Math.max(1, Math.ceil(rows().length / perPage));
-            currentPage = totalPages;
+            currentPage = 1;
             render();
             row.querySelector('.faq-q')?.focus();
+            window.scrollTo({ top: list.offsetTop - 80, behavior: 'smooth' });
         });
 
         list.addEventListener('click', (e) => {
             const newBtn = e.target.closest('.faq-cat-new');
             if (newBtn) {
-                const input = newBtn.parentElement.querySelector('.faq-cat');
-                const val = (prompt('اسم التصنيف الجديد:', input.value || '') || '').trim();
+                const select = newBtn.parentElement.querySelector('.faq-cat');
+                const val = (prompt('اسم التصنيف الجديد:', '') || '').trim();
                 if (val) {
-                    input.value = val;
-                    const dl = document.getElementById('faq-categories');
-                    if (dl && !Array.from(dl.options).some(o => o.value.toLowerCase() === val.toLowerCase())) {
-                        const opt = document.createElement('option');
-                        opt.value = val;
-                        dl.appendChild(opt);
-                    }
+                    // Add to every select if not present, then select on current
+                    rows().forEach(r => {
+                        const s = r.querySelector('.faq-cat');
+                        if (s && !Array.from(s.options).some(o => o.value.toLowerCase() === val.toLowerCase())) {
+                            const opt = document.createElement('option');
+                            opt.value = val;
+                            opt.textContent = val;
+                            s.appendChild(opt);
+                        }
+                    });
+                    select.value = val;
                 }
                 return;
             }
@@ -328,6 +341,7 @@
             if (all.length <= 1) {
                 const row = btn.closest('.faq-row');
                 row.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                const s = row.querySelector('.faq-cat'); if (s) s.value = '';
                 render();
                 return;
             }
@@ -335,6 +349,7 @@
             reindex();
             render();
         });
+
 
         let searchTimer;
         search.addEventListener('input', () => {
