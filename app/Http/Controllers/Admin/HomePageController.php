@@ -21,8 +21,6 @@ class HomePageController extends Controller
             'hero_title','hero_subtitle','hero_badge','hero_background',
             'featured_section_title','featured_section_subtitle',
             'products_section_title','products_section_subtitle',
-            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
-            'cta_bg_image','cta_image_1','cta_image_2','cta_image_3','cta_image_4',
         ];
         $settings = SiteSetting::whereIn('key', $keys)->get()->keyBy('key');
 
