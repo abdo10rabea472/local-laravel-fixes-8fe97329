@@ -42,19 +42,35 @@
 
         @if($isFaqsPage)
             <div class="space-y-3">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div>
                         <label class="text-xs font-bold text-slate-500">الأسئلة والأجوبة</label>
-                        <p class="text-[11px] text-slate-400 mt-1">أضف الأسئلة والأجوبة التي ستظهر في صفحة FAQs العامة.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">
+                            المجموع: <span id="faq-total" class="font-bold text-slate-600">{{ count($faqItems) }}</span>
+                            — يدعم آلاف الأسئلة مع بحث وتقسيم صفحات.
+                        </p>
                     </div>
                     <button type="button" id="faq-add" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl">
                         <i class="fa-solid fa-plus"></i> إضافة سؤال
                     </button>
                 </div>
 
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="relative flex-1 min-w-[220px]">
+                        <input type="text" id="faq-search" placeholder="ابحث في الأسئلة، الإجابات، التصنيف…"
+                               class="w-full h-11 ps-10 pe-4 bg-white border border-slate-200 rounded-xl text-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none">
+                        <i class="fa-solid fa-magnifying-glass absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    </div>
+                    <select id="faq-perpage" class="h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm">
+                        <option value="20">20 / صفحة</option>
+                        <option value="50">50 / صفحة</option>
+                        <option value="100">100 / صفحة</option>
+                    </select>
+                </div>
+
                 <div id="faq-list" class="space-y-3">
                     @foreach($faqItems as $i => $item)
-                    <div class="faq-row bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="faq-row bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3" data-idx="{{ $i }}">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-slate-500">سؤال <span class="faq-index">{{ $i + 1 }}</span></span>
                             <button type="button" class="faq-remove text-rose-500 hover:text-rose-700 text-xs font-bold inline-flex items-center gap-1">
@@ -66,6 +82,23 @@
                         <input type="text" class="faq-cat w-full h-10 px-4 bg-white border border-slate-200 rounded-xl text-xs" placeholder="التصنيف (اختياري) مثل: Shipping, Payment" value="{{ $item['category'] }}">
                     </div>
                     @endforeach
+                </div>
+
+                <div id="faq-empty" class="hidden text-center py-10 text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+                    لا توجد نتائج مطابقة للبحث.
+                </div>
+
+                <div id="faq-pager" class="flex items-center justify-between gap-3 pt-2">
+                    <button type="button" id="faq-prev" class="inline-flex items-center gap-2 h-10 px-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-right"></i> السابق
+                    </button>
+                    <div class="text-xs text-slate-500">
+                        صفحة <span id="faq-page" class="font-bold text-slate-700">1</span> من <span id="faq-pages" class="font-bold text-slate-700">1</span>
+                        · <span id="faq-shown">0</span> ظاهر
+                    </div>
+                    <button type="button" id="faq-next" class="inline-flex items-center gap-2 h-10 px-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                        التالي <i class="fa-solid fa-chevron-left"></i>
+                    </button>
                 </div>
 
                 <textarea name="content" id="content-editor" class="hidden">{{ old('content', $page->content) }}</textarea>
@@ -166,13 +199,60 @@
             content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; }',
         });
     } else {
-        const list = document.getElementById('faq-list');
-        const hidden = document.getElementById('content-editor');
-        const form = hidden.closest('form');
+        const list      = document.getElementById('faq-list');
+        const hidden    = document.getElementById('content-editor');
+        const form      = hidden.closest('form');
+        const search    = document.getElementById('faq-search');
+        const perPageEl = document.getElementById('faq-perpage');
+        const pager     = document.getElementById('faq-pager');
+        const prevBtn   = document.getElementById('faq-prev');
+        const nextBtn   = document.getElementById('faq-next');
+        const pageEl    = document.getElementById('faq-page');
+        const pagesEl   = document.getElementById('faq-pages');
+        const shownEl   = document.getElementById('faq-shown');
+        const totalEl   = document.getElementById('faq-total');
+        const emptyEl   = document.getElementById('faq-empty');
 
-        const reindex = () => list.querySelectorAll('.faq-row').forEach((row, i) => {
+        let currentPage = 1;
+        let perPage = parseInt(perPageEl.value, 10) || 20;
+
+        const rows = () => Array.from(list.querySelectorAll('.faq-row'));
+
+        const reindex = () => rows().forEach((row, i) => {
             row.querySelector('.faq-index').textContent = i + 1;
         });
+
+        const matches = (row, term) => {
+            if (!term) return true;
+            const q = row.querySelector('.faq-q').value.toLowerCase();
+            const a = row.querySelector('.faq-a').value.toLowerCase();
+            const c = row.querySelector('.faq-cat').value.toLowerCase();
+            return q.includes(term) || a.includes(term) || c.includes(term);
+        };
+
+        const render = () => {
+            const term = (search.value || '').trim().toLowerCase();
+            const all = rows();
+            totalEl.textContent = all.length;
+
+            const filtered = all.filter(r => matches(r, term));
+            const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            const visibleSet = new Set(filtered.slice(start, end));
+
+            all.forEach(r => { r.style.display = visibleSet.has(r) ? '' : 'none'; });
+
+            pageEl.textContent = currentPage;
+            pagesEl.textContent = totalPages;
+            shownEl.textContent = visibleSet.size;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            emptyEl.classList.toggle('hidden', filtered.length !== 0);
+            pager.classList.toggle('hidden', filtered.length === 0);
+        };
 
         const rowTemplate = () => {
             const wrap = document.createElement('div');
@@ -192,25 +272,50 @@
         };
 
         document.getElementById('faq-add').addEventListener('click', () => {
-            list.appendChild(rowTemplate());
+            const row = rowTemplate();
+            list.appendChild(row);
             reindex();
+            // Jump to last page so the new row is visible
+            search.value = '';
+            const totalPages = Math.max(1, Math.ceil(rows().length / perPage));
+            currentPage = totalPages;
+            render();
+            row.querySelector('.faq-q')?.focus();
         });
 
         list.addEventListener('click', (e) => {
             const btn = e.target.closest('.faq-remove');
             if (!btn) return;
-            if (list.querySelectorAll('.faq-row').length <= 1) {
+            const all = rows();
+            if (all.length <= 1) {
                 const row = btn.closest('.faq-row');
                 row.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                render();
                 return;
             }
             btn.closest('.faq-row').remove();
             reindex();
+            render();
         });
+
+        let searchTimer;
+        search.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => { currentPage = 1; render(); }, 120);
+        });
+
+        perPageEl.addEventListener('change', () => {
+            perPage = parseInt(perPageEl.value, 10) || 20;
+            currentPage = 1;
+            render();
+        });
+
+        prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); window.scrollTo({ top: list.offsetTop - 80, behavior: 'smooth' }); } });
+        nextBtn.addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: list.offsetTop - 80, behavior: 'smooth' }); });
 
         form.addEventListener('submit', () => {
             const items = [];
-            list.querySelectorAll('.faq-row').forEach(row => {
+            rows().forEach(row => {
                 const q = row.querySelector('.faq-q').value.trim();
                 const a = row.querySelector('.faq-a').value.trim();
                 const cat = row.querySelector('.faq-cat').value.trim();
@@ -222,6 +327,8 @@
             });
             hidden.value = JSON.stringify(items);
         });
+
+        render();
     }
 </script>
 @endpush
