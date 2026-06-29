@@ -424,6 +424,34 @@ return [
     'acc_profile_pass_sub' => 'Use a strong password to keep your account secure',
     'acc_profile_danger_title' => 'Danger zone',
     'acc_profile_danger_sub' => 'Deleting your account is permanent and cannot be undone',
+
+    // Auth — Login
+    'auth_login_title' => 'Sign in',
+    'auth_login_subtitle' => 'Enter your credentials to access your account',
+    'auth_login_success_toast' => 'Signed in successfully',
+    'auth_email_label' => 'Email address',
+    'auth_email_placeholder' => 'you@example.com',
+    'auth_password_label' => 'Password',
+    'auth_password_placeholder' => '••••••••',
+    'auth_forgot_password' => 'Forgot your password?',
+    'auth_remember_me' => 'Remember me on this device',
+    'auth_show_password' => 'Show password',
+    'auth_login_submit' => 'Sign in',
+    'auth_no_account' => "Don't have an account?",
+    'auth_create_account_link' => 'Create a new account',
+
+    // Auth — Register
+    'auth_register_title' => 'Create account',
+    'auth_register_subtitle' => 'Join us in less than a minute',
+    'auth_register_success_toast' => 'Account created successfully',
+    'auth_name_label' => 'Full name',
+    'auth_name_placeholder' => 'e.g. John Doe',
+    'auth_password_register_placeholder' => 'At least 8 characters',
+    'auth_password_confirm_label' => 'Confirm password',
+    'auth_password_confirm_placeholder' => 'Re-enter your password',
+    'auth_register_submit' => 'Create account',
+    'auth_have_account' => 'Already have an account?',
+    'auth_login_link' => 'Sign in',
 ];
 
 
