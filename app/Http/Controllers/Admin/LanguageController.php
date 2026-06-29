@@ -64,29 +64,61 @@ class LanguageController extends Controller
      */
     public function translations(Language $language)
     {
-        // Always use English as the reference / source language for translation keys.
         $defaultCode = 'en';
         $sourceDir   = base_path("resources/lang/{$defaultCode}");
         $targetDir   = base_path("resources/lang/{$language->code}");
 
         $groups = [];
+
+        // 1) Load all existing keys from en/*.php
         if (is_dir($sourceDir)) {
             foreach (glob($sourceDir.'/*.php') as $file) {
                 $group = basename($file, '.php');
-                $sourceKeys = include $file;
-                $targetFile = $targetDir.'/'.$group.'.php';
-                $targetKeys = is_file($targetFile) ? (include $targetFile) : [];
-                $groups[$group] = [
-                    'keys'   => is_array($sourceKeys) ? array_keys($sourceKeys) : [],
-                    'source' => is_array($sourceKeys) ? $sourceKeys : [],
-                    'target' => is_array($targetKeys) ? $targetKeys : [],
-                ];
+                $src = include $file;
+                $groups[$group]['source'] = is_array($src) ? $src : [];
             }
         }
+
+        // 2) Scan codebase for __('group.key') / trans('group.key') / @lang('group.key')
+        $scanDirs = [base_path('resources/views'), base_path('app'), base_path('routes')];
+        $pattern = "/(?:__|trans|@lang)\\(\\s*['\"]([a-z0-9_\\-]+)\\.([a-zA-Z0-9_\\.\\-]+)['\"]/";
+        foreach ($scanDirs as $dir) {
+            if (!is_dir($dir)) continue;
+            $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
+            foreach ($rii as $f) {
+                if (!$f->isFile()) continue;
+                $ext = strtolower($f->getExtension());
+                if (!in_array($ext, ['php','blade.php','blade'])) {
+                    if (!str_ends_with($f->getFilename(), '.blade.php') && $ext !== 'php') continue;
+                }
+                $content = @file_get_contents($f->getPathname());
+                if ($content === false) continue;
+                if (preg_match_all($pattern, $content, $m, PREG_SET_ORDER)) {
+                    foreach ($m as $hit) {
+                        $g = $hit[1]; $k = $hit[2];
+                        if (!isset($groups[$g]['source'][$k])) {
+                            $groups[$g]['source'][$k] = $groups[$g]['source'][$k] ?? '';
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3) Attach target values and key list
+        foreach ($groups as $group => &$data) {
+            ksort($data['source']);
+            $targetFile = $targetDir.'/'.$group.'.php';
+            $tgt = is_file($targetFile) ? (include $targetFile) : [];
+            $data['target'] = is_array($tgt) ? $tgt : [];
+            $data['keys']   = array_keys($data['source']);
+        }
+        unset($data);
+        ksort($groups);
 
         $activeTab = 'languages';
         return view('admin.settings.languages-translations', compact('language', 'groups', 'defaultCode', 'activeTab'));
     }
+
 
     public function saveTranslations(Request $request, Language $language)
     {
