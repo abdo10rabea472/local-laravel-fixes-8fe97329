@@ -170,4 +170,75 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('aiTranslator', (opts) => ({
+        tab: opts.firstGroup,
+        q: '',
+        newRows: [{ group: opts.firstGroupName, key: '', en: '', value: '' }],
+        running: false,
+        cancelRequested: false,
+        progress: { done: 0, total: 0, current: '' },
+        lastError: '',
+        lastMessage: '',
+
+        addRow() { this.newRows.push({ group: this.tab !== '__new__' ? this.tab : opts.firstGroupName, key: '', en: '', value: '' }); },
+        removeRow(i) { this.newRows.splice(i, 1); if (!this.newRows.length) this.addRow(); },
+        cancel() { this.cancelRequested = true; },
+
+        // Translate every visible textarea (current tab or matching the search query).
+        // overwrite=false skips ones that already have a value.
+        async aiTranslateVisible(overwrite) {
+            if (this.running) return;
+            this.lastError = ''; this.lastMessage = '';
+            const all = Array.from(document.querySelectorAll('textarea.ai-target'));
+            // Only the ones currently visible (Alpine x-show toggles parent display).
+            const visible = all.filter(t => t.offsetParent !== null);
+            const targets = visible.filter(t => overwrite ? true : !t.value.trim());
+            if (!targets.length) { this.lastMessage = 'Nothing to translate.'; return; }
+
+            this.running = true;
+            this.cancelRequested = false;
+            this.progress = { done: 0, total: targets.length, current: '' };
+
+            for (const ta of targets) {
+                if (this.cancelRequested) { this.lastMessage = 'Stopped. Translated so far: ' + this.progress.done; break; }
+                const group = ta.dataset.aiGroup;
+                const key   = ta.dataset.aiKey;
+                const source = ta.dataset.aiSource || '';
+                this.progress.current = `${group}.${key}`;
+                if (!source.trim()) { this.progress.done++; continue; }
+                try {
+                    const res = await fetch(opts.endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': opts.csrf, 'Accept': 'application/json' },
+                        body: JSON.stringify({ group, key, source, overwrite: overwrite ? 1 : 0 }),
+                    });
+                    const json = await res.json().catch(() => ({}));
+                    if (!res.ok || !json.ok) {
+                        this.lastError = `Stopped on ${group}.${key}: ${json.message || ('HTTP '+res.status)}. Saved so far: ${this.progress.done}.`;
+                        break; // stop on first error — partial work is already saved on the server.
+                    }
+                    ta.value = json.translation;
+                    // light visual feedback
+                    ta.classList.add('!bg-emerald-50');
+                    setTimeout(() => ta.classList.remove('!bg-emerald-50'), 600);
+                    this.progress.done++;
+                } catch (e) {
+                    this.lastError = `Network error on ${group}.${key}: ${e.message}. Saved so far: ${this.progress.done}.`;
+                    break;
+                }
+            }
+
+            this.running = false;
+            if (!this.lastError && !this.cancelRequested) {
+                this.lastMessage = `Done. Translated ${this.progress.done} key(s).`;
+            }
+        },
+    }));
+});
+</script>
+@endpush
 @endsection
