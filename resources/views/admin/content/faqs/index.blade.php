@@ -160,33 +160,41 @@
         </x-admin.card>
 
         {{-- Categories management --}}
-        <x-admin.card :title="__('app.admin_pages_form_select_category')" icon="fa-tags">
+        <x-admin.card title="التصنيفات" icon="fa-tags">
             <form method="POST" action="{{ route('admin.faqs.categories.store') }}" class="flex items-center gap-2 mb-4">
                 @csrf
-                <input type="text" name="name" required placeholder="{{ __('app.admin_pages_form_add_faq') ?? 'اسم التصنيف' }}"
+                <input type="text" name="name" required placeholder="اسم التصنيف"
                        class="flex-1 h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                 <button class="h-11 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold whitespace-nowrap">
-                    <i class="fa-solid fa-plus"></i> {{ __('app.admin_faqs_btn_add') }}
+                    <i class="fa-solid fa-plus"></i> إضافة تصنيف
                 </button>
             </form>
             <div class="flex flex-wrap gap-2">
                 @foreach($allCats as $c)
+                    @php $inUse = ($usedCats ?? collect())->contains($c); @endphp
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-bold text-gray-700 dark:text-gray-300">
                         <a href="{{ route('admin.faqs.index', ['category' => $c]) }}" class="hover:text-primary-600">
                             <i class="fa-solid fa-tag text-[10px] text-gray-400"></i> {{ $c }}
                         </a>
-                        <form method="POST" action="{{ route('admin.faqs.categories.destroy') }}" class="inline" onsubmit="return confirm('حذف التصنيف من القائمة؟')">
-                            @csrf @method('DELETE')
-                            <input type="hidden" name="name" value="{{ $c }}">
-                            <button class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-                        </form>
+                        @if($inUse)
+                            <span title="مرتبط بأسئلة — لا يمكن حذفه" class="text-gray-300 cursor-not-allowed">
+                                <i class="fa-solid fa-lock text-[10px]"></i>
+                            </span>
+                        @else
+                            <form method="POST" action="{{ route('admin.faqs.categories.destroy') }}" class="inline" onsubmit="return confirm('حذف التصنيف من القائمة؟')">
+                                @csrf @method('DELETE')
+                                <input type="hidden" name="name" value="{{ $c }}">
+                                <button class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                            </form>
+                        @endif
                     </span>
                 @endforeach
                 @if($allCats->isEmpty())
-                    <p class="text-xs text-gray-400">{{ __('app.admin_faqs_empty') }}</p>
+                    <p class="text-xs text-gray-400">لا توجد تصنيفات بعد</p>
                 @endif
             </div>
         </x-admin.card>
+
 
 
         {{-- SEO card --}}
