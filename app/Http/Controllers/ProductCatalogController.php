@@ -68,6 +68,19 @@ class ProductCatalogController extends Controller
             $productsQuery->where('stock', '>', 0);
         }
 
+        if ($request->boolean('on_sale')) {
+            $productsQuery->whereNotNull('sale_price')
+                ->whereColumn('sale_price', '<', 'price');
+        }
+
+        if ($request->filled('min_price') && is_numeric($request->min_price)) {
+            $productsQuery->where('price', '>=', (float) $request->min_price);
+        }
+
+        if ($request->filled('max_price') && is_numeric($request->max_price)) {
+            $productsQuery->where('price', '<=', (float) $request->max_price);
+        }
+
         match ($request->get('sort', 'newest')) {
             'price_asc' => $productsQuery->orderBy('price'),
             'price_desc' => $productsQuery->orderByDesc('price'),
