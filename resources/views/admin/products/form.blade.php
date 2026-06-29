@@ -83,10 +83,6 @@
                     <p class="text-sm md:text-base text-amber-900/90 dark:text-amber-100/90 leading-relaxed">
                         {{ __('app.admin_product_form_currency_notice', ['currency' => $cur, 'name' => $curName]) }}
                     </p>
-                    <p class="mt-2 text-xs md:text-sm text-amber-800/80 dark:text-amber-200/80 leading-relaxed">
-                        <i class="fas fa-circle-info mr-1"></i>
-                        {{ __('app.admin_product_form_currency_notice_hint', ['currency' => $cur]) }}
-                    </p>
                 </div>
             </div>
         </div>
