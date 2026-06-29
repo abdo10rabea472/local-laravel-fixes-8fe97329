@@ -42,7 +42,7 @@
                                 @csrf @method('PATCH')
                                 <button class="text-amber-600 hover:underline text-xs font-bold">{{ $s->active ? __('app.admin_subscribers_btn_disable') : __('app.admin_subscribers_btn_enable') }}</button>
                             </form>
-                            <form method="POST" action="{{ route('admin.subscribers.destroy', $s) }}" class="inline ml-2" onsubmit="return confirm('{{ __(\'app.admin_subscribers_confirm_delete\') }}')">
+                            <form method="POST" action="{{ route('admin.subscribers.destroy', $s) }}" class="inline ml-2" onsubmit="return confirm({{ Js::from(__('app.admin_subscribers_confirm_delete')) }})">
                                 @csrf @method('DELETE')
                                 <button class="text-rose-600 hover:underline text-xs font-bold">{{ __('app.admin_subscribers_btn_delete') }}</button>
                             </form>
