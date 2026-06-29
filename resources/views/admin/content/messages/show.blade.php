@@ -31,7 +31,7 @@
                class="w-full h-12 inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20 mb-3">
                 <i class="fa-solid fa-reply"></i> {{ __('app.admin_messages_btn_reply') }}
             </a>
-            <form method="POST" action="{{ route('admin.messages.destroy', $message) }}" onsubmit="return confirm('{{ __(\'app.admin_messages_confirm_delete\') }}')">
+            <form method="POST" action="{{ route('admin.messages.destroy', $message) }}" onsubmit="return confirm({{ Js::from(__('app.admin_messages_confirm_delete')) }})">
                 @csrf @method('DELETE')
                 <button class="w-full h-11 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">
                     <i class="fa-solid fa-trash"></i> {{ __('app.admin_messages_btn_delete') }}

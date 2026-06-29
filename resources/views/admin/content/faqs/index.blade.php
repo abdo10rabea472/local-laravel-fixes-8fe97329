@@ -25,7 +25,7 @@
                         <div class="flex gap-2">
                             <button class="px-5 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold">{{ __('app.admin_faqs_btn_save') }}</button>
                     </form>
-                            <form method="POST" action="{{ route('admin.faqs.destroy', $f) }}" onsubmit="return confirm('{{ __(\'app.admin_faqs_confirm_delete\') }}')">
+                            <form method="POST" action="{{ route('admin.faqs.destroy', $f) }}" onsubmit="return confirm({{ Js::from(__('app.admin_faqs_confirm_delete')) }})">
                                 @csrf @method('DELETE')
                                 <button class="px-5 h-10 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">{{ __('app.admin_faqs_btn_delete') }}</button>
                             </form>
