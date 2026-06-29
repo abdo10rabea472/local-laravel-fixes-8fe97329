@@ -59,8 +59,8 @@
                         <div class="text-xs text-slate-500">{{ $p->category?->name }}</div>
                         <div class="font-semibold text-slate-800 line-clamp-2 my-1">{{ $p->name }}</div>
                         <div class="flex items-center gap-2 mt-2">
-                            <span class="text-rose-600 font-bold">{{ number_format($p->sale_price, 2) }}</span>
-                            <span class="text-slate-400 line-through text-sm">{{ number_format($p->price, 2) }}</span>
+                            <span class="text-rose-600 font-bold">{{ money($p->sale_price) }}</span>
+                            <span class="text-slate-400 line-through text-sm">{{ money($p->price) }}</span>
                         </div>
                     </div>
                 </a>
