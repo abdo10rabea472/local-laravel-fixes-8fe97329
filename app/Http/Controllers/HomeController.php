@@ -78,15 +78,47 @@ class HomeController extends Controller
             'products_subtitle' => \App\Models\SiteSetting::get('products_section_subtitle'),
         ];
 
+        $siteUrl = url('/');
+        $siteName = \App\Models\SiteSetting::get('site_name', 'UNI-LAB MARKET');
+        $defaultOgImage = \App\Models\SiteSetting::getUrl('default_og_image', asset('imges/photo_٢٠٢٦-٠٢-٢٥_٠٨-٤٧-٣٧-removebg-preview.png'));
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id'   => $siteUrl . '#organization',
+                    'name'  => $siteName,
+                    'url'   => $siteUrl,
+                    'logo'  => $defaultOgImage,
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id'   => $siteUrl . '#website',
+                    'url'   => $siteUrl,
+                    'name'  => $siteName,
+                    'publisher' => ['@id' => $siteUrl . '#organization'],
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => [
+                            '@type' => 'EntryPoint',
+                            'urlTemplate' => $siteUrl . '/search?q={search_term_string}',
+                        ],
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
+            ],
+        ];
+
         $seo = [
-            'seo_title' => 'UNI-LAB MARKET | Medical & Educational Equipment',
-            'seo_description' => 'Your one-stop shop for premium educational and medical equipment.',
-            'seo_keywords' => 'uni-lab, medical equipment, educational tools',
-            'canonical_url' => url('/'),
-            'og_title' => 'UNI-LAB MARKET',
-            'og_description' => 'Premium educational and medical equipment store.',
-            'og_image' => \App\Models\SiteSetting::getUrl('default_og_image', asset('imges/photo_٢٠٢٦-٠٢-٢٥_٠٨-٤٧-٣٧-removebg-preview.png')),
-            'schema_markup' => null,
+            'seo_title' => 'UNI-LAB MARKET | Medical & Lab Equipment',
+            'seo_description' => 'Your one-stop shop for premium educational and medical lab equipment — trusted brands, student-friendly prices, and fast shipping.',
+            'seo_keywords' => 'uni-lab, medical equipment, educational tools, lab equipment',
+            'canonical_url' => $siteUrl,
+            'og_title' => 'UNI-LAB MARKET — Medical & Educational Equipment',
+            'og_description' => 'Premium educational and medical lab equipment for students, teachers, and clinics. Trusted brands with fast shipping.',
+            'og_image' => $defaultOgImage,
+            'schema_markup' => json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
 
         return view('welcome', compact('products', 'featuredProducts', 'mainCategories', 'hero', 'realStats', 'seo', 'homeSections'));

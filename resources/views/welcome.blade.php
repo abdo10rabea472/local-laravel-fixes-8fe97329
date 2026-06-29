@@ -112,11 +112,11 @@
             </div>
 
             <div class="hidden md:flex gap-3">
-                <button class="college-icons-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Previous slide" class="college-icons-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
-                <button class="college-icons-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Next slide" class="college-icons-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
@@ -208,11 +208,11 @@
             </div>
 
             <div class="hidden md:flex gap-3">
-                <button class="featured-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Previous slide" class="featured-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
-                <button class="featured-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Next slide" class="featured-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
@@ -349,8 +349,8 @@
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{{ __('app.home_college_tiles_title') }}</h2>
             </div>
             <div class="hidden md:flex gap-3">
-                <button class="college-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition"><i class="fa-solid fa-chevron-left"></i></button>
-                <button class="college-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition"><i class="fa-solid fa-chevron-right"></i></button>
+                <button type="button" aria-label="Previous slide" class="college-prev w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition"><i class="fa-solid fa-chevron-left"></i></button>
+                <button type="button" aria-label="Next slide" class="college-next w-11 h-11 rounded-full bg-white shadow hover:bg-violet-600 hover:text-white transition"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
         </div>
 
@@ -399,11 +399,11 @@
                     {{ __('app.shared_view_all') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </a>
 
-                <button class="new-prev hidden md:flex w-10 h-10 items-center justify-center rounded-full border bg-white hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Previous slide" class="new-prev hidden md:flex w-10 h-10 items-center justify-center rounded-full border bg-white hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
-                <button class="new-next hidden md:flex w-10 h-10 items-center justify-center rounded-full border bg-white hover:bg-violet-600 hover:text-white transition">
+                <button type="button" aria-label="Next slide" class="new-next hidden md:flex w-10 h-10 items-center justify-center rounded-full border bg-white hover:bg-violet-600 hover:text-white transition">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
