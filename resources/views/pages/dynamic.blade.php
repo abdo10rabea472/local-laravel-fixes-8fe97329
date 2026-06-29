@@ -47,7 +47,7 @@
 </section>
 
 <main class="bg-slate-50 pb-20 -mt-10 relative">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="mx-auto px-4 sm:px-6" style="max-width: 121rem;">
         <article class="bg-white rounded-3xl shadow-xl shadow-slate-900/5 border border-slate-100 overflow-hidden">
             <div class="h-1.5 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500"></div>
             <div class="p-6 sm:p-10 lg:p-14">
