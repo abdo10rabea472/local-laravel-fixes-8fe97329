@@ -215,5 +215,14 @@ return [
     'blog_categories'       => 'الأقسام',
     'blog_all'              => 'الكل',
     'blog_tags'             => 'الوسوم',
+    'offers_hero_title' => 'العروض والخصومات',
+    'offers_hero_subtitle' => 'أفضل العروض على منتجاتك المفضلة — اغتنم الفرصة!',
+    'offers_available_coupons' => 'كوبونات متاحة',
+    'offers_coupon_code' => 'كود الخصم',
+    'offers_ends_at' => 'ينتهي',
+    'offers_copy_code' => 'نسخ الكود',
+    'offers_copied' => 'تم النسخ ✓',
+    'offers_discounted_products' => 'منتجات مخفّضة',
+    'offers_empty' => 'لا توجد عروض متاحة حاليًا.',
 ];
 

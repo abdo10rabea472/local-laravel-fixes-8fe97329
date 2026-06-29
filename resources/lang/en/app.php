@@ -215,5 +215,14 @@ return [
     'blog_categories'       => 'Categories',
     'blog_all'              => 'All',
     'blog_tags'             => 'Tags',
+    'offers_hero_title' => 'Offers & Discounts',
+    'offers_hero_subtitle' => 'The best deals on your favorite products — grab them now!',
+    'offers_available_coupons' => 'Available Coupons',
+    'offers_coupon_code' => 'Coupon Code',
+    'offers_ends_at' => 'Ends',
+    'offers_copy_code' => 'Copy Code',
+    'offers_copied' => 'Copied ✓',
+    'offers_discounted_products' => 'Discounted Products',
+    'offers_empty' => 'No offers available right now.',
 ];
 
