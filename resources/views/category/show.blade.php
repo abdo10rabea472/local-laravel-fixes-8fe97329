@@ -69,12 +69,13 @@
 
                 <div class="flex flex-wrap gap-2 mt-4">
                     <span class="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold border border-white/20 backdrop-blur-sm">
-                        <i class="fa-solid fa-cube mr-1.5 text-[10px]"></i>{{ $totalProducts }} products
+                        <i class="fa-solid fa-cube mr-1.5 text-[10px]"></i>{{ $totalProducts }} {{ __('app.cat_products') }}
                     </span>
                     @if($departments->isNotEmpty())
                     <span class="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold border border-white/20 backdrop-blur-sm">
-                        <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>{{ $departments->count() }} departments
+                        <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>{{ $departments->count() }} {{ __('app.cat_departments') }}
                     </span>
+
                     @endif
                 </div>
             </div>
