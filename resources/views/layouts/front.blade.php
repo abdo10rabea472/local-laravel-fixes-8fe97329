@@ -69,13 +69,16 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <script>
-        @php $c = current_currency(); @endphp
-        window.APP_CURRENCY = @json($c ? [
-            'code' => $c->code,
-            'symbol' => $c->symbol,
-            'position' => $c->symbol_position,
-            'decimals' => (int) $c->decimals,
-        ] : ['code'=>'EGP','symbol'=>'EGP','position'=>'after','decimals'=>2]);
+        @php
+            $c = current_currency();
+            $appCurrency = $c ? [
+                'code' => $c->code,
+                'symbol' => $c->symbol,
+                'position' => $c->symbol_position,
+                'decimals' => (int) $c->decimals,
+            ] : ['code' => 'EGP', 'symbol' => 'EGP', 'position' => 'after', 'decimals' => 2];
+        @endphp
+        window.APP_CURRENCY = @json($appCurrency);
         window.formatMoney = function(amount){
             const c = window.APP_CURRENCY;
             const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals });
