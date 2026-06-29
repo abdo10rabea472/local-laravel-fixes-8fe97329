@@ -42,8 +42,9 @@ return new class extends Migration
             }
         }
 
-        // Drop the legacy 'faqs' page entirely; the /faqs route now reads from the faqs table.
-        DB::table('pages')->where('slug', 'faqs')->delete();
+        // Keep the 'faqs' page row for SEO fields only; clear its content so the
+        // /faqs route reads FAQs from the faqs table exclusively.
+        DB::table('pages')->where('slug', 'faqs')->update(['content' => '']);
     }
 
     public function down(): void
