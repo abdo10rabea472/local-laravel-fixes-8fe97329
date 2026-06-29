@@ -3,8 +3,8 @@
 
 @section('content')
 <x-admin.page
-    :title="\$post->exists ? __('app.admin_blog_edit_title') : __('app.admin_blog_new_title')"
-    :subtitle="\$post->exists ? __('app.admin_blog_edit_subtitle') : __('app.admin_blog_new_subtitle')"
+    :title="$post->exists ? __('app.admin_blog_edit_title') : __('app.admin_blog_new_title')"
+    :subtitle="$post->exists ? __('app.admin_blog_edit_subtitle') : __('app.admin_blog_new_subtitle')"
     :back="route('admin.blog.index')"
     :backLabel="__('app.admin_blog_back_to_posts')">
 
