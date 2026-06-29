@@ -183,7 +183,7 @@ class LanguageController extends Controller
      * and lets the admin fill in the value for $language. Saved to
      * resources/lang/{code}/{group}.php.
      */
-    public function translations(Language $language)
+    public function translations(Request $request, Language $language)
     {
         $defaultCode = 'en';
         $sourceDir   = base_path("resources/lang/{$defaultCode}");
@@ -225,20 +225,61 @@ class LanguageController extends Controller
             }
         }
 
-        // 3) Attach target values and key list
-        foreach ($groups as $group => &$data) {
-            ksort($data['source']);
-            $targetFile = $targetDir.'/'.$group.'.php';
-            $tgt = is_file($targetFile) ? (include $targetFile) : [];
-            $data['target'] = is_array($tgt) ? $tgt : [];
-            $data['keys']   = array_keys($data['source']);
-        }
-        unset($data);
+        // 3) Compute counts only for all groups, then build a single rendered group.
         ksort($groups);
+        $groupNames = array_keys($groups);
+        $counts = [];
+        foreach ($groups as $g => $data) {
+            $counts[$g] = count($data['source'] ?? []);
+        }
+
+        $selected = (string) $request->get('group', $groupNames[0] ?? '');
+        if ($selected !== '' && !isset($groups[$selected])) {
+            $selected = $groupNames[0] ?? '';
+        }
+
+        $q = trim((string) $request->get('q', ''));
+        $perPage = (int) $request->get('per_page', 50);
+        if (!in_array($perPage, [25, 50, 100, 200], true)) $perPage = 50;
+        $page = max(1, (int) $request->get('page', 1));
+
+        $rendered = ['source' => [], 'target' => [], 'keys' => [], 'total' => 0, 'lastPage' => 1, 'untranslated' => 0];
+        if ($selected !== '') {
+            $src = $groups[$selected]['source'] ?? [];
+            ksort($src);
+            $targetFile = $targetDir.'/'.$selected.'.php';
+            $tgt = is_file($targetFile) ? (include $targetFile) : [];
+            $tgt = is_array($tgt) ? $tgt : [];
+
+            $keys = array_keys($src);
+            if ($q !== '') {
+                $needle = mb_strtolower($q);
+                $keys = array_values(array_filter($keys, function ($k) use ($needle, $src, $tgt, $selected) {
+                    $s = is_array($src[$k] ?? null) ? json_encode($src[$k]) : (string)($src[$k] ?? '');
+                    $t = is_array($tgt[$k] ?? null) ? json_encode($tgt[$k]) : (string)($tgt[$k] ?? '');
+                    return str_contains(mb_strtolower($selected.'.'.$k.' '.$s.' '.$t), $needle);
+                }));
+            }
+
+            $rendered['untranslated'] = count(array_filter(array_keys($src), fn ($k) => empty($tgt[$k])));
+            $rendered['total'] = count($keys);
+            $rendered['lastPage'] = max(1, (int) ceil($rendered['total'] / $perPage));
+            if ($page > $rendered['lastPage']) $page = $rendered['lastPage'];
+            $sliceKeys = array_slice($keys, ($page - 1) * $perPage, $perPage);
+
+            $rendered['source'] = array_intersect_key($src, array_flip($sliceKeys));
+            $rendered['target'] = array_intersect_key($tgt, array_flip($sliceKeys));
+            $rendered['keys']   = $sliceKeys;
+        }
 
         $activeTab = 'languages';
-        return view('admin.settings.languages-translations', compact('language', 'groups', 'defaultCode', 'activeTab'));
+        return view('admin.settings.languages-translations', compact(
+            'language', 'defaultCode', 'activeTab',
+            'groupNames', 'counts', 'selected', 'rendered',
+            'q', 'perPage', 'page'
+        ));
     }
+
 
 
     public function saveTranslations(Request $request, Language $language)
