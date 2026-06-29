@@ -51,10 +51,38 @@
                         class="px-3 py-1.5 rounded-xl text-xs font-bold">
                     <i class="fa-solid fa-plus mr-1"></i> Add new keys
                 </button>
-                <div class="ml-auto">
+                <div class="ml-auto flex items-center gap-2">
+                    <button type="button" @click="aiTranslateVisible(false)" x-show="!running"
+                            :disabled="running"
+                            class="h-9 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold disabled:opacity-50">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Translate empty with AI
+                    </button>
+                    <button type="button" @click="aiTranslateVisible(true)" x-show="!running"
+                            class="h-9 px-3 rounded-xl bg-white border border-violet-300 text-violet-700 text-xs font-bold">
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Re-translate all
+                    </button>
+                    <button type="button" @click="cancel()" x-show="running" x-cloak
+                            class="h-9 px-3 rounded-xl bg-rose-600 text-white text-xs font-bold">
+                        <i class="fa-solid fa-stop mr-1"></i> Stop
+                    </button>
                     <input type="text" x-model="q" placeholder="Search keys…"
                            class="h-9 px-3 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
+            </div>
+
+            <div x-show="running || lastError || lastMessage" x-cloak class="px-4 py-2 border-b border-slate-100 bg-violet-50 text-violet-800 text-xs font-bold flex items-center gap-3">
+                <template x-if="running">
+                    <span><i class="fa-solid fa-spinner fa-spin mr-1"></i>
+                        Translating <span x-text="progress.done"></span> / <span x-text="progress.total"></span>
+                        — current: <span class="font-mono" x-text="progress.current"></span>
+                    </span>
+                </template>
+                <template x-if="!running && lastMessage">
+                    <span class="text-emerald-700"><i class="fa-solid fa-check mr-1"></i><span x-text="lastMessage"></span></span>
+                </template>
+                <template x-if="lastError">
+                    <span class="text-rose-700 ml-auto"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span x-text="lastError"></span></span>
+                </template>
             </div>
 
             @foreach($groups as $group => $data)
