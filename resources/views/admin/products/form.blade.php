@@ -399,20 +399,48 @@
 {{-- TinyMCE rich editor for product description --}}
 <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-    tinymce.init({
-        selector: '#product-description-editor',
-        license_key: 'gpl',
-        height: 500,
-        directionality: '{{ app()->getLocale() === "ar" ? "rtl" : "ltr" }}',
-        language: '{{ app()->getLocale() === "ar" ? "ar" : "en" }}',
-        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount emoticons codesample',
-        toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | removeformat code fullscreen preview',
-        toolbar_mode: 'wrap',
-        menubar: 'edit view insert format tools table help',
-        image_advtab: true,
-        branding: false,
-        promotion: false,
-        content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; }',
-    });
+    (function () {
+        const isDark = document.documentElement.classList.contains('dark')
+            || window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        function initEditor(dark) {
+            if (window.tinymce) {
+                tinymce.remove('#product-description-editor');
+            }
+            tinymce.init({
+                selector: '#product-description-editor',
+                license_key: 'gpl',
+                height: 500,
+                directionality: '{{ app()->getLocale() === "ar" ? "rtl" : "ltr" }}',
+                language: '{{ app()->getLocale() === "ar" ? "ar" : "en" }}',
+                plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount emoticons codesample',
+                toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table codesample | removeformat code fullscreen preview',
+                toolbar_mode: 'wrap',
+                menubar: 'edit view insert format tools table help',
+                image_advtab: true,
+                branding: false,
+                promotion: false,
+                skin: dark ? 'oxide-dark' : 'oxide',
+                content_css: dark ? 'dark' : 'default',
+                content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.7; '
+                    + (dark ? 'background:#1f2937;color:#e5e7eb;' : '')
+                    + ' }',
+            });
+        }
+
+        initEditor(isDark);
+
+        // React to dark-mode toggles on <html class="dark">
+        const observer = new MutationObserver(() => {
+            const nowDark = document.documentElement.classList.contains('dark');
+            if (nowDark !== isDarkState.value) {
+                isDarkState.value = nowDark;
+                initEditor(nowDark);
+            }
+        });
+        const isDarkState = { value: isDark };
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    })();
 </script>
+@endsection
 @endsection
