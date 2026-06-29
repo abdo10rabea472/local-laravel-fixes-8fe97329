@@ -60,9 +60,11 @@
                             @if($lang->is_default)
                                 <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-lg uppercase">Default</span>
                             @else
-                                <form method="POST" action="{{ route('admin.settings.languages.default', $lang) }}">@csrf
-                                    <button class="text-[11px] text-violet-600 hover:underline">Make default</button>
-                                </form>
+                                <button type="button"
+                                    @click="defOpen=true; defLang={id:{{ $lang->id }}, code:'{{ addslashes($lang->code) }}', name:'{{ addslashes($lang->name) }}', url:'{{ route('admin.settings.languages.default', $lang) }}'}"
+                                    class="inline-flex items-center gap-1 text-[11px] font-bold text-violet-600 hover:text-violet-800">
+                                    <i class="fa-solid fa-shield-halved"></i> Make default
+                                </button>
                             @endif
                         </td>
                         <td class="p-4">
