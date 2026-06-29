@@ -243,6 +243,7 @@ return array (
     'admin_product_form_description' => 'Detaylı Açıklama',
     'admin_product_form_description_ph' => 'Özellikleri ve teknik detayları yazın...',
     'admin_product_form_pricing' => 'Fiyatlandırma ve Stok',
+    'admin_product_form_currency_notice' => 'Uyarı: Buraya girilen tüm fiyatlar mağazanın varsayılan para biriminde (:currency) saklanır ve müşterinin seçtiği para birimine göre otomatik olarak dönüştürülür.',
     'admin_product_form_cost_price' => 'Maliyet Fiyatı',
     'admin_product_form_sale_price' => 'Satış Fiyatı',
     'admin_product_form_discount_price' => 'İndirim Fiyatı (Öğrenci)',
