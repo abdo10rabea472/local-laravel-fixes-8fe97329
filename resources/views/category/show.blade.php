@@ -218,7 +218,7 @@
                                     </span>
                                 @endif
                                 <span class="absolute inset-0 m-auto h-fit w-fit z-30 px-4 py-2 text-xs font-black rounded-xl bg-slate-900/90 text-white shadow-xl uppercase tracking-widest backdrop-blur-sm border border-white/10 transform -rotate-3">
-                                    Sold Out
+                                    {{ __('app.cat_sold_out') }}
                                 </span>
                                 <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
                                     onerror="this.onerror=null;this.src='{{ site_setting_url('default_product_image') ?: asset('imges/products/default.jpg') }}'"
