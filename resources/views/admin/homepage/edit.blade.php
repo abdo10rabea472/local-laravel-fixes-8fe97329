@@ -23,8 +23,8 @@
 <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
     <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
         <div>
-            <h3 class="text-base font-bold text-slate-800">الصفحة الرئيسية</h3>
-            <p class="text-xs text-slate-500 mt-1">تحكم في محتوى Hero والأقسام الرئيسية — مع دعم اللغتين العربية والإنجليزية.</p>
+            <h3 class="text-base font-bold text-slate-800">{{ __('app.admin_homepage_title') }}</h3>
+            <p class="text-xs text-slate-500 mt-1">{{ __('app.admin_homepage_subtitle') }}</p>
         </div>
         @if(session('success'))
             <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
@@ -44,8 +44,8 @@
                     <i class="fa-solid fa-bullhorn"></i>
                 </span>
                 <div>
-                    <h4 class="text-sm font-bold text-slate-800">قسم Hero (مفاتيح الترجمة)</h4>
-                    <p class="text-[11px] text-slate-500">عدّل النصوص لكل لغة. تُحفظ مباشرة في ملفات الترجمة <code class="text-[10px] bg-white px-1.5 py-0.5 rounded">resources/lang/{ar,en}/home.php</code></p>
+                    <h4 class="text-sm font-bold text-slate-800">{{ __('app.admin_homepage_hero_section_title') }}</h4>
+                    <p class="text-[11px] text-slate-500">{{ __('app.admin_homepage_hero_section_desc') }} <code class="text-[10px] bg-white px-1.5 py-0.5 rounded">resources/lang/{ar,en}/home.php</code></p>
                 </div>
             </div>
 
@@ -92,7 +92,7 @@
             <div class="border-t border-slate-200 bg-slate-50/50 px-5 py-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-600">خلفية Hero (اختياري)</label>
+                        <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_hero_bg_label') }}</label>
                         <input type="file" name="hero_background" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-violet-100 file:text-violet-700 file:font-bold">
                     </div>
                     @if(site_setting_url('hero_background'))
@@ -100,7 +100,7 @@
                             <img src="{{ site_setting_url('hero_background') }}" alt="" class="h-20 w-32 object-cover rounded-lg border border-slate-200">
                             <label class="flex items-center gap-2 text-xs font-bold text-rose-600 cursor-pointer">
                                 <input type="checkbox" name="remove_hero_background" value="1" class="rounded">
-                                حذف الصورة
+                                {{ __('app.admin_homepage_remove_image') }}
                             </label>
                         </div>
                     @endif
@@ -116,15 +116,15 @@
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">العنوان</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_label_title') }}</label>
                     <input type="text" name="featured_section_title" value="{{ site_setting('featured_section_title', 'Top Picks for Students') }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">النص الفرعي</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_label_subtitle') }}</label>
                     <input type="text" name="featured_section_subtitle" value="{{ site_setting('featured_section_subtitle') }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">عدد المنتجات</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_products_count') }}</label>
                     <input type="number" min="1" max="50" name="featured_limit" value="{{ site_setting('featured_limit', 8) }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
             </div>
@@ -134,19 +134,19 @@
         <div class="border border-slate-200 rounded-2xl p-5">
             <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <span class="h-8 w-8 rounded-xl bg-violet-500 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-grip"></i></span>
-                قسم جميع المنتجات
+                {{ __('app.admin_homepage_all_products_section') }}
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">العنوان</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_label_title') }}</label>
                     <input type="text" name="products_section_title" value="{{ site_setting('products_section_title', 'All Products') }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">النص الفرعي</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_label_subtitle') }}</label>
                     <input type="text" name="products_section_subtitle" value="{{ site_setting('products_section_subtitle') }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-600">عدد المنتجات في الصفحة</label>
+                    <label class="text-xs font-bold text-slate-600">{{ __('app.admin_homepage_products_per_page') }}</label>
                     <input type="number" min="1" max="100" name="products_limit" value="{{ site_setting('products_limit', 12) }}" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm">
                 </div>
             </div>
@@ -154,7 +154,7 @@
 
         <div class="flex justify-end pt-4 border-t border-slate-100">
             <button type="submit" class="h-11 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/20">
-                <i class="fa-solid fa-floppy-disk ml-2"></i> حفظ التغييرات
+                <i class="fa-solid fa-floppy-disk ml-2"></i> {{ __('app.admin_homepage_save') }}
             </button>
         </div>
     </form>

@@ -1,12 +1,12 @@
 @extends('admin.layouts.app')
-@section('title', $post->exists ? 'Edit Post' : 'New Post')
+@section('title', $post->exists ? __('app.admin_blog_edit_title') : __('app.admin_blog_new_title'))
 
 @section('content')
 <x-admin.page
-    :title="$post->exists ? 'Edit Post' : 'New Post'"
-    :subtitle="$post->exists ? 'Update post details and SEO settings.' : 'Create a new blog article.'"
+    :title="\$post->exists ? __('app.admin_blog_edit_title') : __('app.admin_blog_new_title')"
+    :subtitle="\$post->exists ? __('app.admin_blog_edit_subtitle') : __('app.admin_blog_new_subtitle')"
     :back="route('admin.blog.index')"
-    backLabel="Back to Posts">
+    :backLabel="__('app.admin_blog_back_to_posts')">
 
     <form method="POST" action="{{ $post->exists ? route('admin.blog.update', $post) : route('admin.blog.store') }}" enctype="multipart/form-data" class="space-y-6" id="blog-form">
         @csrf @if($post->exists) @method('PUT') @endif
@@ -18,50 +18,49 @@
         @endif
 
         {{-- ✨ AI Generator --}}
-        <x-admin.card title="AI Writing Assistant" icon="fa-wand-magic-sparkles">
+        <x-admin.card :title="__('app.admin_blog_card_ai_assistant')" icon="fa-wand-magic-sparkles">
             <div class="space-y-4">
                 <p class="text-xs text-gray-500">
-                    Optionally pick a product and provide a suggested title (or leave blank), then click
-                    <b>"Generate Article with AI"</b> to auto-generate the title, excerpt, content, and SEO fields.
+                    {{ __('app.admin_blog_ai_description') }}
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1.5">Product (optional)</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">{{ __('app.admin_blog_ai_label_product') }}</label>
                         <select id="ai-product-id" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-                            <option value="">— No product —</option>
+                            <option value="">{{ __('app.admin_blog_ai_no_product') }}</option>
                             @foreach(($aiProducts ?? collect()) as $p)
                                 <option value="{{ $p->id }}">{{ $p->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1.5">Language</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5">{{ __('app.admin_blog_ai_label_language') }}</label>
                         <select id="ai-language" class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-                            <option value="en" selected>English</option>
-                            <option value="ar">العربية</option>
+                            <option value="en" selected>{{ __('app.admin_blog_ai_lang_en') }}</option>
+                            <option value="ar">{{ __('app.admin_blog_ai_lang_ar') }}</option>
                         </select>
                     </div>
                 </div>
                 <button type="button" id="ai-generate-btn"
                         class="w-full md:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span id="ai-generate-label">Generate Article with AI</span>
+                    <span id="ai-generate-label">{{ __('app.admin_blog_btn_generate_ai') }}</span>
                 </button>
                 <div id="ai-generate-result" class="hidden p-3 rounded-xl text-sm"></div>
             </div>
         </x-admin.card>
 
         {{-- Main content --}}
-        <x-admin.card title="Post Details" icon="fa-pen-to-square">
+        <x-admin.card :title="__('app.admin_blog_card_post_details')" icon="fa-pen-to-square">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Title *</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_title') }}</label>
                     <input id="title" name="title" value="{{ old('title', $post->title) }}" required
                            class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Slug (URL)</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_slug') }}</label>
                     <div class="flex items-stretch" dir="ltr">
                         <span class="inline-flex items-center px-3 bg-gray-100 dark:bg-dark-700 border border-r-0 border-gray-200 dark:border-gray-700 rounded-l-xl text-xs text-gray-600 dark:text-gray-300 font-mono">{{ rtrim(url('/blog'), '/') }}/</span>
                         <input id="slug" name="slug" value="{{ old('slug', $post->slug) }}" dir="ltr" placeholder="your-slug"
@@ -71,13 +70,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Short Excerpt</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_excerpt') }}</label>
                     <textarea name="excerpt" rows="2" maxlength="500"
                               class="w-full px-4 py-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">{{ old('excerpt', $post->excerpt) }}</textarea>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Tags</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_tags') }}</label>
                     <input name="tags" value="{{ old('tags', $post->tags) }}" placeholder="laravel, php, seo"
                            class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                     <p class="text-xs text-gray-500 mt-1">Comma-separated. Shown as filters on the blog page.</p>
@@ -86,11 +85,11 @@
                 <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
                     <input type="hidden" name="is_featured" value="0">
                     <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $post->is_featured)) class="accent-primary-600 w-4 h-4">
-                    <span class="font-bold text-gray-700 dark:text-gray-200"><i class="fa-solid fa-star text-amber-500 mr-1"></i> Featured post (shown in sidebar)</span>
+                    <span class="font-bold text-gray-700 dark:text-gray-200"><i class="fa-solid fa-star text-amber-500 mr-1"></i> {{ __('app.admin_blog_featured_label') }}</span>
                 </label>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Content *</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_content') }}</label>
                     <textarea id="content-editor" name="content" rows="20"
                               class="w-full px-4 py-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">{{ old('content', $post->content) }}</textarea>
                 </div>
@@ -100,23 +99,23 @@
     </form>
 
     <x-slot:side>
-        <x-admin.card title="Publish" icon="fa-paper-plane">
+        <x-admin.card :title="__('app.admin_blog_card_publish')" icon="fa-paper-plane">
             <div class="space-y-3">
                 <button form="blog-form" class="w-full h-12 inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20">
-                    <i class="fa-solid fa-save"></i> {{ $post->exists ? 'Save Changes' : 'Publish Post' }}
+                    <i class="fa-solid fa-save"></i> {{ \$post->exists ? __('app.admin_blog_btn_save_changes') : __('app.admin_blog_btn_publish_post') }}
                 </button>
-                <a href="{{ route('admin.blog.index') }}" class="w-full h-11 inline-flex items-center justify-center bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold">Cancel</a>
+                <a href="{{ route('admin.blog.index') }}" class="w-full h-11 inline-flex items-center justify-center bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold">{{ __('app.admin_blog_btn_cancel') }}</a>
                 @if($post->exists && $post->published_at)
                     <a href="{{ route('blog.show', $post->slug) }}" target="_blank" class="w-full h-11 inline-flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold">
-                        <i class="fa-solid fa-eye"></i> View Post
+                        <i class="fa-solid fa-eye"></i> {{ __('app.admin_blog_btn_view_post') }}
                     </a>
                 @endif
             </div>
         </x-admin.card>
 
-        <x-admin.card title="Category" icon="fa-folder">
+        <x-admin.card :title="__('app.admin_blog_card_category')" icon="fa-folder">
             <select form="blog-form" name="blog_category_id" class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
-                <option value="">— Uncategorized —</option>
+                <option value="">{{ __('app.admin_blog_uncategorized') }}</option>
                 @php $byParent = $categories->groupBy('parent_id'); @endphp
                 @foreach($byParent->get(null, collect())->merge($byParent->get(0, collect())) as $root)
                     <option value="{{ $root->id }}" @selected(old('blog_category_id', $post->blog_category_id) == $root->id)>{{ $root->name }}</option>
@@ -125,17 +124,17 @@
                     @endforeach
                 @endforeach
             </select>
-            <p class="text-xs text-gray-500 mt-2">From product categories.</p>
+            <p class="text-xs text-gray-500 mt-2">{{ __('app.admin_blog_category_hint') }}</p>
         </x-admin.card>
 
-        <x-admin.card title="Publish Date" icon="fa-calendar">
+        <x-admin.card :title="__('app.admin_blog_card_publish_date')" icon="fa-calendar">
             <input form="blog-form" type="datetime-local" name="published_at"
                    value="{{ old('published_at', $post->published_at?->format('Y-m-d\TH:i')) }}"
                    class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
-            <p class="text-xs text-gray-500 mt-2">Leave blank to publish immediately.</p>
+            <p class="text-xs text-gray-500 mt-2">{{ __('app.admin_blog_publish_date_hint') }}</p>
         </x-admin.card>
 
-        <x-admin.card title="Featured Image" icon="fa-image">
+        <x-admin.card :title="__('app.admin_blog_card_featured_image')" icon="fa-image">
             <input form="blog-form" type="file" name="image" accept="image/*"
                    class="w-full text-sm file:mr-3 file:px-4 file:py-2 file:border-0 file:rounded-lg file:bg-primary-50 file:text-primary-700 file:font-bold file:cursor-pointer">
             @if($post->image)
@@ -144,10 +143,10 @@
         </x-admin.card>
 
         {{-- SEO (sidebar) --}}
-        <x-admin.card title="Search Engine Optimization (SEO)" icon="fa-magnifying-glass">
+        <x-admin.card :title="__('app.admin_blog_card_seo')" icon="fa-magnifying-glass">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Meta Title</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_meta_title') }}</label>
                     <input form="blog-form" name="meta_title" value="{{ old('meta_title', $post->meta_title) }}" maxlength="60"
                            class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none"
                            oninput="document.getElementById('mt-count').innerText=this.value.length">
@@ -155,7 +154,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Meta Description</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_meta_desc') }}</label>
                     <textarea form="blog-form" name="meta_description" rows="3" maxlength="160"
                               class="w-full px-3 py-2 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none"
                               oninput="document.getElementById('md-count').innerText=this.value.length">{{ old('meta_description', $post->meta_description) }}</textarea>
@@ -163,13 +162,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Keywords</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_keywords') }}</label>
                     <input form="blog-form" name="meta_keywords" value="{{ old('meta_keywords', $post->meta_keywords) }}" placeholder="laravel, php, seo" dir="ltr"
                            class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-mono focus:border-primary-500 focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Open Graph Image</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">{{ __('app.admin_blog_field_og_image') }}</label>
                     <input form="blog-form" type="file" name="og_image" accept="image/*"
                            class="w-full text-xs file:mr-2 file:px-3 file:py-1.5 file:border-0 file:rounded-lg file:bg-primary-50 file:text-primary-700 file:font-bold file:cursor-pointer">
                     @if($post->og_image)<img src="{{ asset('storage/'.$post->og_image) }}" class="mt-2 w-full rounded-lg shadow">@endif
@@ -179,12 +178,12 @@
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input form="blog-form" type="hidden" name="no_index" value="0">
                     <input form="blog-form" type="checkbox" name="no_index" value="1" @checked(old('no_index', $post->no_index)) class="accent-primary-600">
-                    Block indexing (noindex)
+                    {{ __('app.admin_blog_no_index_label') }}
                 </label>
 
                 {{-- SERP preview --}}
                 <div class="mt-3 p-3 bg-gray-50 dark:bg-dark-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2">Google Preview:</p>
+                    <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2">{{ __('app.admin_blog_google_preview') }}</p>
                     <div class="bg-white p-2 rounded-lg border" dir="ltr">
                         <p class="text-[10px] text-emerald-700 truncate" id="serp-url">{{ url('/blog/'.($post->slug ?: 'your-slug')) }}</p>
                         <p class="text-blue-700 text-sm leading-tight truncate" id="serp-title">{{ $post->meta_title ?: ($post->title ?: 'Post title') }}</p>

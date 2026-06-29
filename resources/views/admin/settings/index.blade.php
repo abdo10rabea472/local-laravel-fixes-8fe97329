@@ -14,9 +14,9 @@
         @include("admin.settings.partials.{$tab}")
 
         <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-            <p class="text-xs text-slate-500"><i class="fa-solid fa-circle-info mr-1"></i> General settings are saved together.</p>
+            <p class="text-xs text-slate-500"><i class="fa-solid fa-circle-info mr-1"></i> {{ __('app.admin_settings_index_hint') }}</p>
             <button type="submit" class="h-11 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/20">
-                <i class="fa-solid fa-floppy-disk mr-2"></i> Save Settings
+                <i class="fa-solid fa-floppy-disk mr-2"></i> {{ __('app.admin_settings_index_save') }}
             </button>
         </div>
     </form>

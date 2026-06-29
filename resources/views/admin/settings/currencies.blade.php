@@ -1,6 +1,6 @@
 @extends('admin.settings.layout', ['activeTab' => 'currencies'])
 
-@section('title', 'Currencies')
+@section('title', __('app.admin_settings_currencies_title'))
 
 @section('settings-content')
 <style>[x-cloak]{display:none !important;}</style>
@@ -14,8 +14,8 @@
     @php $zeroRates = $currencies->where('exchange_rate', 0)->where('is_default', false); @endphp
     @if($zeroRates->count())
     <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm">
-        <div class="font-black mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Action required: update exchange rates</div>
-        <p class="text-xs">The following currencies have <strong>rate = 0</strong> and will display incorrect prices until you set their exchange rate relative to the default currency:
+        <div class="font-black mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ __('app.admin_settings_currencies_zero_rate_title') }}</div>
+        <p class="text-xs">{!! __('app.admin_settings_currencies_zero_rate_desc') !!}
             <span class="font-mono font-bold">{{ $zeroRates->pluck('code')->join(', ') }}</span>
         </p>
     </div>
@@ -25,26 +25,26 @@
     <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden">
         <div class="flex items-center justify-between p-5 border-b border-slate-100">
             <div>
-                <h2 class="text-lg font-black text-slate-800">Currencies</h2>
-                <p class="text-sm text-slate-500">All product prices are stored in the default currency. Other currencies convert via exchange rate.</p>
+                <h2 class="text-lg font-black text-slate-800">{{ __('app.admin_settings_currencies_title') }}</h2>
+                <p class="text-sm text-slate-500">{{ __('app.admin_settings_currencies_subtitle') }}</p>
             </div>
             <button @click="open=true; edit=null; form={symbol_position:'before', decimals:2, decimal_separator:'.', thousands_separator:',', exchange_rate:1, is_active:true, sort_order:({{ $currencies->count() + 1 }})}"
                     class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold">
-                <i class="fa-solid fa-plus mr-1"></i> Add Currency
+                <i class="fa-solid fa-plus mr-1"></i> {{ __('app.admin_settings_currencies_add') }}
             </button>
         </div>
 
         <table class="w-full text-sm">
             <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
-                    <th class="p-3 text-left">Name</th>
-                    <th class="p-3 text-left">Code</th>
-                    <th class="p-3 text-left">Symbol</th>
-                    <th class="p-3 text-left">Rate</th>
-                    <th class="p-3 text-left">Preview</th>
-                    <th class="p-3 text-left">Default</th>
-                    <th class="p-3 text-left">Active</th>
-                    <th class="p-3 text-left">Order</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_name') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_code') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_symbol') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_rate') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_preview') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_default') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_active') }}</th>
+                    <th class="p-3 text-left">{{ __('app.admin_settings_currencies_col_order') }}</th>
                     <th class="p-3"></th>
                 </tr>
             </thead>
@@ -58,35 +58,35 @@
                     <td class="p-3 text-slate-600">{{ $cur->format(1234.5) }}</td>
                     <td class="p-3">
                         @if($cur->is_default)
-                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Default</span>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">{{ __('app.admin_settings_currencies_badge_default') }}</span>
                         @else
                             <button type="button"
                                 @click="defOpen=true; defCur={id:{{ $cur->id }}, code:'{{ addslashes($cur->code) }}', name:'{{ addslashes($cur->name) }}', url:'{{ route('admin.settings.currencies.default', $cur) }}'}"
                                 class="inline-flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800">
-                                <i class="fa-solid fa-shield-halved"></i> Make default
+                                <i class="fa-solid fa-shield-halved"></i> {{ __('app.admin_settings_currencies_make_default') }}
                             </button>
                         @endif
                     </td>
                     <td class="p-3">
                         <span class="px-2 py-1 text-xs font-bold rounded-full {{ $cur->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
-                            {{ $cur->is_active ? 'Active' : 'Inactive' }}
+                            {{ $cur->is_active ? __('app.admin_settings_currencies_badge_active') : __('app.admin_settings_currencies_badge_inactive') }}
                         </span>
                     </td>
                     <td class="p-3">{{ $cur->sort_order }}</td>
                     <td class="p-3 text-right whitespace-nowrap">
                         <button @click='open=true; edit={{ $cur->id }}; form=@json($cur)'
-                                class="text-violet-600 hover:underline text-xs font-bold mr-2">Edit</button>
+                                class="text-violet-600 hover:underline text-xs font-bold mr-2">{{ __('app.admin_settings_currencies_edit') }}</button>
                         @unless($cur->is_default)
                         <form method="POST" action="{{ route('admin.settings.currencies.destroy', $cur) }}" class="inline"
-                              onsubmit="return confirm('Delete this currency?')">
+                              onsubmit="return confirm('{{ __('app.admin_settings_currencies_confirm_delete') }}')">
                             @csrf @method('DELETE')
-                            <button class="text-rose-600 hover:underline text-xs font-bold">Delete</button>
+                            <button class="text-rose-600 hover:underline text-xs font-bold">{{ __('app.admin_settings_currencies_delete') }}</button>
                         </form>
                         @endunless
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="9" class="p-8 text-center text-slate-400">No currencies yet.</td></tr>
+                <tr><td colspan="9" class="p-8 text-center text-slate-400">{{ __('app.admin_settings_currencies_empty') }}</td></tr>
             @endforelse
             </tbody>
         </table>
@@ -99,46 +99,46 @@
               class="bg-white rounded-3xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             @csrf
             <template x-if="edit">@method('PUT')</template>
-            <h3 class="text-lg font-black" x-text="edit ? 'Edit Currency' : 'Add Currency'"></h3>
+            <h3 class="text-lg font-black" x-text="edit ? '{{ __('app.admin_settings_currencies_modal_edit_title') }}' : '{{ __('app.admin_settings_currencies_modal_add_title') }}'"></h3>
 
             <div class="grid grid-cols-2 gap-3">
                 <label class="block text-sm col-span-2">
-                    <span class="text-xs font-bold text-slate-500">Name</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_name') }}</span>
                     <input type="text" name="name" x-model="form.name" required class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Code (ISO)</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_code') }}</span>
                     <input type="text" name="code" x-model="form.code" required maxlength="10" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono uppercase">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Symbol</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_symbol') }}</span>
                     <input type="text" name="symbol" x-model="form.symbol" required maxlength="10" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Symbol Position</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_symbol_position') }}</span>
                     <select name="symbol_position" x-model="form.symbol_position" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
-                        <option value="before">Before ($100)</option>
-                        <option value="after">After (100 ج.م)</option>
+                        <option value="before">{{ __('app.admin_settings_currencies_option_before') }}</option>
+                        <option value="after">{{ __('app.admin_settings_currencies_option_after') }}</option>
                     </select>
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Decimals</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_decimals') }}</span>
                     <input type="number" name="decimals" x-model="form.decimals" min="0" max="6" required class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Decimal Separator</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_decimal_sep') }}</span>
                     <input type="text" name="decimal_separator" x-model="form.decimal_separator" maxlength="4" required class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Thousands Separator</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_thousands_sep') }}</span>
                     <input type="text" name="thousands_separator" x-model="form.thousands_separator" maxlength="4" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Exchange Rate <span class="text-slate-400">(per 1 default)</span></span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_exchange_rate') }} <span class="text-slate-400">({{ __('app.admin_settings_currencies_field_exchange_rate_hint') }})</span></span>
                     <input type="number" step="0.00000001" name="exchange_rate" x-model="form.exchange_rate" required class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono">
                 </label>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-500">Sort Order</span>
+                    <span class="text-xs font-bold text-slate-500">{{ __('app.admin_settings_currencies_field_sort_order') }}</span>
                     <input type="number" name="sort_order" x-model="form.sort_order" min="0" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
                 </label>
             </div>
@@ -146,17 +146,17 @@
             <div class="flex items-center gap-6">
                 <label class="flex items-center gap-2 text-sm">
                     <input type="hidden" name="is_active" value="0">
-                    <input type="checkbox" name="is_active" value="1" :checked="form.is_active"> Active
+                    <input type="checkbox" name="is_active" value="1" :checked="form.is_active"> {{ __('app.admin_settings_currencies_checkbox_active') }}
                 </label>
                 <label class="flex items-center gap-2 text-sm">
                     <input type="hidden" name="is_default" value="0">
-                    <input type="checkbox" name="is_default" value="1" :checked="form.is_default"> Set as default
+                    <input type="checkbox" name="is_default" value="1" :checked="form.is_default"> {{ __('app.admin_settings_currencies_checkbox_set_default') }}
                 </label>
             </div>
 
             <div class="flex gap-2 justify-end pt-2">
-                <button type="button" @click="open=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
-                <button class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold">Save</button>
+                <button type="button" @click="open=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">{{ __('app.admin_settings_currencies_btn_cancel') }}</button>
+                <button class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold">{{ __('app.admin_settings_currencies_btn_save') }}</button>
             </div>
         </form>
     </div>
@@ -175,25 +175,25 @@
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-800">High-risk action</h3>
-                    <p class="text-xs text-slate-500">Changing the base currency affects all stored prices.</p>
+                    <h3 class="text-lg font-black text-slate-800">{{ __('app.admin_settings_currencies_high_risk_title') }}</h3>
+                    <p class="text-xs text-slate-500">{{ __('app.admin_settings_currencies_high_risk_subtitle') }}</p>
                 </div>
             </div>
 
             <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-xs text-rose-700 space-y-1">
                 <div>You are about to set <span class="font-black" x-text="defCur.name"></span> (<span class="font-mono" x-text="defCur.code"></span>) as the <strong>base currency</strong>.</div>
-                <div class="font-bold pt-1">⚠️ All other currencies' exchange rates will be reset to 0. You must re-enter every rate relative to the new base, or prices will display incorrectly.</div>
+                <div class="font-bold pt-1">{{ __('app.admin_settings_currencies_high_risk_warning') }}</div>
             </div>
 
             <label class="block text-sm">
-                <span class="text-xs font-bold text-slate-600">Type the currency code <span class="font-mono text-rose-600" x-text="defCur.code"></span> to confirm</span>
+                <span class="text-xs font-bold text-slate-600">{{ __('app.admin_settings_currencies_high_risk_type_code') }} <span class="font-mono text-rose-600" x-text="defCur.code"></span> {{ __('app.admin_settings_currencies_high_risk_to_confirm') }}</span>
                 <input type="text" name="confirm_code" x-model="typed" autocomplete="off" required
                     class="w-full h-10 px-3 mt-1 bg-slate-50 border rounded-xl text-sm font-mono uppercase focus:ring-2 @error('confirm_code') border-rose-400 ring-rose-200 @else border-slate-200 focus:border-rose-400 focus:ring-rose-200 @enderror">
                 @error('confirm_code')<p class="mt-1 text-xs font-bold text-rose-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>@enderror
             </label>
 
             <label class="block text-sm">
-                <span class="text-xs font-bold text-slate-600">Your admin password</span>
+                <span class="text-xs font-bold text-slate-600">{{ __('app.admin_settings_currencies_high_risk_password') }}</span>
                 <input type="password" name="password" x-model="pwd" autocomplete="current-password" required
                     class="w-full h-10 px-3 mt-1 bg-slate-50 border rounded-xl text-sm focus:ring-2 @error('password') border-rose-400 ring-rose-200 @else border-slate-200 focus:border-rose-400 focus:ring-rose-200 @enderror">
                 @error('password')<p class="mt-1 text-xs font-bold text-rose-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>@enderror
@@ -201,16 +201,16 @@
 
             <label class="flex items-start gap-2 text-xs text-slate-600">
                 <input type="checkbox" name="understand" value="1" x-model="ack" required class="mt-0.5 rounded">
-                <span>I understand exchange rates will be reset and I will update them immediately.</span>
+                <span>{{ __('app.admin_settings_currencies_high_risk_understand') }}</span>
             </label>
 
             <div class="flex gap-2 justify-end pt-2 border-t">
-                <button type="button" @click="defOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                <button type="button" @click="defOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">{{ __('app.admin_settings_currencies_btn_cancel') }}</button>
                 <button type="submit"
                     :disabled="!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()"
                     :class="(!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()) ? 'opacity-50 cursor-not-allowed' : ''"
                     class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Send OTP &amp; Continue
+                    <i class="fa-solid fa-shield-halved mr-1"></i> {{ __('app.admin_settings_currencies_btn_send_otp') }}
                 </button>
             </div>
         </form>
@@ -230,23 +230,23 @@
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800">Email verification</h3>
-                        <p class="text-xs text-slate-500">Enter the 6-digit code we sent to your admin email.</p>
+                        <h3 class="text-lg font-black text-slate-800">{{ __('app.admin_settings_currencies_otp_title') }}</h3>
+                        <p class="text-xs text-slate-500">{{ __('app.admin_settings_currencies_otp_subtitle') }}</p>
                     </div>
                 </div>
                 <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-700">
-                    Setting <span class="font-black">{{ $otpCur->name }}</span> (<span class="font-mono">{{ $otpCur->code }}</span>) as base currency. Code expires in 10 minutes.
+                    Setting <span class="font-black">{{ $otpCur->name }}</span> (<span class="font-mono">{{ $otpCur->code }}</span>) as base currency. {{ __('app.admin_settings_currencies_otp_expires') }}
                 </div>
                 <label class="block text-sm">
-                    <span class="text-xs font-bold text-slate-600">Verification code</span>
+                    <span class="text-xs font-bold text-slate-600">{{ __('app.admin_settings_currencies_otp_field_code') }}</span>
                     <input x-ref="otpInput" type="text" name="otp" x-model="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required
                         class="w-full h-12 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:border-emerald-400 focus:ring-emerald-200">
                 </label>
                 <div class="flex gap-2 justify-end pt-2 border-t">
-                    <button type="button" @click="otpOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                    <button type="button" @click="otpOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">{{ __('app.admin_settings_currencies_btn_cancel') }}</button>
                     <button type="submit" :disabled="code.length !== 6" :class="code.length!==6?'opacity-50 cursor-not-allowed':''"
                         class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold">
-                        <i class="fa-solid fa-check mr-1"></i> Verify &amp; Apply
+                        <i class="fa-solid fa-check mr-1"></i> {{ __('app.admin_settings_currencies_btn_verify') }}
                     </button>
                 </div>
             </form>

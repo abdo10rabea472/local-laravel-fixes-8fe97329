@@ -4,8 +4,8 @@
 <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-5 border-b border-slate-100">
         <div>
-            <h3 class="text-base font-bold text-slate-800">Static Pages</h3>
-            <p class="text-xs text-slate-500 mt-1">Manage the content of pages such as About, FAQs, Privacy, Returns, etc.</p>
+            <h3 class="text-base font-bold text-slate-800">{{ __('app.admin_pages_heading') }}</h3>
+            <p class="text-xs text-slate-500 mt-1">{{ __('app.admin_pages_heading_sub') }}</p>
         </div>
         <a href="{{ route('admin.pages.create') }}" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-md shadow-emerald-500/20 transition-colors">
             <i class="fa-solid fa-plus"></i> New Page
@@ -16,11 +16,11 @@
         <table class="w-full text-sm">
             <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] tracking-wider">
                 <tr>
-                    <th class="text-left p-4 font-bold">Title</th>
-                    <th class="text-left p-4 font-bold">Slug</th>
-                    <th class="text-left p-4 font-bold">Status</th>
-                    <th class="text-left p-4 font-bold">Order</th>
-                    <th class="text-right p-4 font-bold">Actions</th>
+                    <th class="text-left p-4 font-bold">{{ __('app.admin_pages_col_title') }}</th>
+                    <th class="text-left p-4 font-bold">{{ __('app.admin_pages_col_slug') }}</th>
+                    <th class="text-left p-4 font-bold">{{ __('app.admin_pages_col_status') }}</th>
+                    <th class="text-left p-4 font-bold">{{ __('app.admin_pages_col_order') }}</th>
+                    <th class="text-right p-4 font-bold">{{ __('app.admin_pages_col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,8 +95,8 @@
                             <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
                                 <i class="fa-solid fa-file-lines text-xl text-slate-400"></i>
                             </div>
-                            <p class="font-semibold text-slate-700">No pages yet</p>
-                            <p class="text-xs">Click "New Page" to create your first static page.</p>
+                            <p class="font-semibold text-slate-700">{{ __('app.admin_pages_empty_title') }}</p>
+                            <p class="text-xs">{{ __('app.admin_pages_empty_sub') }}</p>
                         </div>
                     </td>
                 </tr>

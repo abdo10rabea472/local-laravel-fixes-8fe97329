@@ -1,56 +1,56 @@
 @extends('admin.layouts.app')
 
-@section('title', 'General Settings')
+@section('title', __('app.admin_settings_layout_heading'))
 
 @php
 $tabs = [
     'general' => [
-        'label' => 'Site Info',
+        'label' => __('app.admin_settings_layout_tab_site_info'),
         'icon' => 'fa-globe',
         'route' => route('admin.settings.index', ['tab' => 'general']),
     ],
     'images' => [
-        'label' => 'Images',
+        'label' => __('app.admin_settings_layout_tab_images'),
         'icon' => 'fa-images',
         'route' => route('admin.settings.index', ['tab' => 'images']),
     ],
     'contact' => [
-        'label' => 'Contact Info',
+        'label' => __('app.admin_settings_layout_tab_contact'),
         'icon' => 'fa-address-card',
         'route' => route('admin.settings.index', ['tab' => 'contact']),
     ],
     'ai' => [
-        'label' => 'Artificial Intelligence',
+        'label' => __('app.admin_settings_layout_tab_ai'),
         'icon' => 'fa-robot',
         'route' => route('admin.settings.index', ['tab' => 'ai']),
     ],
     'mail' => [
-        'label' => 'Mail Settings',
+        'label' => __('app.admin_settings_layout_tab_mail'),
         'icon' => 'fa-envelope',
         'route' => route('admin.settings.index', ['tab' => 'mail']),
     ],
     'languages' => [
-        'label' => 'Languages',
+        'label' => __('app.admin_settings_layout_tab_languages'),
         'icon' => 'fa-language',
         'route' => route('admin.settings.languages.index'),
     ],
     'currencies' => [
-        'label' => 'Currencies',
+        'label' => __('app.admin_settings_layout_tab_currencies'),
         'icon' => 'fa-money-bill-wave',
         'route' => route('admin.settings.currencies.index'),
     ],
     'header-menu' => [
-        'label' => 'Header',
+        'label' => __('app.admin_settings_layout_tab_header'),
         'icon' => 'fa-bars',
         'route' => route('admin.settings.header-menu'),
     ],
     'shipping' => [
-        'label' => 'Shipping',
+        'label' => __('app.admin_settings_layout_tab_shipping'),
         'icon' => 'fa-truck-fast',
         'route' => route('admin.settings.shipping'),
     ],
     'payment-gateways' => [
-        'label' => 'Payment Gateways',
+        'label' => __('app.admin_settings_layout_tab_payment'),
         'icon' => 'fa-credit-card',
         'route' => route('admin.settings.payment-gateways.index'),
     ],
@@ -58,17 +58,17 @@ $tabs = [
 
 $seoTabs = [
     'homepage' => [
-        'label' => 'Homepage',
+        'label' => __('app.admin_settings_layout_tab_homepage'),
         'icon' => 'fa-house',
         'route' => route('admin.homepage.edit'),
     ],
     'product-catalog' => [
-        'label' => 'Products Page',
+        'label' => __('app.admin_settings_layout_tab_products_page'),
         'icon' => 'fa-boxes-packing',
         'route' => route('admin.product-catalog.edit'),
     ],
     'pages' => [
-        'label' => 'Static Pages',
+        'label' => __('app.admin_settings_layout_tab_static_pages'),
         'icon' => 'fa-file-lines',
         'route' => route('admin.pages.index'),
     ],
@@ -132,9 +132,9 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
                 <i class="fa-solid fa-sliders text-3xl"></i>
             </div>
             <div class="flex-1">
-                <div class="text-xs font-bold text-emerald-100 mb-1">Settings Panel</div>
-                <h1 class="text-2xl sm:text-3xl font-black">General Settings</h1>
-                <p class="text-sm text-emerald-50 mt-1">Manage site settings, images, SEO, and static pages.</p>
+                <div class="text-xs font-bold text-emerald-100 mb-1">{{ __('app.admin_settings_layout_settings_panel') }}</div>
+                <h1 class="text-2xl sm:text-3xl font-black">{{ __('app.admin_settings_layout_heading') }}</h1>
+                <p class="text-sm text-emerald-50 mt-1">{{ __('app.admin_settings_layout_description') }}</p>
             </div>
         </div>
     </div>
@@ -150,7 +150,7 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
 
             <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
                 <div class="p-4 border-b border-slate-100">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">General Settings</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ __('app.admin_settings_layout_sidebar_general') }}</h3>
                 </div>
                 <nav class="p-2 space-y-1">
                     @foreach($tabs as $key => $tab)
@@ -166,7 +166,7 @@ $isSeoTab = in_array($activeTab, array_keys($seoTabs), true);
                 </nav>
 
                 <div class="p-4 border-t border-slate-100">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">SEO &amp; Content</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ __('app.admin_settings_layout_sidebar_seo') }}</h3>
                 </div>
                 <nav class="p-2 space-y-1">
                     @foreach($seoTabs as $key => $tab)

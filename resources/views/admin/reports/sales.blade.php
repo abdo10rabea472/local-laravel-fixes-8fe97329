@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('title', 'Sales Report')
+@section('title', __('app.admin_reports_sales_title'))
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -9,36 +9,36 @@
 <div class="p-6 space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Sales Report</h1>
-            <p class="text-sm text-slate-500 mt-1">Detailed revenue and order analytics by period.</p>
+            <h1 class="text-2xl font-bold text-slate-800">{{ __('app.admin_reports_sales_heading') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __('app.admin_reports_sales_subtitle') }}</p>
         </div>
         <a href="{{ route('admin.reports.sales', array_merge(request()->all(), ['export' => 'csv'])) }}"
            class="px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
-            <i class="fa-solid fa-file-csv mr-1"></i> Export CSV
+            <i class="fa-solid fa-file-csv mr-1"></i> {{ __('app.admin_reports_sales_export_csv') }}
         </a>
     </div>
 
     {{-- Filters --}}
     <form method="GET" class="bg-white border border-slate-200 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
-            <label class="text-xs font-bold text-slate-500">From date</label>
+            <label class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_sales_filter_from') }}</label>
             <input type="date" name="from" value="{{ $from }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
         </div>
         <div>
-            <label class="text-xs font-bold text-slate-500">To date</label>
+            <label class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_sales_filter_to') }}</label>
             <input type="date" name="to" value="{{ $to }}" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
         </div>
         <div>
-            <label class="text-xs font-bold text-slate-500">Status</label>
+            <label class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_sales_filter_status') }}</label>
             <select name="status" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
-                <option value="">Paid only (default)</option>
+                <option value="">{{ __('app.admin_reports_sales_filter_paid_default') }}</option>
                 @foreach($statuses as $s)
                     <option value="{{ $s }}" @selected($status===$s)>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
         </div>
         <div class="flex items-end">
-            <button class="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold">View Report</button>
+            <button class="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold">{{ __('app.admin_reports_sales_filter_submit') }}</button>
         </div>
     </form>
 
@@ -46,21 +46,20 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $cards = [
-                ['Total Revenue', (float) $kpi->revenue, 'text-emerald-600'],
-                ['Orders', (int) $kpi->orders, 'text-violet-600', false],
-                ['Average Order Value', (float) $kpi->aov, 'text-sky-600'],
-                ['Total Discounts', (float) $kpi->discount, 'text-rose-600'],
-                ['Shipping Collected', (float) $kpi->shipping, 'text-amber-600'],
-                ['Taxes', (float) $kpi->tax, 'text-slate-600'],
-                ['Subtotal (before shipping/tax)', (float) $kpi->subtotal, 'text-indigo-600'],
+                [__('app.admin_reports_sales_kpi_total_revenue'), (float) $kpi->revenue, 'text-emerald-600'],
+                [__('app.admin_reports_sales_kpi_orders'), (int) $kpi->orders, 'text-violet-600', false],
+                [__('app.admin_reports_sales_kpi_aov'), (float) $kpi->aov, 'text-sky-600'],
+                [__('app.admin_reports_sales_kpi_total_discounts'), (float) $kpi->discount, 'text-rose-600'],
+                [__('app.admin_reports_sales_kpi_shipping'), (float) $kpi->shipping, 'text-amber-600'],
+                [__('app.admin_reports_sales_kpi_taxes'), (float) $kpi->tax, 'text-slate-600'],
+                [__('app.admin_reports_sales_kpi_subtotal'), (float) $kpi->subtotal, 'text-indigo-600'],
             ];
         @endphp
         @foreach($cards as $c)
             <div class="bg-white border border-slate-200 rounded-2xl p-5">
                 <p class="text-xs font-bold text-slate-500">{{ $c[0] }}</p>
                 <h3 class="text-2xl font-black mt-2 {{ $c[2] }}">
-                    {{ number_format($c[1], (($c[3] ?? true) ? 2 : 0)) }}
-                    @if(($c[3] ?? true)) <span class="text-xs">EGP</span> @endif
+                    {{ ($c[3] ?? true) ? money($c[1]) : $c[1] }}
                 </h3>
             </div>
         @endforeach
@@ -68,28 +67,32 @@
 
     {{-- Chart --}}
     <div class="bg-white border border-slate-200 rounded-2xl p-5">
-        <h3 class="text-sm font-bold text-slate-700 mb-3">Daily Revenue</h3>
+        <h3 class="text-sm font-bold text-slate-700 mb-3">{{ __('app.admin_reports_sales_chart_daily_revenue') }}</h3>
         <canvas id="salesChart" height="80"></canvas>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Daily table --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Daily Sales</h3></div>
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">{{ __('app.admin_reports_sales_section_daily') }}</h3></div>
             <div class="overflow-x-auto max-h-96">
                 <table class="w-full text-sm">
                     <thead class="bg-slate-50 text-xs text-slate-500 sticky top-0">
-                        <tr><th class="p-3 text-left">Date</th><th class="p-3">Orders</th><th class="p-3">Revenue</th></tr>
+                        <tr>
+                            <th class="p-3 text-left">{{ __('app.admin_reports_sales_col_date') }}</th>
+                            <th class="p-3">{{ __('app.admin_reports_sales_col_orders') }}</th>
+                            <th class="p-3">{{ __('app.admin_reports_sales_col_revenue') }}</th>
+                        </tr>
                     </thead>
                     <tbody>
                     @forelse($daily as $row)
                         <tr class="border-t border-slate-100">
                             <td class="p-3 font-mono">{{ $row->d }}</td>
                             <td class="p-3 text-center">{{ $row->orders }}</td>
-                            <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$row->revenue, 2) }}</td>
+                            <td class="p-3 text-center font-bold text-emerald-600">{{ money($row->revenue) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="3" class="p-8 text-center text-slate-400">No data</td></tr>
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">{{ __('app.admin_reports_sales_no_data') }}</td></tr>
                     @endforelse
                     </tbody>
                 </table>
@@ -98,17 +101,21 @@
 
         {{-- Payment methods --}}
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Payment Methods</h3></div>
+            <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">{{ __('app.admin_reports_sales_section_payment_methods') }}</h3></div>
             <table class="w-full text-sm">
                 <thead class="bg-slate-50 text-xs text-slate-500">
-                    <tr><th class="p-3 text-left">Method</th><th class="p-3">Orders</th><th class="p-3">Revenue</th></tr>
+                    <tr>
+                        <th class="p-3 text-left">{{ __('app.admin_reports_sales_col_method') }}</th>
+                        <th class="p-3">{{ __('app.admin_reports_sales_col_orders') }}</th>
+                        <th class="p-3">{{ __('app.admin_reports_sales_col_revenue') }}</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @forelse($byPayment as $row)
                     <tr class="border-t border-slate-100">
                         <td class="p-3">{{ $row->method }}</td>
                         <td class="p-3 text-center">{{ $row->orders }}</td>
-                        <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$row->revenue, 2) }}</td>
+                        <td class="p-3 text-center font-bold text-emerald-600">{{ money($row->revenue) }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="3" class="p-8 text-center text-slate-400">—</td></tr>
@@ -120,20 +127,24 @@
 
     {{-- Top products --}}
     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">Top-Selling Products in Period</h3></div>
+        <div class="px-5 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-700">{{ __('app.admin_reports_sales_section_top_products') }}</h3></div>
         <table class="w-full text-sm">
             <thead class="bg-slate-50 text-xs text-slate-500">
-                <tr><th class="p-3 text-left">Product</th><th class="p-3">Quantity</th><th class="p-3">Revenue</th></tr>
+                <tr>
+                    <th class="p-3 text-left">{{ __('app.admin_reports_sales_col_product') }}</th>
+                    <th class="p-3">{{ __('app.admin_reports_sales_col_quantity') }}</th>
+                    <th class="p-3">{{ __('app.admin_reports_sales_col_revenue') }}</th>
+                </tr>
             </thead>
             <tbody>
             @forelse($topProducts as $p)
                 <tr class="border-t border-slate-100">
                     <td class="p-3 font-bold text-slate-800">{{ $p->name }}</td>
                     <td class="p-3 text-center">{{ (int) $p->qty }}</td>
-                    <td class="p-3 text-center font-bold text-emerald-600">{{ number_format((float)$p->revenue, 2) }}</td>
+                    <td class="p-3 text-center font-bold text-emerald-600">{{ money($p->revenue) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3" class="p-8 text-center text-slate-400">No data</td></tr>
+                <tr><td colspan="3" class="p-8 text-center text-slate-400">{{ __('app.admin_reports_sales_no_data') }}</td></tr>
             @endforelse
             </tbody>
         </table>

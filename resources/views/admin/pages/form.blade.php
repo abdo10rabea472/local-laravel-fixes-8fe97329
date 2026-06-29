@@ -3,8 +3,8 @@
 @section('settings-content')
 <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
     <div class="border-b border-slate-100 px-6 py-4">
-        <h3 class="text-base font-bold text-slate-800">{{ $page->exists ? 'تعديل صفحة: ' . $page->title : 'إضافة صفحة جديدة' }}</h3>
-        <p class="text-xs text-slate-500 mt-1">{{ $page->exists ? 'تحديث محتوى وSEO الصفحة.' : 'إنشاء صفحة ثابتة جديدة.' }}</p>
+        <h3 class="text-base font-bold text-slate-800">{{ $page->exists ? __('app.admin_pages_form_edit_title') . ': ' . $page->title : __('app.admin_pages_form_create_title') }}</h3>
+        <p class="text-xs text-slate-500 mt-1">{{ $page->exists ? __('app.admin_pages_form_edit_sub') : __('app.admin_pages_form_create_sub') }}</p>
     </div>
 
     <form method="POST" action="{{ $page->exists ? route('admin.pages.update', $page) : route('admin.pages.store') }}" enctype="multipart/form-data" class="p-6 space-y-6">
@@ -13,11 +13,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-500">العنوان *</label>
+                <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_title_label') }}</label>
                 <input type="text" name="title" value="{{ old('title', $page->title) }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
             </div>
             <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-500">المعرف (Slug) *</label>
+                <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_slug_label') }}</label>
                 <input type="text" name="slug" value="{{ old('slug', $page->slug) }}" required class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
             </div>
         </div>
@@ -83,27 +83,27 @@
             <div class="space-y-3">
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <div>
-                        <label class="text-xs font-bold text-slate-500">الأسئلة والأجوبة</label>
+                        <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_faqs_label') }}</label>
                         <p class="text-[11px] text-slate-400 mt-1">
-                            المجموع: <span id="faq-total" class="font-bold text-slate-600">{{ count($faqItems) }}</span>
-                            — يدعم آلاف الأسئلة مع بحث وتقسيم صفحات.
+                            {{ __('app.admin_pages_form_faq_total') }}: <span id="faq-total" class="font-bold text-slate-600">{{ count($faqItems) }}</span>
+                            — {{ __('app.admin_pages_form_faq_hint') }}
                         </p>
                     </div>
                     <button type="button" id="faq-add" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl">
-                        <i class="fa-solid fa-plus"></i> إضافة سؤال
+                        <i class="fa-solid fa-plus"></i> {{ __('app.admin_pages_form_add_faq') }}
                     </button>
                 </div>
 
                 <div class="flex items-center gap-3 flex-wrap">
                     <div class="relative flex-1 min-w-[220px]">
-                        <input type="text" id="faq-search" placeholder="ابحث في الأسئلة، الإجابات، التصنيف…"
+                        <input type="text" id="faq-search" @lang('app.admin_pages_form_faq_search_placeholder')
                                class="w-full h-11 ps-10 pe-4 bg-white border border-slate-200 rounded-xl text-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none">
                         <i class="fa-solid fa-magnifying-glass absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                     </div>
                     <select id="faq-perpage" class="h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm">
-                        <option value="20">20 / صفحة</option>
-                        <option value="50">50 / صفحة</option>
-                        <option value="100">100 / صفحة</option>
+                        <option value="20">20 / {{ __('app.admin_pages_form_per_page') }}</option>
+                        <option value="50">50 / {{ __('app.admin_pages_form_per_page') }}</option>
+                        <option value="100">100 / {{ __('app.admin_pages_form_per_page') }}</option>
                     </select>
                 </div>
 
@@ -111,7 +111,7 @@
                     @foreach($faqItems as $i => $item)
                     <div class="faq-row bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3" data-idx="{{ $i }}">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-500">سؤال <span class="faq-index">{{ $i + 1 }}</span></span>
+                            <span class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_faq_num') }} <span class="faq-index">{{ $i + 1 }}</span></span>
                             <button type="button" class="faq-remove text-rose-500 hover:text-rose-700 text-xs font-bold inline-flex items-center gap-1">
                                 <i class="fa-solid fa-trash"></i> حذف
                             </button>
@@ -123,7 +123,7 @@
                         @endphp
                         <div class="flex items-center gap-2">
                             <select class="faq-cat flex-1 h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs">
-                                <option value="">— اختر تصنيف —</option>
+                                <option value="">{{ __('app.admin_pages_form_select_category') }}</option>
                                 @foreach($defaultCats as $cat)
                                     <option value="{{ $cat }}" @selected($item['category'] === $cat)>{{ $cat }}</option>
                                 @endforeach
@@ -146,14 +146,14 @@
 
                 <div id="faq-pager" class="flex items-center justify-between gap-3 pt-2">
                     <button type="button" id="faq-prev" class="inline-flex items-center gap-2 h-10 px-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
-                        <i class="fa-solid fa-chevron-right"></i> السابق
+                        <i class="fa-solid fa-chevron-right"></i> {{ __('app.admin_pages_form_prev') }}
                     </button>
                     <div class="text-xs text-slate-500">
-                        صفحة <span id="faq-page" class="font-bold text-slate-700">1</span> من <span id="faq-pages" class="font-bold text-slate-700">1</span>
+                        {{ __('app.admin_pages_form_page') }} <span id="faq-page" class="font-bold text-slate-700">1</span> {{ __('app.admin_pages_form_of') }} <span id="faq-pages" class="font-bold text-slate-700">1</span>
                         · <span id="faq-shown">0</span> ظاهر
                     </div>
                     <button type="button" id="faq-next" class="inline-flex items-center gap-2 h-10 px-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
-                        التالي <i class="fa-solid fa-chevron-left"></i>
+                        {{ __('app.admin_pages_form_next') }} <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
@@ -169,12 +169,12 @@
             @endphp
 
             <div id="about-editor" class="space-y-5">
-                <p class="text-xs text-slate-500 -mb-1">تحكم في كل أقسام صفحة "من نحن". اترك الحقل فارغًا لاستخدام القيمة الافتراضية.</p>
+                <p class="text-xs text-slate-500 -mb-1">{{ __('app.admin_pages_form_about_hint') }}</p>
 
                 {{-- Hero --}}
                 <div class="{{ $sectionClass }}">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-bullhorn text-violet-500"></i> قسم الهيرو (Hero)
+                        <i class="fa-solid fa-bullhorn text-violet-500"></i> {{ __('app.admin_pages_form_about_hero_section') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
@@ -182,7 +182,7 @@
                             <input type="text" data-about="hero.title" value="{{ $aboutData['hero']['title'] }}" class="{{ $inputClass }}">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="{{ $labelClass }}">العنوان الفرعي</label>
+                            <label class="{{ $labelClass }}">{{ __('app.admin_pages_form_label_subtitle') }}</label>
                             <input type="text" data-about="hero.subtitle" value="{{ $aboutData['hero']['subtitle'] }}" class="{{ $inputClass }}">
                         </div>
                     </div>
@@ -191,18 +191,18 @@
                 {{-- Story --}}
                 <div class="{{ $sectionClass }}">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-indigo-500"></i> قسم القصة (Our Story)
+                        <i class="fa-solid fa-book-open text-indigo-500"></i> {{ __('app.admin_pages_form_about_story_section') }}
                     </h4>
                     <div class="space-y-1.5">
                         <label class="{{ $labelClass }}">العنوان</label>
                         <input type="text" data-about="story.title" value="{{ $aboutData['story']['title'] }}" class="{{ $inputClass }}">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="{{ $labelClass }}">الفقرة الأولى</label>
+                        <label class="{{ $labelClass }}">{{ __('app.admin_pages_form_label_p1') }}</label>
                         <textarea data-about="story.p1" rows="3" class="{{ $areaClass }}">{{ $aboutData['story']['p1'] }}</textarea>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="{{ $labelClass }}">الفقرة الثانية</label>
+                        <label class="{{ $labelClass }}">{{ __('app.admin_pages_form_label_p2') }}</label>
                         <textarea data-about="story.p2" rows="3" class="{{ $areaClass }}">{{ $aboutData['story']['p2'] }}</textarea>
                     </div>
                 </div>
@@ -210,16 +210,16 @@
                 {{-- Stats --}}
                 <div class="{{ $sectionClass }}">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-line text-emerald-500"></i> الإحصائيات (4 بطاقات)
+                        <i class="fa-solid fa-chart-line text-emerald-500"></i> {{ __('app.admin_pages_form_about_stats_section') }}
                     </h4>
-                    <p class="text-[11px] text-slate-400">اترك حقل القيمة فارغًا لحساب الرقم تلقائيًا من قاعدة البيانات.</p>
+                    <p class="text-[11px] text-slate-400">{{ __('app.admin_pages_form_stats_hint') }}</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach($aboutData['stats'] as $i => $stat)
                             <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2" data-about-stat="{{ $i }}">
-                                <div class="text-[11px] font-bold text-slate-400">بطاقة {{ $i + 1 }}</div>
+                                <div class="text-[11px] font-bold text-slate-400">{{ __('app.admin_pages_form_card_num') }} {{ $i + 1 }}</div>
                                 <div class="grid grid-cols-3 gap-2">
-                                    <input type="text" data-about="stats.{{ $i }}.label" value="{{ $stat['label'] }}" placeholder="التسمية" class="col-span-2 h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                    <input type="text" data-about="stats.{{ $i }}.value" value="{{ $stat['value'] }}" placeholder="قيمة (اختياري)" class="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                                    <input type="text" data-about="stats.{{ $i }}.label" value="{{ $stat['label'] }}" placeholder="{{ __('app.admin_pages_form_placeholder_label') }}" class="col-span-2 h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                                    <input type="text" data-about="stats.{{ $i }}.value" value="{{ $stat['value'] }}" placeholder="{{ __('app.admin_pages_form_placeholder_value') }}" class="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
                                 </div>
                                 <select data-about="stats.{{ $i }}.color" class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
                                     @foreach($colorOptions as $c)
@@ -234,12 +234,12 @@
                 {{-- Mission / Vision / Values --}}
                 <div class="{{ $sectionClass }}">
                     <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-bullseye text-rose-500"></i> الرسالة والرؤية والقيم (3 بطاقات)
+                        <i class="fa-solid fa-bullseye text-rose-500"></i> {{ __('app.admin_pages_form_about_cards_section') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         @foreach($aboutData['cards'] as $i => $card)
                             <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
-                                <div class="text-[11px] font-bold text-slate-400">بطاقة {{ $i + 1 }}</div>
+                                <div class="text-[11px] font-bold text-slate-400">{{ __('app.admin_pages_form_card_num') }} {{ $i + 1 }}</div>
                                 <input type="text" data-about="cards.{{ $i }}.icon" value="{{ $card['icon'] }}" placeholder="fa-bullseye" class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono">
                                 <input type="text" data-about="cards.{{ $i }}.title" value="{{ $card['title'] }}" placeholder="العنوان" class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
                                 <textarea data-about="cards.{{ $i }}.desc" rows="3" placeholder="الوصف" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">{{ $card['desc'] }}</textarea>
@@ -257,27 +257,27 @@
                 <div class="{{ $sectionClass }}">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-users text-blue-500"></i> الفريق
+                            <i class="fa-solid fa-users text-blue-500"></i> {{ __('app.admin_pages_form_about_team_section') }}
                         </h4>
                         <button type="button" id="about-team-add" class="inline-flex items-center gap-1 text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">
                             <i class="fa-solid fa-plus"></i> إضافة عضو
                         </button>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="{{ $labelClass }}">عنوان قسم الفريق</label>
+                        <label class="{{ $labelClass }}">{{ __('app.admin_pages_form_team_title_label') }}</label>
                         <input type="text" data-about="team_title" value="{{ $aboutData['team_title'] }}" class="{{ $inputClass }}">
                     </div>
                     <div id="about-team-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         @foreach($aboutData['team'] as $i => $m)
                             <div class="about-team-row bg-white border border-slate-200 rounded-xl p-3 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-bold text-slate-400">عضو {{ $i + 1 }}</span>
+                                    <span class="text-[11px] font-bold text-slate-400">{{ __('app.admin_pages_form_member_num') }} {{ $i + 1 }}</span>
                                     <button type="button" class="about-team-remove text-rose-500 hover:text-rose-700 text-xs font-bold">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
-                                <input type="text" class="team-name w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="الاسم" value="{{ $m['name'] }}">
-                                <input type="text" class="team-role w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="المسمى الوظيفي" value="{{ $m['role'] }}">
+                                <input type="text" class="team-name w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="{{ __('app.admin_pages_form_placeholder_name') }}" value="{{ $m['name'] }}">
+                                <input type="text" class="team-role w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="{{ __('app.admin_pages_form_placeholder_role') }}" value="{{ $m['role'] }}">
                             </div>
                         @endforeach
                     </div>
@@ -287,9 +287,9 @@
             </div>
         @else
             <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-500">المحتوى</label>
+                <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_content_label') }}</label>
                 <textarea id="content-editor" name="content" rows="20" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ old('content', $page->content) }}</textarea>
-                <p class="text-[11px] text-slate-400">سيظهر هذا المحتوى في الصفحة العامة بدل القالب الافتراضي.</p>
+                <p class="text-[11px] text-slate-400">{{ __('app.admin_pages_form_content_hint') }}</p>
             </div>
         @endif
 
@@ -301,36 +301,36 @@
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">SEO Title</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_seo_title') }}</label>
                     <input type="text" name="seo_title" value="{{ old('seo_title', $page->seo_title) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">SEO Keywords</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_seo_keywords') }}</label>
                     <input type="text" name="seo_keywords" value="{{ old('seo_keywords', $page->seo_keywords) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">SEO Description</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_seo_description') }}</label>
                     <textarea name="seo_description" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ old('seo_description', $page->seo_description) }}</textarea>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">OG Title</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_og_title') }}</label>
                     <input type="text" name="og_title" value="{{ old('og_title', $page->og_title) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-500">OG Image</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_og_image') }}</label>
                     <input type="file" name="og_image" accept="image/*" class="w-full text-sm">
                     @if($page->og_image_url)
                     <div class="flex items-center gap-4 mt-2">
                         <img src="{{ $page->og_image_url }}" alt="" class="h-16 w-auto object-cover rounded-lg">
                         <label class="flex items-center gap-2 text-sm text-rose-600 cursor-pointer">
                             <input type="checkbox" name="remove_og_image" value="1">
-                            حذف الصورة
+                            {{ __('app.admin_pages_form_remove_image') }}
                         </label>
                     </div>
                     @endif
                 </div>
                 <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">OG Description</label>
+                    <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_og_description') }}</label>
                     <textarea name="og_description" rows="2" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ old('og_description', $page->og_description) }}</textarea>
                 </div>
             </div>
@@ -338,23 +338,23 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-slate-100 pt-6">
             <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-500">Canonical URL</label>
+                <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_canonical_url') }}</label>
                 <input type="url" name="canonical_url" value="{{ old('canonical_url', $page->canonical_url) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
             </div>
             <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-500">الترتيب</label>
+                <label class="text-xs font-bold text-slate-500">{{ __('app.admin_pages_form_sort_label') }}</label>
                 <input type="number" name="sort_order" value="{{ old('sort_order', $page->sort_order ?? 0) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
             </div>
             <div class="flex items-center gap-2 h-11 mt-6">
                 <input type="checkbox" name="status" value="1" @checked(old('status', $page->status ?? true)) class="rounded">
-                <label class="text-sm font-semibold text-slate-700">نشط</label>
+                <label class="text-sm font-semibold text-slate-700">{{ __('app.admin_pages_form_active') }}</label>
             </div>
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <a href="{{ route('admin.pages.index') }}" class="h-11 px-6 bg-slate-100 text-slate-700 font-bold rounded-xl flex items-center">إلغاء</a>
+            <a href="{{ route('admin.pages.index') }}" class="h-11 px-6 bg-slate-100 text-slate-700 font-bold rounded-xl flex items-center">{{ __('app.admin_pages_form_cancel') }}</a>
             <button type="submit" class="h-11 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-emerald-500/20">
-                {{ $page->exists ? 'تحديث' : 'حفظ' }}
+                {{ $page->exists ? __('app.admin_pages_form_update') : __('app.admin_pages_form_save') }}
             </button>
         </div>
     </form>
