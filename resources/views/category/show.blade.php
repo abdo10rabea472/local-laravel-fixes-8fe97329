@@ -268,12 +268,13 @@
 
                                 @if($hasDiscount && $discountPercent > 0)
                                     <div class="absolute top-4 right-4 z-10 bg-gradient-to-br from-rose-500 to-red-600 text-white font-black text-[11px] px-3 py-1.5 rounded-xl shadow-[0_8px_16px_rgba(244,63,94,0.3),inset_0_2px_4px_rgba(255,255,255,0.2)] border-t border-white/20 transform rotate-6 group-hover:scale-110 group-hover:rotate-0 transition-all duration-300">
-                                        SAVE {{ $discountPercent }}%
+                                        {{ __('app.cat_save', ['percent' => $discountPercent]) }}
                                     </div>
                                 @elseif($product->featured)
                                     <div class="absolute top-4 right-4 z-10 bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black text-[10px] px-2.5 py-1.5 rounded-xl shadow-[0_8px_16px_rgba(245,158,11,0.3),inset_0_2px_4px_rgba(255,255,255,0.2)] border-t border-white/20 transform rotate-2 group-hover:scale-110 group-hover:rotate-0 transition-all duration-300">
-                                        BEST SELLER
+                                        {{ __('app.cat_best_seller') }}
                                     </div>
+
                                 @endif
 
                                 <img src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy"
