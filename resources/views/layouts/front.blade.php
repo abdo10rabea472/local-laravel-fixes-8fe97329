@@ -43,6 +43,35 @@
         <script type="application/ld+json">{!! $schemaMarkup !!}</script>
     @endif
 
+    {{-- SEO: indexing, verification, analytics --}}
+    @if(site_setting('seo_indexing_enabled','1') !== '1')
+        <meta name="robots" content="noindex, nofollow">
+    @endif
+    @if($gsv = site_setting('google_site_verification'))
+        <meta name="google-site-verification" content="{{ $gsv }}">
+    @endif
+    @if($bsv = site_setting('bing_site_verification'))
+        <meta name="msvalidate.01" content="{{ $bsv }}">
+    @endif
+    @if(site_setting('sitemap_enabled','1') === '1')
+        <link rel="sitemap" type="application/xml" href="{{ url('/sitemap.xml') }}">
+    @endif
+    @if($gaId = site_setting('google_analytics_id'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($gaId));
+        </script>
+    @endif
+    @if($gtmId = site_setting('google_tag_manager_id'))
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',@json($gtmId));</script>
+    @endif
+    @if($fbPx = site_setting('facebook_pixel_id'))
+        <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', @json($fbPx)); fbq('track', 'PageView');</script>
+    @endif
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
