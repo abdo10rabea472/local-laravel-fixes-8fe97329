@@ -683,7 +683,16 @@
         const cid = carrierSel.value;
         if (!cid) { setRateStatus('', null); return; }
 
-        // Address completeness
+        // For any non-Aramex carrier we rely on the country/region shipping
+        // already computed by calculateShipping(); do NOT override it here,
+        // otherwise selecting a country shows the cost then it gets wiped to 0.
+        if (code !== 'aramex') {
+            updateTotals();
+            setRateStatus('', null);
+            return;
+        }
+
+        // Address completeness (only required for the live Aramex rate call)
         const countryEl = document.getElementById('shipping-country');
         const countryOpt = countryEl?.options[countryEl.selectedIndex];
         const countryName = countryOpt?.textContent?.trim() || '';
@@ -692,25 +701,15 @@
         const zip  = (document.querySelector('[name="postcode"], [name="postal_code"], #shipping-postcode')?.value || '').trim();
 
         if (!countryName || !city || !addr || !cart || cart.length === 0) {
-            // Fallback to default carrier cost so total reflects the choice
-            const fallback = parseFloat(opt?.dataset?.cost || '0') || 0;
-            shippingCost = fallback;
-            updateTotalsDisplay();
-            setRateStatus('أكمل بيانات العنوان لحساب السعر الفعلي', null);
+            // Keep the country/region cost that calculateShipping() already set.
+            updateTotals();
+            setRateStatus('أكمل بيانات العنوان لحساب السعر الفعلي عبر Aramex', null);
             return;
         }
 
         const sig = [cid, countryName, city, addr, zip, cart.length].join('|');
         if (sig === lastSig) return;
         lastSig = sig;
-
-        // For non-aramex carriers, just use the default cost.
-        if (code !== 'aramex') {
-            shippingCost = parseFloat(opt?.dataset?.cost || '0') || 0;
-            updateTotalsDisplay();
-            setRateStatus('✓ تم تطبيق سعر الشحن الافتراضي', 'ok');
-            return;
-        }
 
         const cc = codeMap[countryName] || 'EG';
         setRateStatus('جاري حساب سعر الشحن…', 'loading');
