@@ -9,10 +9,28 @@ use Illuminate\Support\Facades\Cache;
 
 class FaqController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $faqs = Faq::orderBy('category')->orderBy('sort_order')->paginate(30);
-        return view('admin.content.faqs.index', compact('faqs'));
+        $q = trim((string) $request->get('q', ''));
+        $cat = trim((string) $request->get('category', ''));
+        $perPage = (int) $request->get('per_page', 30);
+        if (!in_array($perPage, [20, 30, 50, 100], true)) $perPage = 30;
+
+        $query = Faq::query()->orderBy('category')->orderBy('sort_order');
+        if ($q !== '') {
+            $query->where(function ($w) use ($q) {
+                $w->where('question', 'like', "%{$q}%")
+                  ->orWhere('answer', 'like', "%{$q}%");
+            });
+        }
+        if ($cat !== '') {
+            $query->where('category', $cat);
+        }
+        $faqs = $query->paginate($perPage)->withQueryString();
+        $categories = Faq::query()->whereNotNull('category')->where('category', '!=', '')
+            ->distinct()->orderBy('category')->pluck('category');
+
+        return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories'));
     }
 
     public function store(Request $request)
