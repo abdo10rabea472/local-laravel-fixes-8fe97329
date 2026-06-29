@@ -88,13 +88,10 @@ class CurrencyController extends Controller
             $previous = Currency::where('is_default', true)->where('id', '!=', $currency->id)->pluck('code')->all();
 
             DB::transaction(function () use ($currency) {
-                // New base currency: its rate is 1, and all OTHER currencies must be
-                // re-checked. We mark them so the admin must update them.
-                Currency::where('id', '!=', $currency->id)->update(['exchange_rate' => 0]);
+                // Switch default. Keep other currencies' exchange rates untouched.
+                Currency::where('is_default', true)->where('id', '!=', $currency->id)->update(['is_default' => false]);
                 $currency->update(['is_default' => true, 'is_active' => true, 'exchange_rate' => 1]);
             });
-
-            $needsUpdate = Currency::where('id', '!=', $currency->id)->pluck('code')->all();
 
             AuditLog::create([
                 'action'     => 'currency.set_default',
@@ -106,15 +103,14 @@ class CurrencyController extends Controller
                     'currency_id'    => $currency->id,
                     'currency_code'  => $currency->code,
                     'previous'       => $previous,
-                    'reset_rates_for'=> $needsUpdate,
                     'verified_via'   => 'email_otp',
                 ]),
             ]);
 
-            $msg = 'Default currency updated securely. ⚠️ Exchange rates for ['
-                .implode(', ', $needsUpdate).'] were reset to 0 — please update each rate now.';
-            return redirect()->route('admin.settings.currencies.index')->with('warning', $msg);
+            return redirect()->route('admin.settings.currencies.index')
+                ->with('success', 'Default currency updated securely. Review other currencies\' exchange rates relative to the new base.');
         }
+
 
         // ---------- STEP 1: password + typed code → send OTP ----------
         $request->validate([
