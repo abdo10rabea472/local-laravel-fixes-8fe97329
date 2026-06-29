@@ -266,7 +266,7 @@
 
     document.querySelectorAll('.faq-row .faq-cat-new').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            const name = prompt('{{ __('app.admin_pages_form_add_faq') ?? 'اسم التصنيف الجديد' }}');
+            const name = prompt('اسم التصنيف الجديد');
             if (!name) return;
             const sel = btn.parentElement.querySelector('.faq-cat-select');
             if (!sel) return;
