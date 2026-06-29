@@ -14,8 +14,8 @@ class FaqController extends Controller
     {
         $q = trim((string) $request->get('q', ''));
         $cat = trim((string) $request->get('category', ''));
-        $perPage = (int) $request->get('per_page', 30);
-        if (!in_array($perPage, [20, 30, 50, 100], true)) $perPage = 30;
+        $perPage = (int) $request->get('per_page', 5);
+        if (!in_array($perPage, [5, 10, 20, 30, 50, 100], true)) $perPage = 5;
 
         $query = Faq::query()->orderBy('category')->orderBy('sort_order');
         if ($q !== '') {
