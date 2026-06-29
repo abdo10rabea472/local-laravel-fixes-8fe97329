@@ -1,17 +1,17 @@
 @extends('admin.layouts.app')
-@section('title', 'Orders')
+@section('title', __('app.admin_orders_title'))
 
 @section('content')
-<x-admin.page title="Order Management" subtitle="View, edit and track all orders.">
+<x-admin.page :title="__('app.admin_orders_heading')" :subtitle="__('app.admin_orders_subtitle')">
     {{-- Stats --}}
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         @php $cards = [
-            ['All', $stats['total'], 'gray', 'fa-list'],
-            ['Pending', $stats['pending'], 'amber', 'fa-clock'],
-            ['Paid', $stats['paid'], 'sky', 'fa-credit-card'],
-            ['Shipped', $stats['shipped'], 'indigo', 'fa-truck'],
-            ['Delivered', $stats['delivered'], 'emerald', 'fa-check'],
-            ['Revenue', number_format($stats['revenue'], 0).' EGP', 'primary', 'fa-coins'],
+            [__('app.admin_orders_stat_all'), $stats['total'], 'gray', 'fa-list'],
+            [__('app.admin_orders_status_pending'), $stats['pending'], 'amber', 'fa-clock'],
+            [__('app.admin_orders_status_paid'), $stats['paid'], 'sky', 'fa-credit-card'],
+            [__('app.admin_orders_status_shipped'), $stats['shipped'], 'indigo', 'fa-truck'],
+            [__('app.admin_orders_status_delivered'), $stats['delivered'], 'emerald', 'fa-check'],
+            [__('app.admin_orders_stat_revenue'), money($stats['revenue']), 'primary', 'fa-coins'],
         ]; @endphp
         @foreach($cards as [$lbl,$val,$c,$ic])
             <div class="bg-white dark:bg-dark-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between">
@@ -26,28 +26,27 @@
         @endforeach
     </div>
 
-    <x-admin.card title="Orders List" icon="fa-shopping-cart" padding="p-0">
-        {{-- Bulk + Export toolbar --}}
+    <x-admin.card :title="__('app.admin_orders_list_title')" icon="fa-shopping-cart" padding="p-0">
         <form method="POST" action="{{ route('admin.orders.bulk-status') }}" id="bulk-orders-form">
             @csrf
             <div class="flex flex-wrap items-center gap-2 p-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-dark-800/40">
                 <select name="status" class="h-10 px-3 bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-700 rounded-lg text-xs">
-                    <option value="">— Bulk status change —</option>
-                    @foreach(['pending'=>'Pending','paid'=>'Paid','shipped'=>'Shipped','delivered'=>'Delivered','cancelled'=>'Cancelled','refunded'=>'Refunded'] as $k=>$v)
+                    <option value="">— {{ __('app.admin_orders_bulk_change') }} —</option>
+                    @foreach(['pending'=>__('app.admin_orders_status_pending'),'paid'=>__('app.admin_orders_status_paid'),'shipped'=>__('app.admin_orders_status_shipped'),'delivered'=>__('app.admin_orders_status_delivered'),'cancelled'=>__('app.admin_orders_status_cancelled'),'refunded'=>__('app.admin_orders_status_refunded')] as $k=>$v)
                         <option value="{{ $k }}">{{ $v }}</option>
                     @endforeach
                 </select>
                 <label class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" name="notify" value="1" class="rounded"> Notify customer by email
+                    <input type="checkbox" name="notify" value="1" class="rounded"> {{ __('app.admin_orders_notify_customer') }}
                 </label>
-                <button type="submit" onclick="return confirm('Apply action to selected orders?')"
+                <button type="submit" onclick="return confirm('{{ __('app.admin_orders_confirm_bulk') }}')"
                         class="h-10 px-4 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-lg">
-                    <i class="fas fa-check mr-1"></i> Apply
+                    <i class="fas fa-check mr-1"></i> {{ __('app.admin_common_apply') }}
                 </button>
                 <div class="flex-1"></div>
                 <a href="{{ route('admin.orders.export', request()->query()) }}"
                    class="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg inline-flex items-center gap-1">
-                    <i class="fas fa-file-csv"></i> Export CSV
+                    <i class="fas fa-file-csv"></i> {{ __('app.admin_common_export_csv') }}
                 </a>
             </div>
 
@@ -56,13 +55,13 @@
                     <thead class="bg-gray-50 dark:bg-dark-800 text-gray-500 dark:text-gray-400 text-xs">
                         <tr>
                             <th class="p-3 w-10"><input type="checkbox" id="check-all-orders" class="rounded"></th>
-                            <th class="p-3 text-left">Order #</th>
-                            <th class="p-3">Customer</th>
-                            <th class="p-3">Items</th>
-                            <th class="p-3">Total</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Actions</th>
+                            <th class="p-3 text-left">{{ __('app.admin_orders_col_number') }}</th>
+                            <th class="p-3">{{ __('app.admin_orders_col_customer') }}</th>
+                            <th class="p-3">{{ __('app.admin_orders_col_items') }}</th>
+                            <th class="p-3">{{ __('app.admin_orders_col_total') }}</th>
+                            <th class="p-3">{{ __('app.admin_common_status') }}</th>
+                            <th class="p-3">{{ __('app.admin_common_date') }}</th>
+                            <th class="p-3">{{ __('app.admin_common_actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,21 +74,21 @@
                                 <div class="text-gray-500 dark:text-gray-400">{{ $o->email }}</div>
                             </td>
                             <td class="p-3 text-center text-gray-700 dark:text-gray-300">{{ $o->items->count() }}</td>
-                            <td class="p-3 text-center font-bold text-gray-900 dark:text-white">{{ number_format($o->total, 2) }} {{ $o->currency }}</td>
+                            <td class="p-3 text-center font-bold text-gray-900 dark:text-white">{{ money($o->total) }}</td>
                             <td class="p-3 text-center">
                                 @php $c = $o->statusBadgeColor(); @endphp
                                 <span class="px-2 py-1 text-xs rounded-full font-bold bg-{{ $c }}-50 dark:bg-{{ $c }}-950/30 text-{{ $c }}-700 dark:text-{{ $c }}-400">{{ $o->statusLabel() }}</span>
                             </td>
                             <td class="p-3 text-center text-xs text-gray-500 dark:text-gray-400">{{ $o->created_at->format('Y-m-d H:i') }}</td>
                             <td class="p-3 text-center whitespace-nowrap">
-                                <a href="{{ route('admin.orders.show', $o) }}" class="text-primary-600 hover:underline font-bold text-xs">View</a>
-                                <a href="{{ route('admin.orders.invoice', $o) }}" target="_blank" class="text-gray-600 dark:text-gray-400 hover:underline font-bold text-xs ml-2">Invoice</a>
+                                <a href="{{ route('admin.orders.show', $o) }}" class="text-primary-600 hover:underline font-bold text-xs">{{ __('app.admin_common_view') }}</a>
+                                <a href="{{ route('admin.orders.invoice', $o) }}" target="_blank" class="text-gray-600 dark:text-gray-400 hover:underline font-bold text-xs ml-2">{{ __('app.admin_orders_invoice') }}</a>
                             </td>
                         </tr>
                         @empty
                         <tr><td colspan="8" class="p-12 text-center text-gray-400">
                             <i class="fas fa-inbox text-3xl mb-3 block"></i>
-                            No orders.
+                            {{ __('app.admin_orders_empty') }}
                         </td></tr>
                         @endforelse
                     </tbody>
@@ -107,36 +106,36 @@
     </x-admin.card>
 
     <x-slot:side>
-        <x-admin.card title="Filter Orders" icon="fa-filter">
+        <x-admin.card :title="__('app.admin_orders_filter_title')" icon="fa-filter">
             <form method="GET" class="space-y-3">
                 <div>
-                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">Search</label>
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Number / email / phone"
+                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_common_search') }}</label>
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('app.admin_orders_search_ph') }}"
                            class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">Status</label>
+                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_common_status') }}</label>
                     <select name="status" class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
-                        <option value="">All statuses</option>
-                        @foreach(['pending'=>'Pending','paid'=>'Paid','shipped'=>'Shipped','delivered'=>'Delivered','cancelled'=>'Cancelled','refunded'=>'Refunded'] as $k=>$v)
+                        <option value="">{{ __('app.admin_common_all_statuses') }}</option>
+                        @foreach(['pending'=>__('app.admin_orders_status_pending'),'paid'=>__('app.admin_orders_status_paid'),'shipped'=>__('app.admin_orders_status_shipped'),'delivered'=>__('app.admin_orders_status_delivered'),'cancelled'=>__('app.admin_orders_status_cancelled'),'refunded'=>__('app.admin_orders_status_refunded')] as $k=>$v)
                             <option value="{{ $k }}" @selected(request('status')===$k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">From</label>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_common_from') }}</label>
                         <input type="date" name="from" value="{{ request('from') }}"
                                class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs focus:border-primary-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">To</label>
+                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_common_to') }}</label>
                         <input type="date" name="to" value="{{ request('to') }}"
                                class="w-full h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs focus:border-primary-500 focus:outline-none">
                     </div>
                 </div>
                 <button type="submit" class="w-full h-11 bg-gray-900 dark:bg-dark-700 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors">
-                    <i class="fas fa-filter mr-1"></i> Apply filter
+                    <i class="fas fa-filter mr-1"></i> {{ __('app.admin_common_apply_filter') }}
                 </button>
             </form>
         </x-admin.card>
