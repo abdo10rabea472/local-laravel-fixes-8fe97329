@@ -34,20 +34,38 @@
         </form>
 
         <div class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($faqs as $f)
-                <div class="p-5">
+            @forelse($faqs as $i => $f)
+                <div class="p-5 faq-row" data-idx="{{ $i }}">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <span class="inline-flex w-7 h-7 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-950/30 text-primary-700 dark:text-primary-300">
+                                {{ str_pad(($faqs->firstItem() ?? 1) + $i, 2, '0', STR_PAD_LEFT) }}
+                            </span>
+                            {{ __('app.admin_pages_form_faq_num') ?? 'سؤال' }}
+                        </span>
+                        @if($f->category)
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300">
+                                <i class="fa-solid fa-tag text-[9px]"></i> {{ $f->category }}
+                            </span>
+                        @endif
+                    </div>
                     <form method="POST" action="{{ route('admin.faqs.update', $f) }}" class="space-y-3">
                         @csrf @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <select name="category" class="h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
-                                <option value="">{{ __('app.admin_pages_form_select_category') }}</option>
-                                @foreach($allCats as $c)
-                                    <option value="{{ $c }}" @selected($f->category === $c)>{{ $c }}</option>
-                                @endforeach
-                                @if($f->category && !$allCats->contains($f->category))
-                                    <option value="{{ $f->category }}" selected>{{ $f->category }}</option>
-                                @endif
-                            </select>
+                            <div class="flex items-center gap-2">
+                                <select name="category" class="faq-cat-select flex-1 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                                    <option value="">{{ __('app.admin_pages_form_select_category') }}</option>
+                                    @foreach($allCats as $c)
+                                        <option value="{{ $c }}" @selected($f->category === $c)>{{ $c }}</option>
+                                    @endforeach
+                                    @if($f->category && !$allCats->contains($f->category))
+                                        <option value="{{ $f->category }}" selected>{{ $f->category }}</option>
+                                    @endif
+                                </select>
+                                <button type="button" class="faq-cat-new inline-flex items-center gap-1 h-11 px-3 bg-violet-50 dark:bg-violet-950/30 hover:bg-violet-100 text-violet-700 dark:text-violet-300 rounded-xl text-xs font-bold whitespace-nowrap">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
                             <input name="sort_order" type="number" value="{{ $f->sort_order }}" placeholder="{{ __('app.admin_faqs_field_sort_order') }}"
                                    class="h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                             <label class="h-11 flex items-center gap-2 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm cursor-pointer">
@@ -59,11 +77,22 @@
                         <textarea name="answer" rows="3" placeholder="{{ __('app.admin_faqs_field_answer') }}"
                                   class="w-full px-4 py-3 bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">{{ $f->answer }}</textarea>
                         <div class="flex gap-2">
-                            <button class="px-5 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold">{{ __('app.admin_faqs_btn_save') }}</button>
+                            <button class="px-5 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold">
+                                <i class="fa-solid fa-floppy-disk"></i> {{ __('app.admin_faqs_btn_save') }}
+                            </button>
                     </form>
+                            <form method="POST" action="{{ route('admin.faqs.toggle', $f) }}">
+                                @csrf @method('PATCH')
+                                <button class="px-5 h-10 bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 rounded-xl text-sm font-bold">
+                                    <i class="fa-solid {{ $f->active ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                    {{ $f->active ? __('app.admin_faqs_label_active') : __('app.admin_faqs_label_active') }}
+                                </button>
+                            </form>
                             <form method="POST" action="{{ route('admin.faqs.destroy', $f) }}" data-confirm="{{ __('app.admin_faqs_confirm_delete') }}" onsubmit="return confirm(this.dataset.confirm)">
                                 @csrf @method('DELETE')
-                                <button class="px-5 h-10 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">{{ __('app.admin_faqs_btn_delete') }}</button>
+                                <button class="px-5 h-10 bg-rose-50 dark:bg-rose-950/30 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold">
+                                    <i class="fa-solid fa-trash"></i> {{ __('app.admin_faqs_btn_delete') }}
+                                </button>
                             </form>
                         </div>
                 </div>
