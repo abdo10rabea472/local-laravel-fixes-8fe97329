@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
 use App\Models\Page;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -38,7 +40,17 @@ class PageController extends Controller
             ['q' => 'Can I get a quote for bulk orders?', 'a' => 'Yes. Send requirements to ' . (\App\Models\SiteSetting::get('contact_email') ?: 'ahmedkhamis@gmail.com') . ' and we will reply within 24 hours.'],
         ];
 
-        $faqs = $this->parseFaqs($page?->content, $defaultFaqs);
+        // Prefer DB-managed FAQs (admin/faqs). Fall back to legacy page content / defaults.
+        $dbFaqs = [];
+        if (Schema::hasTable('faqs')) {
+            $dbFaqs = Faq::query()
+                ->where('active', true)
+                ->orderBy('category')->orderBy('sort_order')->orderBy('id')
+                ->get(['question', 'answer', 'category'])
+                ->map(fn ($f) => ['q' => $f->question, 'a' => $f->answer, 'category' => $f->category ?: 'General'])
+                ->all();
+        }
+        $faqs = !empty($dbFaqs) ? $dbFaqs : $this->parseFaqs($page?->content, $defaultFaqs);
 
         return view('pages.faqs', [
             'page' => $page,
