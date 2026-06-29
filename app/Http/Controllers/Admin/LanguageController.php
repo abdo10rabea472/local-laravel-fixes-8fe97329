@@ -234,7 +234,7 @@ class LanguageController extends Controller
         }
 
         $selected = (string) $request->get('group', $groupNames[0] ?? '');
-        if ($selected !== '' && !isset($groups[$selected])) {
+        if ($selected !== '' && $selected !== '__new__' && !isset($groups[$selected])) {
             $selected = $groupNames[0] ?? '';
         }
 
