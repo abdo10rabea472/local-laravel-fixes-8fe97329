@@ -20,7 +20,8 @@
             </button>
         </div>
 
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[1100px]">
             <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                     <th class="p-3 text-left">Flag</th>
@@ -32,12 +33,12 @@
                     <th class="p-3 text-left">Default</th>
                     <th class="p-3 text-left">Active</th>
                     <th class="p-3 text-left">Order</th>
-                    <th class="p-3"></th>
+                    <th class="p-3 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
             @forelse($languages as $lang)
-                <tr class="border-t border-slate-100">
+                <tr class="border-t border-slate-100 align-middle">
                     <td class="p-3">
                         @if($lang->flag)
                             <img src="{{ asset('storage/'.$lang->flag) }}" alt="" class="w-8 h-6 object-cover rounded">
@@ -65,37 +66,49 @@
                         </span>
                     </td>
                     <td class="p-3">{{ $lang->sort_order }}</td>
-                    <td class="p-3 text-right whitespace-nowrap">
-                        <a href="{{ route('admin.settings.languages.translations', $lang) }}"
-                           class="text-emerald-600 hover:underline text-xs font-bold mr-2">
-                            <i class="fa-solid fa-language"></i> Translate
-                        </a>
-                        <a href="{{ route('admin.settings.languages.translations.export', $lang) }}"
-                           class="text-sky-600 hover:underline text-xs font-bold mr-2" title="Export translations as JSON">
-                            <i class="fa-solid fa-file-export"></i> Export
-                        </a>
-                        <button type="button"
-                                @click="$dispatch('open-import', { id: {{ $lang->id }}, name: '{{ addslashes($lang->name) }}', url: '{{ route('admin.settings.languages.translations.import', $lang) }}' })"
-                                class="text-amber-600 hover:underline text-xs font-bold mr-2" title="Import translations from JSON">
-                            <i class="fa-solid fa-file-import"></i> Import
-                        </button>
-                        <button @click='open=true; edit={{ $lang->id }}; form=@json($lang)'
-                                class="text-violet-600 hover:underline text-xs font-bold mr-2">Edit</button>
-                        @unless($lang->is_default)
-                        <form method="POST" action="{{ route('admin.settings.languages.destroy', $lang) }}" class="inline"
-                              onsubmit="return confirm('Delete this language?')">
-                            @csrf @method('DELETE')
-                            <button class="text-rose-600 hover:underline text-xs font-bold">Delete</button>
-                        </form>
-                        @endunless
+                    <td class="p-3 whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="{{ route('admin.settings.languages.translations', $lang) }}"
+                               title="Translate"
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100">
+                                <i class="fa-solid fa-language"></i>
+                            </a>
+                            <a href="{{ route('admin.settings.languages.translations.export', $lang) }}"
+                               title="Export translations as JSON"
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100">
+                                <i class="fa-solid fa-file-export"></i>
+                            </a>
+                            <button type="button" title="Import translations from JSON"
+                                    @click="$dispatch('open-import', { id: {{ $lang->id }}, name: '{{ addslashes($lang->name) }}', url: '{{ route('admin.settings.languages.translations.import', $lang) }}' })"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100">
+                                <i class="fa-solid fa-file-import"></i>
+                            </button>
+                            <button type="button" title="Edit"
+                                    @click='open=true; edit={{ $lang->id }}; form=@json($lang)'
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            @unless($lang->is_default)
+                            <form method="POST" action="{{ route('admin.settings.languages.destroy', $lang) }}"
+                                  onsubmit="return confirm('Delete this language?')">
+                                @csrf @method('DELETE')
+                                <button title="Delete" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                            @endunless
+                        </div>
                     </td>
                 </tr>
             @empty
                 <tr><td colspan="10" class="p-8 text-center text-slate-400">No languages yet.</td></tr>
             @endforelse
+
             </tbody>
         </table>
+        </div>
     </div>
+
 
     {{-- Modal --}}
     <div x-show="open" x-cloak class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="open=false">
