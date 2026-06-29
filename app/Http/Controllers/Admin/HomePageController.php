@@ -17,35 +17,28 @@ class HomePageController extends Controller
 
     public function edit(): View
     {
-        $settings = SiteSetting::whereIn('key', [
-            'hero_title',
-            'hero_subtitle',
-            'hero_badge',
-            'hero_background',
-            'featured_section_title',
-            'featured_section_subtitle',
-            'products_section_title',
-            'products_section_subtitle',
-        ])->get()->keyBy('key');
+        $keys = [
+            'hero_title','hero_subtitle','hero_badge','hero_background',
+            'featured_section_title','featured_section_subtitle',
+            'products_section_title','products_section_subtitle',
+            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
+            'cta_bg_image','cta_image_1','cta_image_2','cta_image_3','cta_image_4',
+        ];
+        $settings = SiteSetting::whereIn('key', $keys)->get()->keyBy('key');
 
         return view('admin.homepage.edit', compact('settings') + ['activeTab' => 'homepage']);
     }
 
     public function update(Request $request): RedirectResponse
     {
-        $keys = [
-            'hero_title',
-            'hero_subtitle',
-            'hero_badge',
-            'featured_section_title',
-            'featured_section_subtitle',
-            'featured_limit',
-            'products_section_title',
-            'products_section_subtitle',
-            'products_limit',
+        $textKeys = [
+            'hero_title','hero_subtitle','hero_badge',
+            'featured_section_title','featured_section_subtitle','featured_limit',
+            'products_section_title','products_section_subtitle','products_limit',
+            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
         ];
 
-        foreach ($keys as $key) {
+        foreach ($textKeys as $key) {
             $setting = SiteSetting::firstOrNew(['key' => $key]);
             $setting->value = $request->input($key);
             $setting->type = 'text';
@@ -54,23 +47,23 @@ class HomePageController extends Controller
             $setting->save();
         }
 
-        if ($request->hasFile('hero_background')) {
-            $setting = SiteSetting::firstOrNew(['key' => 'hero_background']);
-            if ($setting->value) {
-                $this->imageService->deletePaths($setting->value);
+        // Image fields (single file each, with optional removal).
+        $imageKeys = ['hero_background', 'cta_bg_image', 'cta_image_1', 'cta_image_2', 'cta_image_3', 'cta_image_4'];
+        foreach ($imageKeys as $key) {
+            if ($request->hasFile($key)) {
+                $setting = SiteSetting::firstOrNew(['key' => $key]);
+                if ($setting->value) $this->imageService->deletePaths($setting->value);
+                $setting->value = $this->imageService->storeSettingImage($request->file($key), $key);
+                $setting->type = 'image';
+                $setting->group = 'homepage';
+                $setting->label = $setting->label ?: $this->label($key);
+                $setting->save();
+            } elseif ($request->has('remove_'.$key)) {
+                $setting = SiteSetting::firstOrNew(['key' => $key]);
+                if ($setting->value) $this->imageService->deletePaths($setting->value);
+                $setting->value = null;
+                $setting->save();
             }
-            $setting->value = $this->imageService->storeSettingImage($request->file('hero_background'), 'hero_background');
-            $setting->type = 'image';
-            $setting->group = 'homepage';
-            $setting->label = $setting->label ?: 'خلفية الصفحة الرئيسية';
-            $setting->save();
-        } elseif ($request->has('remove_hero_background')) {
-            $setting = SiteSetting::firstOrNew(['key' => 'hero_background']);
-            if ($setting->value) {
-                $this->imageService->deletePaths($setting->value);
-            }
-            $setting->value = null;
-            $setting->save();
         }
 
         SiteSetting::clearCache();
@@ -84,12 +77,23 @@ class HomePageController extends Controller
             'hero_title' => 'عنوان Hero',
             'hero_subtitle' => 'نص Hero الفرعي',
             'hero_badge' => 'شارة Hero',
+            'hero_background' => 'خلفية Hero',
             'featured_section_title' => 'عنوان قسم المنتجات المميزة',
             'featured_section_subtitle' => 'نص قسم المنتجات المميزة',
             'featured_limit' => 'عدد المنتجات المميزة',
             'products_section_title' => 'عنوان قسم جميع المنتجات',
             'products_section_subtitle' => 'نص قسم جميع المنتجات',
             'products_limit' => 'عدد المنتجات في الصفحة',
+            'cta_badge' => 'شارة قسم الطلبات بالجملة',
+            'cta_title' => 'عنوان قسم الطلبات بالجملة',
+            'cta_subtitle' => 'وصف قسم الطلبات بالجملة',
+            'cta_button' => 'نص الزر',
+            'cta_url' => 'رابط الزر',
+            'cta_bg_image' => 'خلفية قسم الطلبات بالجملة',
+            'cta_image_1' => 'صورة 1 — معرض CTA',
+            'cta_image_2' => 'صورة 2 — معرض CTA',
+            'cta_image_3' => 'صورة 3 — معرض CTA',
+            'cta_image_4' => 'صورة 4 — معرض CTA',
             default => $key,
         };
     }
