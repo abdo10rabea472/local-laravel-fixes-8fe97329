@@ -11,13 +11,13 @@
         <div>
             <span class="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/20 text-xs font-bold px-3 py-1.5 rounded-full mb-5">
                 <i class="fa-solid fa-flask-vial text-amber-300"></i>
-                {{ $hero['badge'] ?? __('home.hero_badge') }}
+                {{ __('home.hero_badge') }}
             </span>
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] mb-5">
-                {{ $hero['title'] ?? __('home.hero_title') }}
+                {{ __('home.hero_title') }}
             </h1>
             <p class="text-violet-100 text-base sm:text-lg max-w-xl mb-7 leading-relaxed">
-                {{ $hero['subtitle'] ?? __('home.hero_subtitle') }}
+                {{ __('home.hero_subtitle') }}
             </p>
 
             <div class="flex flex-wrap gap-3 mb-8">
