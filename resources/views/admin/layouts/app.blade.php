@@ -343,7 +343,7 @@
     function toggleDropdown(id, evt){
         if(evt) evt.stopPropagation();
         const menu = document.getElementById(id);
-        document.querySelectorAll('[id$="-menu"]').forEach(m => { if(m.id !== id) m.classList.add('hidden'); });
+        ['admin-lang-menu','admin-currency-menu','notifications-menu','user-profile-menu'].forEach(mid => { if(mid !== id){ const m = document.getElementById(mid); if(m) m.classList.add('hidden'); } });
         menu.classList.toggle('hidden');
         document.addEventListener('click', function close(e){
             if(!menu.parentElement.contains(e.target)){
