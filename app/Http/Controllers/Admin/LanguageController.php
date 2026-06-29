@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminOtpMail;
 use App\Models\AuditLog;
 use App\Models\Language;
 use Illuminate\Http\Request;
@@ -137,20 +138,20 @@ class LanguageController extends Controller
         ]);
 
         try {
-            Mail::raw(
-                "Your verification code to set \"{$language->name}\" ({$language->code}) as the default language is:\n\n"
-                ."  {$otp}\n\n"
-                ."This code expires in 10 minutes.\n"
-                ."IP: {$request->ip()}\nUser-Agent: ".substr((string) $request->userAgent(), 0, 200)."\n\n"
-                ."If you did not request this, ignore this email and change your admin password immediately.",
-                function ($m) use ($admin) {
-                    $m->to($admin->email)->subject('[Security] Verification code — change default language');
-                }
-            );
+            Mail::to($admin->email)->send(new AdminOtpMail(
+                adminName:    (string) ($admin->name ?? $admin->email),
+                otp:          $otp,
+                actionTitle:  'Change Default Language',
+                actionDetail: "Set \"{$language->name}\" ({$language->code}) as the site's default language.",
+                ip:           (string) $request->ip(),
+                userAgent:    substr((string) $request->userAgent(), 0, 200),
+                expiresInMinutes: 10,
+            ));
         } catch (\Throwable $e) {
             $request->session()->forget($sessionKey);
             throw ValidationException::withMessages(['confirm_code' => 'Could not send OTP email: '.$e->getMessage()]);
         }
+
 
         AuditLog::create([
             'action'     => 'language.set_default.otp_sent',
