@@ -156,6 +156,32 @@
                 <button class="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold">Save</button>
             </div>
         </form>
+    {{-- Import Modal --}}
+    <div x-data="{ impOpen:false, impUrl:'', impName:'' }"
+         @open-import.window="impOpen=true; impUrl=$event.detail.url; impName=$event.detail.name">
+        <div x-show="impOpen" x-cloak class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="impOpen=false">
+            <form method="POST" enctype="multipart/form-data" :action="impUrl"
+                  class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4">
+                @csrf
+                <h3 class="text-lg font-black">Import translations — <span x-text="impName"></span></h3>
+                <p class="text-xs text-slate-500">Upload a JSON file with shape <code dir="ltr">{ "group": { "key": "value" } }</code>. Use the Export button to get a template.</p>
+                <label class="block text-sm">
+                    <span class="text-xs font-bold text-slate-500">JSON file (≤5MB)</span>
+                    <input type="file" name="file" accept=".json,application/json" required class="w-full mt-1 text-sm">
+                </label>
+                <label class="block text-sm">
+                    <span class="text-xs font-bold text-slate-500">Mode</span>
+                    <select name="mode" class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                        <option value="merge">Merge (keep existing keys, overwrite duplicates)</option>
+                        <option value="replace">Replace (delete affected group files, then import)</option>
+                    </select>
+                </label>
+                <div class="flex gap-2 justify-end pt-2">
+                    <button type="button" @click="impOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                    <button class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold">Import</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
