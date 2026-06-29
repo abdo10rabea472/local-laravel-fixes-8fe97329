@@ -129,17 +129,20 @@
         <x-admin.card :title="__('app.admin_faqs_card_add')" icon="fa-plus">
             <form method="POST" action="{{ route('admin.faqs.store') }}" class="space-y-3" id="faq-add-form">
                 @csrf
-                <div class="flex items-center gap-2">
-                    <select name="category" id="faq-add-category" class="flex-1 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
-                        <option value="">{{ __('app.admin_pages_form_select_category') }}</option>
-                        @foreach($allCats as $c)
-                            <option value="{{ $c }}">{{ $c }}</option>
-                        @endforeach
-                    </select>
-                    <button type="button" id="faq-cat-new" class="inline-flex items-center gap-1 h-11 px-3 bg-violet-50 dark:bg-violet-950/30 hover:bg-violet-100 text-violet-700 dark:text-violet-300 rounded-xl text-xs font-bold whitespace-nowrap">
-                        <i class="fa-solid fa-plus"></i> {{ __('app.admin_pages_form_add_faq') ?? 'تصنيف جديد' }}
-                    </button>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <select name="category" id="faq-add-category" class="flex-1 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+                            <option value="">{{ __('app.admin_pages_form_select_category') }}</option>
+                            @foreach($allCats as $c)
+                                <option value="{{ $c }}">{{ $c }}</option>
+                            @endforeach
+                            <option value="__new__">+ {{ __('app.admin_pages_form_add_faq') ?? 'تصنيف جديد' }}</option>
+                        </select>
+                    </div>
+                    <input type="text" id="faq-add-category-new" placeholder="{{ __('app.admin_pages_form_add_faq') ?? 'اسم التصنيف الجديد' }}"
+                           class="hidden w-full h-11 px-4 bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 rounded-xl text-sm focus:border-violet-500 focus:outline-none">
                 </div>
+
                 <input name="sort_order" type="number" value="0" placeholder="{{ __('app.admin_faqs_field_sort_order') }}"
                        class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
                 <input name="question" required placeholder="{{ __('app.admin_faqs_field_question') }}"
