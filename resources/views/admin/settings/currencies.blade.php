@@ -59,9 +59,11 @@
                         @if($cur->is_default)
                             <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Default</span>
                         @else
-                            <form method="POST" action="{{ route('admin.settings.currencies.default', $cur) }}">@csrf
-                                <button class="text-xs text-violet-600 hover:underline">Make default</button>
-                            </form>
+                            <button type="button"
+                                @click="defOpen=true; defCur={id:{{ $cur->id }}, code:'{{ addslashes($cur->code) }}', name:'{{ addslashes($cur->name) }}', url:'{{ route('admin.settings.currencies.default', $cur) }}'}"
+                                class="inline-flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800">
+                                <i class="fa-solid fa-shield-halved"></i> Make default
+                            </button>
                         @endif
                     </td>
                     <td class="p-3">
