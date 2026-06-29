@@ -143,8 +143,9 @@
                            class="hidden w-full h-11 px-4 bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 rounded-xl text-sm focus:border-violet-500 focus:outline-none">
                 </div>
 
-                <input name="sort_order" type="number" placeholder="{{ __('app.admin_faqs_field_sort_order') }} — تلقائي"
+                <input name="sort_order" type="number" value="{{ $nextSort ?? '' }}" placeholder="{{ __('app.admin_faqs_field_sort_order') }} — تلقائي"
                        class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">
+
 
                 <input name="question" required placeholder="{{ __('app.admin_faqs_field_question') }}"
                        class="w-full h-11 px-4 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-primary-500 focus:outline-none">

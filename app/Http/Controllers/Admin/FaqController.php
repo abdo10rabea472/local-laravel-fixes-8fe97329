@@ -38,7 +38,9 @@ class FaqController extends Controller
             ['title' => 'Frequently Asked Questions', 'content' => '', 'active' => true]
         );
 
-        return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories', 'seoPage', 'usedCats'));
+        $nextSort = (int) Faq::max('sort_order') + 1;
+
+        return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories', 'seoPage', 'usedCats', 'nextSort'));
     }
 
     public function storeCategory(Request $request)
