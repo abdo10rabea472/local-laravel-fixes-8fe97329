@@ -14,7 +14,7 @@
     <div class="bottom_cart">
         <div class="total">
             <p>{{ __('app.nav_cart_total') }}</p>
-            <p class="price_cart_toral">0 EGP</p>
+            <p class="price_cart_toral">{{ money(0) }}</p>
         </div>
         <div class="button_cart">
             <a href="{{ route('checkout') }}" class="btn_cart btn">{{ __("app.nav_checkout") }}</a>
