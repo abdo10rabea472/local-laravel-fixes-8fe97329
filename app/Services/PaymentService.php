@@ -69,10 +69,9 @@ class PaymentService
             /** @var \Nafezly\Payments\Interfaces\PaymentInterface $driver */
             $driver = (new \Nafezly\Payments\Factories\PaymentFactory())->get($driverName);
 
-            // Always charge the gateway in the BASE/default currency.
-            // The "total" stored on the order is already in base currency; we recompute
-            // defensively so any UI/currency-conversion regressions can never reach the gateway.
-            [$amount, $currencyCode] = $this->resolveChargeAmount($order);
+            // Charge the gateway in ITS configured currency, converting from
+            // our base currency using the site's saved exchange rates.
+            [$amount, $currencyCode] = $this->resolveChargeAmount($order, $gateway);
 
             $response = $driver
                 ->setUserId((string) ($order->user_id ?? $order->id))
@@ -379,7 +378,7 @@ class PaymentService
         }
 
         try {
-            [$amount, $currencyCode] = $this->resolveChargeAmount($order);
+            [$amount, $currencyCode] = $this->resolveChargeAmount($order, $gateway);
             $amountCents = (int) round($amount * 100);
             $reference = $order->order_number ?: ('ORD-' . $order->id);
             $billing = $this->paymobBillingData($order);
@@ -393,7 +392,9 @@ class PaymentService
 
             $authToken = $auth->json('token');
             if (! $auth->successful() || ! $authToken) {
-                return ['ok' => false, 'message' => 'Paymob رفض API Key: ' . $this->paymobError($auth->json(), $auth->body())];
+                $msg = $this->paymobError($auth->json(), $auth->body());
+                Log::error('paymob.auth.failed', ['order_id' => $order->id, 'status' => $auth->status(), 'response' => $auth->json() ?? $auth->body(), 'message' => $msg]);
+                return ['ok' => false, 'message' => 'Paymob رفض API Key: ' . $msg];
             }
 
             $paymobOrder = \Illuminate\Support\Facades\Http::timeout(20)
@@ -410,7 +411,9 @@ class PaymentService
 
             $paymobOrderId = $paymobOrder->json('id');
             if (! $paymobOrder->successful() || ! $paymobOrderId) {
-                return ['ok' => false, 'message' => 'تعذر إنشاء طلب Paymob: ' . $this->paymobError($paymobOrder->json(), $paymobOrder->body())];
+                $msg = $this->paymobError($paymobOrder->json(), $paymobOrder->body());
+                Log::error('paymob.create_order.failed', ['order_id' => $order->id, 'status' => $paymobOrder->status(), 'amount_cents' => $amountCents, 'currency' => $currencyCode, 'response' => $paymobOrder->json() ?? $paymobOrder->body(), 'message' => $msg]);
+                return ['ok' => false, 'message' => 'تعذر إنشاء طلب Paymob: ' . $msg];
             }
 
             $paymentKey = \Illuminate\Support\Facades\Http::timeout(20)
@@ -429,7 +432,9 @@ class PaymentService
 
             $paymentToken = $paymentKey->json('token');
             if (! $paymentKey->successful() || ! $paymentToken) {
-                return ['ok' => false, 'message' => 'تعذر إنشاء مفتاح دفع Paymob: ' . $this->paymobError($paymentKey->json(), $paymentKey->body())];
+                $msg = $this->paymobError($paymentKey->json(), $paymentKey->body());
+                Log::error('paymob.payment_key.failed', ['order_id' => $order->id, 'status' => $paymentKey->status(), 'amount_cents' => $amountCents, 'currency' => $currencyCode, 'integration_id' => (int) ($useWallet ? $cfg['PAYMOB_WALLET_INTEGRATION_ID'] : $cfg['PAYMOB_INTEGRATION_ID']), 'response' => $paymentKey->json() ?? $paymentKey->body(), 'message' => $msg]);
+                return ['ok' => false, 'message' => 'تعذر إنشاء مفتاح دفع Paymob: ' . $msg];
             }
 
             if ($useWallet) {
@@ -452,7 +457,9 @@ class PaymentService
 
                     $redirectUrl = $walletPay->json('redirect_url');
                     if (! $walletPay->successful() || ! $redirectUrl) {
-                        return ['ok' => false, 'message' => 'تعذر بدء دفع محفظة Paymob: ' . $this->paymobError($walletPay->json(), $walletPay->body())];
+                        $msg = $this->paymobError($walletPay->json(), $walletPay->body());
+                        Log::error('paymob.wallet_pay.failed', ['order_id' => $order->id, 'status' => $walletPay->status(), 'response' => $walletPay->json() ?? $walletPay->body(), 'message' => $msg]);
+                        return ['ok' => false, 'message' => 'تعذر بدء دفع محفظة Paymob: ' . $msg];
                     }
                 }
             } else {
@@ -819,30 +826,77 @@ class PaymentService
     }
 
     /**
-     * Compute the amount to charge at the gateway, in the BASE currency.
+     * Compute the amount to charge at the gateway in the gateway's configured currency.
      *
-     * Order columns (subtotal/shipping/total) are stored in base currency at
-     * placement time, but we recompute here from the actual order items so any
-     * upstream currency-conversion bug in the storefront cannot leak through.
+     * Order columns (subtotal/shipping/total) are stored in the site's BASE/default
+     * currency. We recompute the base amount defensively from the actual order items
+     * (so any UI currency-conversion bug cannot leak through), then convert to the
+     * gateway's currency using the site's exchange rates.
+     *
      * Returns [amount, currency_code].
      */
-    protected function resolveChargeAmount(Order $order): array
+    protected function resolveChargeAmount(Order $order, ?PaymentGateway $gateway = null): array
     {
         $itemsTotal = (float) $order->items()->sum(\Illuminate\Support\Facades\DB::raw('unit_price * quantity'));
         $shipping   = (float) ($order->shipping_cost ?? 0);
         $fees       = (float) ($order->payment_fees ?? 0);
         $discount   = (float) ($order->discount_amount ?? 0);
 
-        $amount = max(0.0, round($itemsTotal - $discount + $shipping + $fees, 2));
+        $baseAmount = max(0.0, round($itemsTotal - $discount + $shipping + $fees, 2));
 
         // Fallback to the stored total if items somehow weren't persisted.
-        if ($amount <= 0 && (float) $order->total > 0) {
-            $amount = (float) $order->total;
+        if ($baseAmount <= 0 && (float) $order->total > 0) {
+            $baseAmount = (float) $order->total;
         }
 
-        $base = app(\App\Services\CurrencyService::class)->default();
-        $code = $base?->code ?: ($order->currency ?: 'EGP');
+        $currencyService = app(\App\Services\CurrencyService::class);
+        $baseCurrency = $currencyService->default();
+        $baseCode = $baseCurrency?->code ?: ($order->currency ?: 'EGP');
 
-        return [$amount, strtoupper($code)];
+        // Resolve the gateway's currency from its configuration.
+        $gatewayCode = $gateway ? $this->gatewayCurrencyCode($gateway, $baseCode) : $baseCode;
+
+        $amount = $baseAmount;
+        if ($baseCurrency && strtoupper($gatewayCode) !== strtoupper($baseCode)) {
+            $target = $currencyService->find($gatewayCode);
+            if ($target) {
+                // baseAmount is already in default currency, so convert from default -> target.
+                $amount = round($currencyService->convert($baseAmount, $target, $baseCurrency), 2);
+            } else {
+                Log::warning('payment.currency.unknown_gateway_currency', [
+                    'order_id'     => $order->id,
+                    'gateway_code' => $gateway?->code,
+                    'requested'    => $gatewayCode,
+                    'fallback'     => $baseCode,
+                ]);
+                $gatewayCode = $baseCode;
+            }
+        }
+
+        return [$amount, strtoupper($gatewayCode)];
+    }
+
+    /**
+     * Read the gateway's preferred currency from its stored config (e.g.
+     * PAYMOB_CURRENCY, STRIPE_CURRENCY, PAYTABS_CURRENCY, or a generic CURRENCY key).
+     */
+    protected function gatewayCurrencyCode(PaymentGateway $gateway, string $fallback = 'EGP'): string
+    {
+        $driver = strtoupper($this->canonicalDriver($gateway->driver));
+        $candidates = [
+            $driver . '_CURRENCY',
+            'CURRENCY',
+        ];
+        // Special-case Paymob Wallet (shares PAYMOB_* config).
+        if (str_starts_with($driver, 'PAYMOB')) {
+            array_unshift($candidates, 'PAYMOB_CURRENCY');
+        }
+        foreach ($candidates as $key) {
+            $value = $gateway->configValue($key);
+            if (is_string($value) && trim($value) !== '') {
+                return strtoupper(trim($value));
+            }
+        }
+        return strtoupper($fallback);
     }
 }
