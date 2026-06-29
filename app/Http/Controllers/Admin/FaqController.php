@@ -89,10 +89,16 @@ class FaqController extends Controller
 
     public function store(Request $request)
     {
-        Faq::create($this->validated($request));
+        $data = $this->validated($request);
+        if (! $request->filled('sort_order')) {
+            $data['sort_order'] = (int) Faq::when($data['category'] ?? null, fn ($q, $c) => $q->where('category', $c))
+                ->max('sort_order') + 1;
+        }
+        Faq::create($data);
         $this->clearCache();
         return back()->with('success', 'تمت الإضافة.');
     }
+
 
     public function update(Request $request, Faq $faq)
     {
