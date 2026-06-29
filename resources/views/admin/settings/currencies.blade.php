@@ -159,5 +159,88 @@
             </div>
         </form>
     </div>
+
+    {{-- Secure Make-Default Modal --}}
+    <div x-show="defOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="defOpen=false" @keydown.escape.window="defOpen=false">
+        <form method="POST" :action="defCur.url" x-data="{ typed:'', pwd:'', ack:false }" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-rose-500">
+            @csrf
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">High-risk action</h3>
+                    <p class="text-xs text-slate-500">Changing the base currency affects all stored prices.</p>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-xs text-rose-700 space-y-1">
+                <div>You are about to set <span class="font-black" x-text="defCur.name"></span> (<span class="font-mono" x-text="defCur.code"></span>) as the <strong>base currency</strong>.</div>
+                <div class="font-bold pt-1">⚠️ All other currencies' exchange rates will be reset to 0. You must re-enter every rate relative to the new base, or prices will display incorrectly.</div>
+            </div>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Type the currency code <span class="font-mono text-rose-600" x-text="defCur.code"></span> to confirm</span>
+                <input type="text" name="confirm_code" x-model="typed" autocomplete="off" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono uppercase focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Your admin password</span>
+                <input type="password" name="password" x-model="pwd" autocomplete="current-password" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="flex items-start gap-2 text-xs text-slate-600">
+                <input type="checkbox" name="understand" value="1" x-model="ack" required class="mt-0.5 rounded">
+                <span>I understand exchange rates will be reset and I will update them immediately.</span>
+            </label>
+
+            <div class="flex gap-2 justify-end pt-2 border-t">
+                <button type="button" @click="defOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                <button type="submit"
+                    :disabled="!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()"
+                    :class="(!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()) ? 'opacity-50 cursor-not-allowed' : ''"
+                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Send OTP &amp; Continue
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- OTP Step Modal --}}
+    @php
+        $otpCurId = session('otp_sent_for_currency');
+        $otpCur   = $otpCurId ? $currencies->firstWhere('id', $otpCurId) : null;
+    @endphp
+    @if($otpCur)
+    <div x-data="{ otpOpen:true, code:'' }" x-init="$nextTick(()=>$refs.otpInput && $refs.otpInput.focus())">
+        <div x-show="otpOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @keydown.escape.window="otpOpen=false">
+            <form method="POST" action="{{ route('admin.settings.currencies.default', $otpCur) }}" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-emerald-500">
+                @csrf
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">Email verification</h3>
+                        <p class="text-xs text-slate-500">Enter the 6-digit code we sent to your admin email.</p>
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-700">
+                    Setting <span class="font-black">{{ $otpCur->name }}</span> (<span class="font-mono">{{ $otpCur->code }}</span>) as base currency. Code expires in 10 minutes.
+                </div>
+                <label class="block text-sm">
+                    <span class="text-xs font-bold text-slate-600">Verification code</span>
+                    <input x-ref="otpInput" type="text" name="otp" x-model="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required
+                        class="w-full h-12 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:border-emerald-400 focus:ring-emerald-200">
+                </label>
+                <div class="flex gap-2 justify-end pt-2 border-t">
+                    <button type="button" @click="otpOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                    <button type="submit" :disabled="code.length !== 6" :class="code.length!==6?'opacity-50 cursor-not-allowed':''"
+                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold">
+                        <i class="fa-solid fa-check mr-1"></i> Verify &amp; Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
