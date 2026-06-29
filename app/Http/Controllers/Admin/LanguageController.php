@@ -129,6 +129,11 @@ class LanguageController extends Controller
             ]);
         }
 
+        // Pre-flight: ensure mail is configured before we generate an OTP.
+        if ($reason = \App\Support\MailHealth::failureReason()) {
+            return back()->with('error', 'Cannot send OTP — '.$reason);
+        }
+
         // Generate 6-digit OTP, store hashed in session, email it.
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $request->session()->put($sessionKey, [

@@ -3,10 +3,23 @@
 @section('title', 'Currencies')
 
 @section('settings-content')
-<div class="space-y-6" x-data="{ open:false, edit:null, form:{} }">
+<style>[x-cloak]{display:none !important;}</style>
+<div class="space-y-6" x-data="{ open:false, edit:null, form:{}, defOpen:false, defCur:{id:null,code:'',name:'',url:''} }">
     @if(session('success'))<div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold">{{ session('success') }}</div>@endif
-    @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold">{{ session('error') }}</div>@endif
+    @if(session('warning'))<div class="p-4 rounded-2xl bg-amber-50 text-amber-800 text-sm font-bold border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ session('warning') }}</div>@endif
+    @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold border border-rose-200"><i class="fa-solid fa-circle-xmark mr-2"></i>{{ session('error') }}</div>@endif
     @if($errors->any())<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm">{{ $errors->first() }}</div>@endif
+
+    @php $zeroRates = $currencies->where('exchange_rate', 0)->where('is_default', false); @endphp
+    @if($zeroRates->count())
+    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+        <div class="font-black mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Action required: update exchange rates</div>
+        <p class="text-xs">The following currencies have <strong>rate = 0</strong> and will display incorrect prices until you set their exchange rate relative to the default currency:
+            <span class="font-mono font-bold">{{ $zeroRates->pluck('code')->join(', ') }}</span>
+        </p>
+    </div>
+    @endif
+
 
     <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden">
         <div class="flex items-center justify-between p-5 border-b border-slate-100">
@@ -46,9 +59,11 @@
                         @if($cur->is_default)
                             <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Default</span>
                         @else
-                            <form method="POST" action="{{ route('admin.settings.currencies.default', $cur) }}">@csrf
-                                <button class="text-xs text-violet-600 hover:underline">Make default</button>
-                            </form>
+                            <button type="button"
+                                @click="defOpen=true; defCur={id:{{ $cur->id }}, code:'{{ addslashes($cur->code) }}', name:'{{ addslashes($cur->name) }}', url:'{{ route('admin.settings.currencies.default', $cur) }}'}"
+                                class="inline-flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800">
+                                <i class="fa-solid fa-shield-halved"></i> Make default
+                            </button>
                         @endif
                     </td>
                     <td class="p-3">
@@ -144,5 +159,88 @@
             </div>
         </form>
     </div>
+
+    {{-- Secure Make-Default Modal --}}
+    <div x-show="defOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="defOpen=false" @keydown.escape.window="defOpen=false">
+        <form method="POST" :action="defCur.url" x-data="{ typed:'', pwd:'', ack:false }" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-rose-500">
+            @csrf
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">High-risk action</h3>
+                    <p class="text-xs text-slate-500">Changing the base currency affects all stored prices.</p>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-xs text-rose-700 space-y-1">
+                <div>You are about to set <span class="font-black" x-text="defCur.name"></span> (<span class="font-mono" x-text="defCur.code"></span>) as the <strong>base currency</strong>.</div>
+                <div class="font-bold pt-1">⚠️ All other currencies' exchange rates will be reset to 0. You must re-enter every rate relative to the new base, or prices will display incorrectly.</div>
+            </div>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Type the currency code <span class="font-mono text-rose-600" x-text="defCur.code"></span> to confirm</span>
+                <input type="text" name="confirm_code" x-model="typed" autocomplete="off" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono uppercase focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="block text-sm">
+                <span class="text-xs font-bold text-slate-600">Your admin password</span>
+                <input type="password" name="password" x-model="pwd" autocomplete="current-password" required
+                    class="w-full h-10 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-rose-400 focus:ring-rose-200">
+            </label>
+
+            <label class="flex items-start gap-2 text-xs text-slate-600">
+                <input type="checkbox" name="understand" value="1" x-model="ack" required class="mt-0.5 rounded">
+                <span>I understand exchange rates will be reset and I will update them immediately.</span>
+            </label>
+
+            <div class="flex gap-2 justify-end pt-2 border-t">
+                <button type="button" @click="defOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                <button type="submit"
+                    :disabled="!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()"
+                    :class="(!ack || !pwd || typed.toUpperCase() !== defCur.code.toUpperCase()) ? 'opacity-50 cursor-not-allowed' : ''"
+                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Send OTP &amp; Continue
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- OTP Step Modal --}}
+    @php
+        $otpCurId = session('otp_sent_for_currency');
+        $otpCur   = $otpCurId ? $currencies->firstWhere('id', $otpCurId) : null;
+    @endphp
+    @if($otpCur)
+    <div x-data="{ otpOpen:true, code:'' }" x-init="$nextTick(()=>$refs.otpInput && $refs.otpInput.focus())">
+        <div x-show="otpOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @keydown.escape.window="otpOpen=false">
+            <form method="POST" action="{{ route('admin.settings.currencies.default', $otpCur) }}" class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl border-t-4 border-emerald-500">
+                @csrf
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">Email verification</h3>
+                        <p class="text-xs text-slate-500">Enter the 6-digit code we sent to your admin email.</p>
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-700">
+                    Setting <span class="font-black">{{ $otpCur->name }}</span> (<span class="font-mono">{{ $otpCur->code }}</span>) as base currency. Code expires in 10 minutes.
+                </div>
+                <label class="block text-sm">
+                    <span class="text-xs font-bold text-slate-600">Verification code</span>
+                    <input x-ref="otpInput" type="text" name="otp" x-model="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required
+                        class="w-full h-12 px-3 mt-1 bg-slate-50 border border-slate-200 rounded-xl text-center text-2xl font-mono tracking-[0.5em] focus:border-emerald-400 focus:ring-emerald-200">
+                </label>
+                <div class="flex gap-2 justify-end pt-2 border-t">
+                    <button type="button" @click="otpOpen=false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+                    <button type="submit" :disabled="code.length !== 6" :class="code.length!==6?'opacity-50 cursor-not-allowed':''"
+                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold">
+                        <i class="fa-solid fa-check mr-1"></i> Verify &amp; Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
