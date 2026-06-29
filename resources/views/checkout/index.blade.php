@@ -480,6 +480,11 @@
         if (region && region.cost !== null && region.cost !== undefined) {
             cost += parseFloat(region.cost);
         }
+        // Add the selected shipping carrier's own cost on top (if any).
+        const carrierSelEl = document.getElementById('shipping-carrier');
+        const carrierOpt = carrierSelEl?.options[carrierSelEl.selectedIndex];
+        const carrierCost = parseFloat(carrierOpt?.dataset?.cost || '0') || 0;
+        cost += carrierCost;
         shippingCost = cost;
     }
 
