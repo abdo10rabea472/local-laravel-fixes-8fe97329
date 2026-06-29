@@ -606,6 +606,7 @@ return [
     'admin_product_form_description' => 'Detailed Description',
     'admin_product_form_description_ph' => 'Write specs and technical details...',
     'admin_product_form_pricing' => 'Pricing & Stock',
+    'admin_product_form_currency_notice' => 'Notice: All prices entered here are stored in the store\'s default currency (:currency) and will be auto-converted at checkout based on the customer\'s selected currency.',
     'admin_product_form_cost_price' => 'Cost Price',
     'admin_product_form_sale_price' => 'Sale Price',
     'admin_product_form_discount_price' => 'Discount Price (Students)',
