@@ -3,6 +3,7 @@
 @section('title', 'Languages')
 
 @section('settings-content')
+<style>[x-cloak]{display:none !important;}</style>
 <div class="space-y-6" x-data="{ open:false, edit:null, form:{} }">
     {{-- Alerts --}}
     @if(session('success'))<div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100">{{ session('success') }}</div>@endif
