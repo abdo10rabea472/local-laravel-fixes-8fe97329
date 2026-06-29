@@ -106,7 +106,9 @@
 
             </tbody>
         </table>
+        </div>
     </div>
+
 
     {{-- Modal --}}
     <div x-show="open" x-cloak class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="open=false">
