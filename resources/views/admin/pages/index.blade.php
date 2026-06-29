@@ -26,7 +26,14 @@
             <tbody>
                 @forelse($pages as $page)
                 <tr class="border-t border-slate-100 hover:bg-slate-50/60 transition-colors">
-                    <td class="p-4 font-semibold text-slate-800">{{ $page->title }}</td>
+                    <td class="p-4 font-semibold text-slate-800">
+                        {{ $page->title }}
+                        @if(in_array($page->slug, $systemSlugs ?? [], true))
+                            <span class="ml-2 inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+                                <i class="fa-solid fa-lock text-[9px]"></i> System
+                            </span>
+                        @endif
+                    </td>
                     <td class="p-4 text-slate-500 font-mono text-xs">{{ $page->slug }}</td>
                     <td class="p-4">
                         @if($page->status)
@@ -52,16 +59,24 @@
                                title="Edit page">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <form method="POST" action="{{ route('admin.pages.destroy', $page) }}" data-ajax-confirm="Delete this page?" data-ajax-remove>
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 hover:text-rose-700 transition-colors"
-                                        title="Delete page">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
+                            @if(in_array($page->slug, $systemSlugs ?? [], true))
+                                <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed"
+                                      title="System page — cannot be deleted. Toggle status to hide it.">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                            @else
+                                <form method="POST" action="{{ route('admin.pages.destroy', $page) }}" data-ajax-confirm="Delete this page?" data-ajax-remove>
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 hover:text-rose-700 transition-colors"
+                                            title="Delete page">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </td>
+
                 </tr>
                 @empty
                 <tr>
