@@ -18,7 +18,7 @@ class SiteSettingController extends Controller
     public function index(Request $request): View
     {
         $tab = $request->get('tab', 'general');
-        $allowedTabs = ['general', 'images', 'contact', 'ai', 'mail'];
+        $allowedTabs = ['general', 'images', 'contact', 'ai', 'mail', 'seo'];
 
         if (! in_array($tab, $allowedTabs, true)) {
             $tab = 'general';
@@ -32,6 +32,7 @@ class SiteSettingController extends Controller
             'contact' => ['title' => 'معلومات التواصل', 'subtitle' => 'بيانات التواصل والعنوان.'],
             'ai' => ['title' => 'نماذج الذكاء الاصطناعي', 'subtitle' => 'أضف أي مزود AI متوافق مع OpenAI (Base URL + API Key + Model).'],
             'mail' => ['title' => 'إعدادات البريد (SMTP)', 'subtitle' => 'تُحفظ مباشرة في ملف .env وتُستخدم لإرسال البريد.'],
+            'seo' => ['title' => 'تهيئة محركات البحث (SEO)', 'subtitle' => 'الفهرسة، خريطة الموقع، التحقق من جوجل، التحليلات، و robots.txt.'],
             default => ['title' => 'إعدادات الموقع', 'subtitle' => ''],
         };
 
