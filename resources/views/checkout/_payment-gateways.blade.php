@@ -23,7 +23,7 @@
                             <div class="fw-bold">{{ $g->name }}</div>
                             @if($g->description)<small class="text-muted d-block">{{ $g->description }}</small>@endif
                             @if((float) $g->extra_fees > 0)
-                                <small class="text-warning">+ رسوم {{ number_format((float)$g->extra_fees, 2) }} ج.م</small>
+                                <small class="text-warning">+ رسوم {{ money((float)$g->extra_fees) }}</small>
                             @endif
                         </div>
                     </label>
