@@ -819,30 +819,77 @@ class PaymentService
     }
 
     /**
-     * Compute the amount to charge at the gateway, in the BASE currency.
+     * Compute the amount to charge at the gateway in the gateway's configured currency.
      *
-     * Order columns (subtotal/shipping/total) are stored in base currency at
-     * placement time, but we recompute here from the actual order items so any
-     * upstream currency-conversion bug in the storefront cannot leak through.
+     * Order columns (subtotal/shipping/total) are stored in the site's BASE/default
+     * currency. We recompute the base amount defensively from the actual order items
+     * (so any UI currency-conversion bug cannot leak through), then convert to the
+     * gateway's currency using the site's exchange rates.
+     *
      * Returns [amount, currency_code].
      */
-    protected function resolveChargeAmount(Order $order): array
+    protected function resolveChargeAmount(Order $order, ?PaymentGateway $gateway = null): array
     {
         $itemsTotal = (float) $order->items()->sum(\Illuminate\Support\Facades\DB::raw('unit_price * quantity'));
         $shipping   = (float) ($order->shipping_cost ?? 0);
         $fees       = (float) ($order->payment_fees ?? 0);
         $discount   = (float) ($order->discount_amount ?? 0);
 
-        $amount = max(0.0, round($itemsTotal - $discount + $shipping + $fees, 2));
+        $baseAmount = max(0.0, round($itemsTotal - $discount + $shipping + $fees, 2));
 
         // Fallback to the stored total if items somehow weren't persisted.
-        if ($amount <= 0 && (float) $order->total > 0) {
-            $amount = (float) $order->total;
+        if ($baseAmount <= 0 && (float) $order->total > 0) {
+            $baseAmount = (float) $order->total;
         }
 
-        $base = app(\App\Services\CurrencyService::class)->default();
-        $code = $base?->code ?: ($order->currency ?: 'EGP');
+        $currencyService = app(\App\Services\CurrencyService::class);
+        $baseCurrency = $currencyService->default();
+        $baseCode = $baseCurrency?->code ?: ($order->currency ?: 'EGP');
 
-        return [$amount, strtoupper($code)];
+        // Resolve the gateway's currency from its configuration.
+        $gatewayCode = $gateway ? $this->gatewayCurrencyCode($gateway, $baseCode) : $baseCode;
+
+        $amount = $baseAmount;
+        if ($baseCurrency && strtoupper($gatewayCode) !== strtoupper($baseCode)) {
+            $target = $currencyService->find($gatewayCode);
+            if ($target) {
+                // baseAmount is already in default currency, so convert from default -> target.
+                $amount = round($currencyService->convert($baseAmount, $target, $baseCurrency), 2);
+            } else {
+                Log::warning('payment.currency.unknown_gateway_currency', [
+                    'order_id'     => $order->id,
+                    'gateway_code' => $gateway?->code,
+                    'requested'    => $gatewayCode,
+                    'fallback'     => $baseCode,
+                ]);
+                $gatewayCode = $baseCode;
+            }
+        }
+
+        return [$amount, strtoupper($gatewayCode)];
+    }
+
+    /**
+     * Read the gateway's preferred currency from its stored config (e.g.
+     * PAYMOB_CURRENCY, STRIPE_CURRENCY, PAYTABS_CURRENCY, or a generic CURRENCY key).
+     */
+    protected function gatewayCurrencyCode(PaymentGateway $gateway, string $fallback = 'EGP'): string
+    {
+        $driver = strtoupper($this->canonicalDriver($gateway->driver));
+        $candidates = [
+            $driver . '_CURRENCY',
+            'CURRENCY',
+        ];
+        // Special-case Paymob Wallet (shares PAYMOB_* config).
+        if (str_starts_with($driver, 'PAYMOB')) {
+            array_unshift($candidates, 'PAYMOB_CURRENCY');
+        }
+        foreach ($candidates as $key) {
+            $value = $gateway->configValue($key);
+            if (is_string($value) && trim($value) !== '') {
+                return strtoupper(trim($value));
+            }
+        }
+        return strtoupper($fallback);
     }
 }
