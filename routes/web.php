@@ -282,6 +282,8 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
     Route::resource('faqs', \App\Http\Controllers\Admin\FaqController::class)->only(['index','store','update','destroy']);
     Route::patch('/faqs/{faq}/toggle', [\App\Http\Controllers\Admin\FaqController::class, 'toggle'])->name('faqs.toggle');
     Route::put('/faqs-seo', [\App\Http\Controllers\Admin\FaqController::class, 'updateSeo'])->name('faqs.seo.update');
+    Route::post('/faqs-categories', [\App\Http\Controllers\Admin\FaqController::class, 'storeCategory'])->name('faqs.categories.store');
+    Route::delete('/faqs-categories', [\App\Http\Controllers\Admin\FaqController::class, 'destroyCategory'])->name('faqs.categories.destroy');
 
     // Contact messages
     Route::get('/messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('messages.index');

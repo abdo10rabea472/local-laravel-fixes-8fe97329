@@ -28,8 +28,10 @@ class FaqController extends Controller
             $query->where('category', $cat);
         }
         $faqs = $query->paginate($perPage)->withQueryString();
-        $categories = Faq::query()->whereNotNull('category')->where('category', '!=', '')
+        $usedCats = Faq::query()->whereNotNull('category')->where('category', '!=', '')
             ->distinct()->orderBy('category')->pluck('category');
+        $customCats = collect(json_decode(\App\Models\SiteSetting::get('faq_categories', '[]'), true) ?: []);
+        $categories = $usedCats->merge($customCats)->unique()->values();
 
         $seoPage = Page::firstOrCreate(
             ['slug' => 'faqs'],
@@ -38,6 +40,38 @@ class FaqController extends Controller
 
         return view('admin.content.faqs.index', compact('faqs', 'q', 'cat', 'perPage', 'categories', 'seoPage'));
     }
+
+    public function storeCategory(Request $request)
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:100']]);
+        $name = trim($data['name']);
+        $list = collect(json_decode(\App\Models\SiteSetting::get('faq_categories', '[]'), true) ?: []);
+        $used = Faq::query()->distinct()->pluck('category')->filter();
+        if (! $list->merge($used)->contains($name)) {
+            $list->push($name);
+            \App\Models\SiteSetting::updateOrCreate(
+                ['key' => 'faq_categories'],
+                ['value' => json_encode($list->values()->all(), JSON_UNESCAPED_UNICODE), 'type' => 'json', 'group' => 'faqs']
+            );
+            \App\Models\SiteSetting::clearCache();
+        }
+        return back()->with('success', 'تمت إضافة التصنيف.');
+    }
+
+    public function destroyCategory(Request $request)
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:100']]);
+        $name = $data['name'];
+        $list = collect(json_decode(\App\Models\SiteSetting::get('faq_categories', '[]'), true) ?: [])
+            ->reject(fn ($v) => $v === $name)->values();
+        \App\Models\SiteSetting::updateOrCreate(
+            ['key' => 'faq_categories'],
+            ['value' => json_encode($list->all(), JSON_UNESCAPED_UNICODE), 'type' => 'json', 'group' => 'faqs']
+        );
+        \App\Models\SiteSetting::clearCache();
+        return back()->with('success', 'تم حذف التصنيف من القائمة.');
+    }
+
 
     public function updateSeo(Request $request)
     {
