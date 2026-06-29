@@ -70,6 +70,15 @@
                            class="text-emerald-600 hover:underline text-xs font-bold mr-2">
                             <i class="fa-solid fa-language"></i> Translate
                         </a>
+                        <a href="{{ route('admin.settings.languages.translations.export', $lang) }}"
+                           class="text-sky-600 hover:underline text-xs font-bold mr-2" title="Export translations as JSON">
+                            <i class="fa-solid fa-file-export"></i> Export
+                        </a>
+                        <button type="button"
+                                @click="$dispatch('open-import', { id: {{ $lang->id }}, name: '{{ addslashes($lang->name) }}', url: '{{ route('admin.settings.languages.translations.import', $lang) }}' })"
+                                class="text-amber-600 hover:underline text-xs font-bold mr-2" title="Import translations from JSON">
+                            <i class="fa-solid fa-file-import"></i> Import
+                        </button>
                         <button @click='open=true; edit={{ $lang->id }}; form=@json($lang)'
                                 class="text-violet-600 hover:underline text-xs font-bold mr-2">Edit</button>
                         @unless($lang->is_default)
