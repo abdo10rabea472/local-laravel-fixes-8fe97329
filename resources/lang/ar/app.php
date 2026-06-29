@@ -4,6 +4,8 @@ return [
     'shared_home' => 'الرئيسية',
     'shared_products' => 'المنتجات',
     'shared_all_products' => 'كل المنتجات',
+    'products_page_title' => 'كل المنتجات',
+    'products_page_subtitle' => 'تصفح جميع المنتجات المتاحة',
     'shared_all_colleges' => 'كل الكليات',
     'shared_blog' => 'المدونة',
     'shared_offers' => 'العروض',
