@@ -71,17 +71,24 @@
     <script>
         @php
             $c = current_currency();
+            $defaultCurrency = app(\App\Services\CurrencyService::class)->default();
             $appCurrency = $c ? [
                 'code' => $c->code,
                 'symbol' => $c->symbol,
                 'position' => $c->symbol_position,
                 'decimals' => (int) $c->decimals,
-            ] : ['code' => 'EGP', 'symbol' => 'EGP', 'position' => 'after', 'decimals' => 2];
+                'rate' => (float) $c->exchange_rate,
+                'defaultCode' => $defaultCurrency?->code ?? $c->code,
+            ] : ['code' => 'EGP', 'symbol' => 'EGP', 'position' => 'after', 'decimals' => 2, 'rate' => 1, 'defaultCode' => 'EGP'];
         @endphp
         window.APP_CURRENCY = @json($appCurrency);
+        window.convertMoney = function(amount){
+            const c = window.APP_CURRENCY || { rate: 1 };
+            return Number(amount || 0) * Number(c.rate || 1);
+        };
         window.formatMoney = function(amount){
             const c = window.APP_CURRENCY;
-            const n = Number(amount || 0).toLocaleString(undefined, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals });
+            const n = window.convertMoney(amount).toLocaleString(undefined, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals });
             return c.position === 'before' ? `${c.symbol}${n}` : `${n} ${c.symbol}`;
         };
     </script>

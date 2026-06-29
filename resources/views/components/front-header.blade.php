@@ -80,18 +80,24 @@
                 @endif
 
                 @if(($availableCurrencies ?? collect())->count() > 1)
+                @php $defaultCurrencyForRates = ($availableCurrencies ?? collect())->firstWhere('is_default', true) ?? current_currency(); @endphp
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" type="button" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
                         <i class="fa-solid fa-coins text-[10px]"></i>
-                        <span>{{ optional($currentCurrency ?? null)->code ?? '' }}</span>
+                        <span>{{ optional($currentCurrency ?? null)->symbol }} {{ optional($currentCurrency ?? null)->code ?? '' }}</span>
                         <i class="fa-solid fa-chevron-down text-[8px]"></i>
                     </button>
-                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-44 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                    <div x-show="open" x-cloak @click.outside="open=false" class="absolute right-0 mt-2 w-64 bg-white text-slate-700 rounded-xl shadow-xl border border-slate-100 py-1 z-50">
                         @foreach($availableCurrencies as $cur)
                             <a href="{{ route('currency.switch', $cur->code) }}"
-                               class="flex items-center justify-between px-3 py-2 text-xs hover:bg-violet-50 {{ optional($currentCurrency ?? null)->code === $cur->code ? 'font-bold text-violet-700' : '' }}">
-                                <span>{{ $cur->name }}</span>
-                                <span class="text-slate-400">{{ $cur->symbol }} {{ $cur->code }}</span>
+                               class="flex items-center justify-between gap-3 px-3 py-2 text-xs hover:bg-violet-50 {{ optional($currentCurrency ?? null)->code === $cur->code ? 'font-bold text-violet-700' : '' }}">
+                                 <span class="min-w-0">
+                                     <span class="block truncate">{{ $cur->name }}</span>
+                                     <span class="block text-[10px] text-slate-400 font-normal">
+                                         1 {{ $defaultCurrencyForRates?->code ?? $cur->code }} = {{ rtrim(rtrim(number_format((float) $cur->exchange_rate, 8, '.', ''), '0'), '.') }} {{ $cur->code }}
+                                     </span>
+                                 </span>
+                                 <span class="text-slate-400 shrink-0">{{ $cur->symbol }} {{ $cur->code }}</span>
                             </a>
                         @endforeach
                     </div>

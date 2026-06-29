@@ -9,8 +9,9 @@
     $discountPercent = $product->discount_percent;
     $inStock = $product->stock > 0;
 @endphp
+@php $convertedPrice = convert_price($displayPrice); @endphp
 
-<article class="group flex flex-col rounded-xl bg-white border border-slate-200/80 overflow-hidden hover:shadow-md hover:-translate-y-0.5 hover:border-violet-300 transition-all duration-200" data-id="{{ $product->id }}" data-price="{{ $displayPrice }}">
+<article class="group flex flex-col rounded-xl bg-white border border-slate-200/80 overflow-hidden hover:shadow-md hover:-translate-y-0.5 hover:border-violet-300 transition-all duration-200" data-id="{{ $product->id }}" data-price="{{ $convertedPrice }}">
     <a href="{{ route('product.show', $product->slug) }}" class="relative aspect-square bg-slate-50 flex items-center justify-center p-2 overflow-hidden">
         @if($hasDiscount && $discountPercent > 0)
             <span class="absolute top-1.5 left-1.5 z-10 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">-{{ $discountPercent }}%</span>

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductDiscount;
 use App\Models\ShippingCountry;
 use App\Models\ShippingRegion;
+use App\Services\CurrencyService;
 use App\Services\NavigationService;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -17,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(CurrencyService::class);
     }
 
     public function boot(): void
