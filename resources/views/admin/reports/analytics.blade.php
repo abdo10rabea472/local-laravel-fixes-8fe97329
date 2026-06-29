@@ -10,57 +10,57 @@
 <div class="p-6 space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">{{ __('app.admin_reports_analytics_heading') }}</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ __('app.admin_reports_analytics_subtitle') }}</p>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-gray-100">{{ __('app.admin_reports_analytics_heading') }}</h1>
+            <p class="text-sm text-slate-500 mt-1 dark:text-gray-400">{{ __('app.admin_reports_analytics_subtitle') }}</p>
         </div>
         <div class="flex gap-2">
             @foreach([7=>'7 Days', 30=>'30 Days', 90=>'90 Days', 365=>'1 Year'] as $d => $lbl)
-                <a href="?days={{ $d }}" class="px-4 py-2 rounded-xl text-sm font-bold {{ $range == $d ? 'bg-violet-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-violet-300' }}">{{ $lbl }}</a>
+                <a href="?days={{ $d }}" class="px-4 py-2 rounded-xl text-sm font-bold {{ $range == $d ? 'bg-violet-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-violet-300' }} dark:bg-dark-900 dark:border-dark-700 dark:text-gray-300 dark:hover:border-violet-500">{{ $lbl }}</a>
             @endforeach
         </div>
     </div>
 
     {{-- KPI Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white border rounded-2xl p-5">
-            <p class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_analytics_kpi_total_revenue') }}</p>
+        <div class="bg-white border rounded-2xl p-5 dark:bg-dark-900 dark:border-dark-700">
+            <p class="text-xs font-bold text-slate-500 dark:text-gray-400">{{ __('app.admin_reports_analytics_kpi_total_revenue') }}</p>
             <h3 class="text-2xl font-black text-emerald-600 mt-2">{{ money($kpi->revenue) }}</h3>
         </div>
-        <div class="bg-white border rounded-2xl p-5">
-            <p class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_analytics_kpi_orders') }}</p>
+        <div class="bg-white border rounded-2xl p-5 dark:bg-dark-900 dark:border-dark-700">
+            <p class="text-xs font-bold text-slate-500 dark:text-gray-400">{{ __('app.admin_reports_analytics_kpi_orders') }}</p>
             <h3 class="text-2xl font-black text-violet-600 mt-2">{{ (int) $kpi->orders_count }}</h3>
-            <p class="text-[11px] text-slate-400 mt-1">{{ __('app.admin_reports_analytics_kpi_paid') }}: {{ (int) $kpi->paid_count }} · {{ __('app.admin_reports_analytics_kpi_pending') }}: {{ (int) $kpi->pending_count }}</p>
+            <p class="text-[11px] text-slate-400 mt-1 dark:text-gray-500">{{ __('app.admin_reports_analytics_kpi_paid') }}: {{ (int) $kpi->paid_count }} · {{ __('app.admin_reports_analytics_kpi_pending') }}: {{ (int) $kpi->pending_count }}</p>
         </div>
-        <div class="bg-white border rounded-2xl p-5">
-            <p class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_analytics_kpi_aov') }}</p>
+        <div class="bg-white border rounded-2xl p-5 dark:bg-dark-900 dark:border-dark-700">
+            <p class="text-xs font-bold text-slate-500 dark:text-gray-400">{{ __('app.admin_reports_analytics_kpi_aov') }}</p>
             <h3 class="text-2xl font-black text-sky-600 mt-2">
                 {{ money($kpi->paid_count > 0 ? $kpi->revenue / $kpi->paid_count : 0) }}
             </h3>
         </div>
-        <div class="bg-white border rounded-2xl p-5">
-            <p class="text-xs font-bold text-slate-500">{{ __('app.admin_reports_analytics_kpi_cancelled_refunded') }}</p>
+        <div class="bg-white border rounded-2xl p-5 dark:bg-dark-900 dark:border-dark-700">
+            <p class="text-xs font-bold text-slate-500 dark:text-gray-400">{{ __('app.admin_reports_analytics_kpi_cancelled_refunded') }}</p>
             <h3 class="text-2xl font-black text-rose-600 mt-2">{{ (int) $kpi->cancelled_count + (int) $kpi->refunded_count }}</h3>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white border rounded-2xl p-6">
-            <h3 class="font-bold text-slate-800 mb-4">{{ __('app.admin_reports_analytics_chart_daily_revenue') }}</h3>
+        <div class="lg:col-span-2 bg-white border rounded-2xl p-6 dark:bg-dark-900 dark:border-dark-700">
+            <h3 class="font-bold text-slate-800 mb-4 dark:text-gray-100">{{ __('app.admin_reports_analytics_chart_daily_revenue') }}</h3>
             <canvas id="revenueChart" height="100"></canvas>
         </div>
-        <div class="bg-white border rounded-2xl p-6">
-            <h3 class="font-bold text-slate-800 mb-4">{{ __('app.admin_reports_analytics_chart_order_statuses') }}</h3>
+        <div class="bg-white border rounded-2xl p-6 dark:bg-dark-900 dark:border-dark-700">
+            <h3 class="font-bold text-slate-800 mb-4 dark:text-gray-100">{{ __('app.admin_reports_analytics_chart_order_statuses') }}</h3>
             <canvas id="statusChart"></canvas>
         </div>
     </div>
 
-    <div class="bg-white border rounded-2xl p-6">
-        <h3 class="font-bold text-slate-800 mb-4">{{ __('app.admin_reports_analytics_top_products') }}</h3>
+    <div class="bg-white border rounded-2xl p-6 dark:bg-dark-900 dark:border-dark-700">
+        <h3 class="font-bold text-slate-800 mb-4 dark:text-gray-100">{{ __('app.admin_reports_analytics_top_products') }}</h3>
         @if($topProducts->isEmpty())
-            <p class="text-center text-slate-400 py-8">{{ __('app.admin_reports_analytics_no_data') }}</p>
+            <p class="text-center text-slate-400 py-8 dark:text-gray-500">{{ __('app.admin_reports_analytics_no_data') }}</p>
         @else
         <table class="w-full text-sm">
-            <thead class="text-xs uppercase text-slate-500 border-b">
+            <thead class="text-xs uppercase text-slate-500 border-b dark:text-gray-400">
                 <tr>
                     <th class="py-2 text-left">#</th>
                     <th class="py-2 text-left">{{ __('app.admin_reports_analytics_col_product') }}</th>
@@ -71,8 +71,8 @@
             <tbody class="divide-y">
                 @foreach($topProducts as $i => $p)
                     <tr>
-                        <td class="py-3 text-slate-400">#{{ $i+1 }}</td>
-                        <td class="py-3 font-semibold text-slate-700">{{ $p->name }}</td>
+                        <td class="py-3 text-slate-400 dark:text-gray-500">#{{ $i+1 }}</td>
+                        <td class="py-3 font-semibold text-slate-700 dark:text-gray-200">{{ $p->name }}</td>
                         <td class="py-3 font-bold text-violet-600">{{ (int) $p->qty }}</td>
                         <td class="py-3 font-bold text-emerald-600">{{ money($p->revenue) }}</td>
                     </tr>
