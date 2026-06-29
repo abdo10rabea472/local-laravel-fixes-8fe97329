@@ -33,7 +33,6 @@ class HomePageController extends Controller
             'hero_title','hero_subtitle','hero_badge',
             'featured_section_title','featured_section_subtitle','featured_limit',
             'products_section_title','products_section_subtitle','products_limit',
-            'cta_badge','cta_title','cta_subtitle','cta_button','cta_url',
         ];
 
         foreach ($textKeys as $key) {
