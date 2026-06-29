@@ -10,7 +10,7 @@ class OffersController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category:id,name', 'images:id,product_id,path'])
+        $products = Product::with(['category:id,name', 'images:id,product_id,image'])
             ->where('status', true)
             ->whereNotNull('sale_price')
             ->whereColumn('sale_price', '<', 'price')
