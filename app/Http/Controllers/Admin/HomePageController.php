@@ -81,16 +81,6 @@ class HomePageController extends Controller
             'products_section_title' => 'عنوان قسم جميع المنتجات',
             'products_section_subtitle' => 'نص قسم جميع المنتجات',
             'products_limit' => 'عدد المنتجات في الصفحة',
-            'cta_badge' => 'شارة قسم الطلبات بالجملة',
-            'cta_title' => 'عنوان قسم الطلبات بالجملة',
-            'cta_subtitle' => 'وصف قسم الطلبات بالجملة',
-            'cta_button' => 'نص الزر',
-            'cta_url' => 'رابط الزر',
-            'cta_bg_image' => 'خلفية قسم الطلبات بالجملة',
-            'cta_image_1' => 'صورة 1 — معرض CTA',
-            'cta_image_2' => 'صورة 2 — معرض CTA',
-            'cta_image_3' => 'صورة 3 — معرض CTA',
-            'cta_image_4' => 'صورة 4 — معرض CTA',
             default => $key,
         };
     }
