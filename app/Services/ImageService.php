@@ -153,7 +153,12 @@ class ImageService
         match ($extension) {
             'jpg', 'jpeg' => imagejpeg($image, $path, 85),
             'png' => imagepng($image, $path, 6),
-            'webp' => function_exists('imagewebp') ? imagewebp($image, $path, 85) : imagejpeg($image, $path, 85),
+            'webp' => function_exists('imagewebp') ? (function() use ($image, $path) {
+                if (function_exists('imageistruecolor') && !imageistruecolor($image)) {
+                    imagepalettetotruecolor($image);
+                }
+                return imagewebp($image, $path, 85);
+            })() : imagejpeg($image, $path, 85),
             'gif' => imagegif($image, $path),
             default => imagejpeg($image, $path, 85),
         };
