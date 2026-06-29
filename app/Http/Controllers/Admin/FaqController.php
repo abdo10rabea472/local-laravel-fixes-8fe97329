@@ -35,7 +35,7 @@ class FaqController extends Controller
 
         $seoPage = Page::firstOrCreate(
             ['slug' => 'faqs'],
-            ['title' => 'Frequently Asked Questions', 'content' => '', 'active' => true]
+            ['title' => 'Frequently Asked Questions', 'content' => '', 'status' => true]
         );
 
         $nextSort = (int) Faq::max('sort_order') + 1;
@@ -82,16 +82,29 @@ class FaqController extends Controller
     public function updateSeo(Request $request)
     {
         $data = $request->validate([
-            'title' => ['nullable', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'seo_description' => ['nullable', 'string', 'max:500'],
             'seo_keywords' => ['nullable', 'string', 'max:500'],
+            'og_title' => ['nullable', 'string', 'max:255'],
+            'og_description' => ['nullable', 'string', 'max:500'],
+            'og_image' => ['nullable', 'image', 'max:2048'],
+            'canonical_url' => ['nullable', 'string', 'max:500'],
+            'sort_order' => ['nullable', 'integer'],
+            'status' => ['nullable', 'boolean'],
         ]);
-        $page = Page::firstOrCreate(['slug' => 'faqs'], ['title' => 'FAQs', 'content' => '', 'active' => true]);
-        $page->fill(array_filter($data, fn ($v) => $v !== null))->save();
+        $page = Page::firstOrCreate(['slug' => 'faqs'], ['title' => 'FAQs']);
+        if ($request->hasFile('og_image')) {
+            $data['og_image'] = $request->file('og_image')->store('pages', 'public');
+        } else {
+            unset($data['og_image']);
+        }
+        $data['status'] = $request->boolean('status');
+        $page->fill($data)->save();
         $this->clearCache();
-        return back()->with('success', 'تم تحديث بيانات السيو.');
+        return back()->with('success', 'تم تحديث بيانات الصفحة.');
     }
+
 
     public function store(Request $request)
     {
