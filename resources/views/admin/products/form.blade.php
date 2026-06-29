@@ -52,8 +52,17 @@
             </div>
         </x-admin.card>
 
-        @php $cur = current_currency()->code ?? 'EGP'; @endphp
+        @php
+            $defaultCurrency = app(\App\Services\CurrencyService::class)->default();
+            $cur = $defaultCurrency->code ?? 'EGP';
+        @endphp
         <x-admin.card :title="__('app.admin_product_form_pricing')" icon="fa-coins">
+            <div class="mb-4 flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                <p class="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+                    {{ __('app.admin_product_form_currency_notice', ['currency' => $cur]) }}
+                </p>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-1.5">{{ __('app.admin_product_form_cost_price') }} ({{ $cur }})</label>
