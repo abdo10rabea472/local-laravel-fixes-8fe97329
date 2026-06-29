@@ -87,14 +87,15 @@
                     <div class="relative flex-1">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                         <input type="search" name="search" value="{{ request('search') }}"
-                            placeholder="Search products..."
+                            placeholder="{{ __('app.cat_search_placeholder') }}"
                             class="w-full h-11 pl-10 pr-3 bg-white rounded-xl text-sm text-slate-800 outline-none placeholder:text-slate-400">
                     </div>
                     <button type="submit"
                         class="h-11 px-5 bg-white font-bold text-sm rounded-xl shrink-0 hover:bg-slate-50 transition-colors"
                         style="color: {{ $primary }}">
-                        Go
+                        {{ __('app.cat_search_go') }}
                     </button>
+
                 </div>
             </form>
         </div>
