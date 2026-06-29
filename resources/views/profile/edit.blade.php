@@ -11,14 +11,14 @@
                 {{ mb_substr(auth()->user()->name, 0, 1) }}
             </div>
             <div class="min-w-0 flex-1">
-                <p class="text-xs uppercase tracking-widest text-white/70 font-bold mb-1">بيانات الحساب</p>
+                <p class="text-xs uppercase tracking-widest text-white/70 font-bold mb-1">{{ __('app.acc_profile_account_data') }}</p>
                 <h1 class="text-2xl sm:text-3xl font-black truncate">{{ auth()->user()->name }}</h1>
                 <p class="text-white/80 text-sm truncate mt-1">
                     <i class="fa-regular fa-envelope ml-1"></i> {{ auth()->user()->email }}
                 </p>
             </div>
             <a href="{{ route('account.dashboard') }}" class="hidden sm:inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur px-4 py-2 rounded-xl text-sm font-bold transition">
-                <i class="fa-solid fa-gauge-high"></i> لوحة التحكم
+                <i class="fa-solid fa-gauge-high"></i> {{ __('app.acc_profile_dashboard') }}
             </a>
         </div>
     </div>
@@ -26,13 +26,13 @@
     {{-- Tabs nav --}}
     <div class="bg-white rounded-2xl border border-slate-200 p-1.5 flex flex-wrap gap-1 sticky top-4 z-10 shadow-sm">
         <a href="#info" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-user-pen ml-1"></i> المعلومات الشخصية
+            <i class="fa-solid fa-user-pen ml-1"></i> {{ __('app.acc_profile_tab_info') }}
         </a>
         <a href="#password" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-lock ml-1"></i> تغيير كلمة المرور
+            <i class="fa-solid fa-lock ml-1"></i> {{ __('app.acc_profile_tab_password') }}
         </a>
         <a href="#danger" class="profile-tab flex-1 text-center min-w-[120px] px-4 py-2.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 transition">
-            <i class="fa-solid fa-triangle-exclamation ml-1"></i> حذف الحساب
+            <i class="fa-solid fa-triangle-exclamation ml-1"></i> {{ __('app.acc_profile_tab_danger') }}
         </a>
     </div>
 
@@ -43,8 +43,8 @@
                 <i class="fa-solid fa-id-card"></i>
             </div>
             <div>
-                <h2 class="font-black text-slate-900">المعلومات الشخصية</h2>
-                <p class="text-xs text-slate-500">حدّث اسمك وبريدك الإلكتروني</p>
+                <h2 class="font-black text-slate-900">{{ __('app.acc_profile_info_title') }}</h2>
+                <p class="text-xs text-slate-500">{{ __('app.acc_profile_info_sub') }}</p>
             </div>
         </header>
         <div class="p-6 sm:p-8">
@@ -59,8 +59,8 @@
                 <i class="fa-solid fa-key"></i>
             </div>
             <div>
-                <h2 class="font-black text-slate-900">كلمة المرور</h2>
-                <p class="text-xs text-slate-500">استخدم كلمة مرور قوية لتأمين حسابك</p>
+                <h2 class="font-black text-slate-900">{{ __('app.acc_profile_pass_title') }}</h2>
+                <p class="text-xs text-slate-500">{{ __('app.acc_profile_pass_sub') }}</p>
             </div>
         </header>
         <div class="p-6 sm:p-8">
@@ -75,8 +75,8 @@
                 <i class="fa-solid fa-trash"></i>
             </div>
             <div>
-                <h2 class="font-black text-rose-900">منطقة الخطر</h2>
-                <p class="text-xs text-rose-600">حذف الحساب نهائي ولا يمكن التراجع عنه</p>
+                <h2 class="font-black text-rose-900">{{ __('app.acc_profile_danger_title') }}</h2>
+                <p class="text-xs text-rose-600">{{ __('app.acc_profile_danger_sub') }}</p>
             </div>
         </header>
         <div class="p-6 sm:p-8">
@@ -84,6 +84,7 @@
         </div>
     </section>
 </div>
+
 
 <script>
 document.querySelectorAll('.profile-tab').forEach(t => t.addEventListener('click', e => {

@@ -1,0 +1,22 @@
+{
+    "Delete Account": "حذف الحساب",
+    "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً. قبل حذف حسابك، يرجى تنزيل أي بيانات أو معلومات تود الاحتفاظ بها.",
+    "Are you sure you want to delete your account?": "هل أنت متأكد أنك تريد حذف حسابك؟",
+    "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "بمجرد حذف حسابك، سيتم حذف جميع موارده وبياناته نهائياً. يرجى إدخال كلمة المرور لتأكيد رغبتك في حذف الحساب نهائياً.",
+    "Password": "كلمة المرور",
+    "Cancel": "إلغاء",
+    "Update Password": "تحديث كلمة المرور",
+    "Ensure your account is using a long, random password to stay secure.": "تأكد من أن حسابك يستخدم كلمة مرور طويلة وعشوائية للحفاظ على الأمان.",
+    "Current Password": "كلمة المرور الحالية",
+    "New Password": "كلمة المرور الجديدة",
+    "Confirm Password": "تأكيد كلمة المرور",
+    "Save": "حفظ",
+    "Saved.": "تم الحفظ.",
+    "Profile Information": "المعلومات الشخصية",
+    "Update your account's profile information and email address.": "حدّث المعلومات الشخصية وعنوان البريد الإلكتروني لحسابك.",
+    "Name": "الاسم",
+    "Email": "البريد الإلكتروني",
+    "Your email address is unverified.": "عنوان بريدك الإلكتروني غير موثّق.",
+    "Click here to re-send the verification email.": "اضغط هنا لإعادة إرسال بريد التحقق.",
+    "A new verification link has been sent to your email address.": "تم إرسال رابط تحقق جديد إلى عنوان بريدك الإلكتروني."
+}

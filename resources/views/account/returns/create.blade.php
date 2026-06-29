@@ -3,8 +3,8 @@
 @section('account_content')
 <div class="space-y-6">
     <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-800">طلب إرجاع للطلب #{{ $order->order_number }}</h1>
-        <a href="{{ route('account.orders.show', $order) }}" class="text-violet-600 text-sm font-semibold">← العودة</a>
+        <h1 class="text-2xl font-bold text-slate-800">{{ __('app.acc_return_for') }} #{{ $order->order_number }}</h1>
+        <a href="{{ route('account.orders.show', $order) }}" class="text-violet-600 text-sm font-semibold">{{ __('app.acc_back') }}</a>
     </div>
 
     @if($errors->any())
@@ -17,15 +17,15 @@
         @csrf
 
         <div class="bg-white rounded-2xl border p-6">
-            <h2 class="font-bold text-slate-800 mb-4">اختر المنتجات والكميات</h2>
+            <h2 class="font-bold text-slate-800 mb-4">{{ __('app.acc_select_items') }}</h2>
             <table class="w-full text-sm">
                 <thead class="text-xs text-slate-500 uppercase border-b">
                     <tr>
-                        <th class="py-2 text-right">تضمين</th>
-                        <th class="py-2 text-right">المنتج</th>
-                        <th class="py-2 text-right">السعر</th>
-                        <th class="py-2 text-right">الكمية المتاحة</th>
-                        <th class="py-2 text-right">كمية الإرجاع</th>
+                        <th class="py-2 text-right">{{ __('app.acc_include') }}</th>
+                        <th class="py-2 text-right">{{ __('app.acc_product') }}</th>
+                        <th class="py-2 text-right">{{ __('app.acc_price') }}</th>
+                        <th class="py-2 text-right">{{ __('app.acc_available_qty') }}</th>
+                        <th class="py-2 text-right">{{ __('app.acc_return_qty') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -45,47 +45,48 @@
                     @endforeach
                 </tbody>
             </table>
-            <p class="text-xs text-amber-600 mt-3">⚠️ أرسل فقط المنتجات التي تود إرجاعها — التي لم تختر "تضمين" لن تُحسب.</p>
+            <p class="text-xs text-amber-600 mt-3">{{ __('app.acc_only_selected_note') }}</p>
         </div>
 
         <div class="bg-white rounded-2xl border p-6 space-y-4">
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">سبب الإرجاع *</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">{{ __('app.acc_return_reason') }}</label>
                 <select name="reason" required class="w-full rounded-xl border-slate-200 text-sm">
-                    <option value="defective">منتج معيب</option>
-                    <option value="wrong_item">منتج خاطئ</option>
-                    <option value="not_as_described">مخالف للوصف</option>
-                    <option value="damaged">تالف عند الاستلام</option>
-                    <option value="no_longer_wanted">لم أعد أرغب به</option>
-                    <option value="other">أخرى</option>
+                    <option value="defective">{{ __('app.acc_reason_defective') }}</option>
+                    <option value="wrong_item">{{ __('app.acc_reason_wrong_item') }}</option>
+                    <option value="not_as_described">{{ __('app.acc_reason_not_as_described') }}</option>
+                    <option value="damaged">{{ __('app.acc_reason_damaged') }}</option>
+                    <option value="no_longer_wanted">{{ __('app.acc_reason_no_longer_wanted') }}</option>
+                    <option value="other">{{ __('app.acc_reason_other') }}</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">ملاحظات إضافية</label>
-                <textarea name="customer_note" rows="4" class="w-full rounded-xl border-slate-200 text-sm" placeholder="اشرح تفاصيل المشكلة..."></textarea>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">{{ __('app.acc_extra_notes') }}</label>
+                <textarea name="customer_note" rows="4" class="w-full rounded-xl border-slate-200 text-sm" placeholder="{{ __('app.acc_notes_placeholder') }}"></textarea>
             </div>
         </div>
 
         <button onclick="return confirmSubmit(event)" class="w-full px-6 py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700">
-            إرسال طلب الإرجاع
+            {{ __('app.acc_submit_return') }}
         </button>
     </form>
 </div>
 
 <script>
+const __chooseOneMsg = @json(__('app.acc_choose_one_item'));
+const __confirmMsg   = @json(__('app.acc_confirm_submit'));
 function confirmSubmit(e) {
     const form = e.target.closest('form');
-    // Remove unchecked rows so backend validation gets a clean list
     const rows = form.querySelectorAll('tbody tr');
-    rows.forEach((r, idx) => {
+    rows.forEach((r) => {
         const cb = r.querySelector('input[type=checkbox]');
         if (!cb.checked) {
             r.querySelectorAll('input').forEach(i => i.disabled = true);
         }
     });
     const anyChecked = Array.from(form.querySelectorAll('input[type=checkbox]')).some(c => c.checked);
-    if (!anyChecked) { alert('اختر منتج واحد على الأقل'); e.preventDefault(); return false; }
-    return confirm('تأكيد إرسال طلب الإرجاع؟');
+    if (!anyChecked) { alert(__chooseOneMsg); e.preventDefault(); return false; }
+    return confirm(__confirmMsg);
 }
 </script>
 @endsection

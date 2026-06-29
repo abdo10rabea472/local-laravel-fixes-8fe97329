@@ -9,8 +9,13 @@
         'delivered' => collect($all)->where('status','delivered')->count(),
     ];
     $statusLabels = [
-        ''=>'كل الحالات','pending'=>'قيد الانتظار','paid'=>'مدفوع',
-        'shipped'=>'تم الشحن','delivered'=>'تم التوصيل','cancelled'=>'ملغي','refunded'=>'مسترد',
+        ''         => __('app.acc_status_all'),
+        'pending'  => __('app.acc_status_pending'),
+        'paid'     => __('app.acc_status_paid'),
+        'shipped'  => __('app.acc_status_shipped'),
+        'delivered'=> __('app.acc_status_delivered'),
+        'cancelled'=> __('app.acc_status_cancelled'),
+        'refunded' => __('app.acc_status_refunded'),
     ];
 @endphp
 
@@ -19,22 +24,22 @@
     <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
             <h1 class="text-2xl font-black text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-receipt text-violet-600"></i> طلباتي
+                <i class="fa-solid fa-receipt text-violet-600"></i> {{ __('app.acc_orders_title') }}
             </h1>
-            <p class="text-sm text-slate-500 mt-1">تابع حالة طلباتك وفواتيرك السابقة.</p>
+            <p class="text-sm text-slate-500 mt-1">{{ __('app.acc_orders_subtitle') }}</p>
         </div>
         <a href="{{ route('home') }}" class="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition shadow-sm shadow-violet-500/30">
-            <i class="fa-solid fa-bag-shopping"></i> تسوّق المزيد
+            <i class="fa-solid fa-bag-shopping"></i> {{ __('app.acc_shop_more') }}
         </a>
     </div>
 
     {{-- Stats --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         @php $cards = [
-            ['الكل',$stats['total'],'violet','fa-list'],
-            ['قيد الانتظار',$stats['pending'],'amber','fa-clock'],
-            ['قيد الشحن',$stats['shipped'],'sky','fa-truck'],
-            ['تم التوصيل',$stats['delivered'],'emerald','fa-check-double'],
+            [__('app.acc_stat_all'),$stats['total'],'violet','fa-list'],
+            [__('app.acc_stat_pending'),$stats['pending'],'amber','fa-clock'],
+            [__('app.acc_stat_shipped'),$stats['shipped'],'sky','fa-truck'],
+            [__('app.acc_stat_delivered'),$stats['delivered'],'emerald','fa-check-double'],
         ]; @endphp
         @foreach($cards as [$lbl,$val,$c,$ic])
         <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-sm">
@@ -53,7 +58,7 @@
     <form method="GET" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-wrap items-center gap-2">
         <div class="flex-1 min-w-[200px] relative">
             <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="ابحث برقم الطلب…"
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('app.acc_search_orders') }}"
                    class="w-full h-11 pr-9 pl-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-violet-500 focus:bg-white focus:outline-none">
         </div>
         <select name="status" class="h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:border-violet-500 focus:bg-white focus:outline-none">
@@ -62,7 +67,7 @@
             @endforeach
         </select>
         <button class="h-11 px-5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition">
-            <i class="fa-solid fa-filter ml-1"></i> فلتر
+            <i class="fa-solid fa-filter ml-1"></i> {{ __('app.acc_filter') }}
         </button>
         @if(request('q') || request('status'))
         <a href="{{ route('account.orders') }}" class="h-11 px-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 inline-flex items-center">
@@ -89,11 +94,11 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                         <span><i class="fa-regular fa-calendar ml-1"></i>{{ $o->created_at->format('Y-m-d H:i') }}</span>
-                        <span><i class="fa-solid fa-cubes ml-1"></i>{{ $o->items_count }} عنصر</span>
+                        <span><i class="fa-solid fa-cubes ml-1"></i>{{ __('app.acc_items_count', ['count' => $o->items_count]) }}</span>
                     </div>
                 </div>
                 <div class="text-left shrink-0">
-                    <p class="text-[11px] text-slate-500 font-bold">الإجمالي</p>
+                    <p class="text-[11px] text-slate-500 font-bold">{{ __('app.acc_total') }}</p>
                     <p class="text-lg font-black text-slate-900">{{ number_format($o->total, 2) }} <span class="text-xs text-slate-500">{{ $o->currency }}</span></p>
                 </div>
                 <div class="shrink-0 text-violet-600 group-hover:translate-x-[-4px] transition">
@@ -106,10 +111,10 @@
             <div class="w-20 h-20 rounded-2xl bg-violet-50 text-violet-600 grid place-items-center text-3xl mx-auto mb-4">
                 <i class="fa-solid fa-box-open"></i>
             </div>
-            <h3 class="font-black text-slate-900 text-lg mb-1">لا توجد طلبات بعد</h3>
-            <p class="text-sm text-slate-500 mb-5">ابدأ التسوق وستظهر طلباتك هنا.</p>
+            <h3 class="font-black text-slate-900 text-lg mb-1">{{ __('app.acc_no_orders_yet') }}</h3>
+            <p class="text-sm text-slate-500 mb-5">{{ __('app.acc_start_shopping_hint') }}</p>
             <a href="{{ route('home') }}" class="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-700 transition">
-                <i class="fa-solid fa-bag-shopping"></i> ابدأ التسوّق
+                <i class="fa-solid fa-bag-shopping"></i> {{ __('app.acc_start_shopping') }}
             </a>
         </div>
     @endforelse

@@ -4,9 +4,9 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     @php
         $cards = [
-            ['fa-receipt', 'إجمالي الطلبات', $ordersCount, 'from-violet-500 to-indigo-600'],
-            ['fa-wallet', 'إجمالي الإنفاق', number_format($totalSpent, 0) . ' EGP', 'from-emerald-500 to-teal-600'],
-            ['fa-star', 'مراجعاتي', $reviewsCount, 'from-amber-500 to-orange-600'],
+            ['fa-receipt', __('app.acc_total_orders'), $ordersCount, 'from-violet-500 to-indigo-600'],
+            ['fa-wallet', __('app.acc_total_spent'), number_format($totalSpent, 0) . ' ' . __('app.cat_egp'), 'from-emerald-500 to-teal-600'],
+            ['fa-star', __('app.acc_my_reviews'), $reviewsCount, 'from-amber-500 to-orange-600'],
         ];
     @endphp
     @foreach($cards as [$ic, $lbl, $val, $grad])
@@ -25,15 +25,15 @@
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
     <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-violet-50/50 to-transparent">
         <h3 class="font-black text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-clock-rotate-left text-violet-600"></i> آخر الطلبات
+            <i class="fa-solid fa-clock-rotate-left text-violet-600"></i> {{ __('app.acc_recent_orders') }}
         </h3>
-        <a href="{{ route('account.orders') }}" class="text-xs text-violet-600 font-bold hover:underline">عرض الكل ←</a>
+        <a href="{{ route('account.orders') }}" class="text-xs text-violet-600 font-bold hover:underline">{{ __('app.acc_view_all') }}</a>
     </div>
     @if($recentOrders->count())
     <div class="overflow-x-auto">
     <table class="w-full text-sm">
         <thead class="bg-slate-50 text-xs text-slate-600"><tr>
-            <th class="p-3 text-right">رقم الطلب</th><th class="p-3">العناصر</th><th class="p-3">الإجمالي</th><th class="p-3">الحالة</th><th class="p-3">التاريخ</th><th class="p-3"></th>
+            <th class="p-3 text-right">{{ __('app.acc_order_number') }}</th><th class="p-3">{{ __('app.acc_items') }}</th><th class="p-3">{{ __('app.acc_total') }}</th><th class="p-3">{{ __('app.acc_status') }}</th><th class="p-3">{{ __('app.acc_date') }}</th><th class="p-3"></th>
         </tr></thead>
         <tbody>
             @foreach($recentOrders as $o)
@@ -43,7 +43,7 @@
                 <td class="p-3 text-center font-bold">{{ number_format($o->total, 2) }}</td>
                 <td class="p-3 text-center"><span class="text-xs px-2 py-1 rounded-full bg-{{ $o->statusBadgeColor() }}-50 text-{{ $o->statusBadgeColor() }}-700 font-bold">{{ $o->statusLabel() }}</span></td>
                 <td class="p-3 text-center text-xs text-slate-500">{{ $o->created_at->format('Y-m-d') }}</td>
-                <td class="p-3 text-center"><a href="{{ route('account.orders.show', $o) }}" class="text-violet-600 text-xs font-bold hover:underline">تفاصيل</a></td>
+                <td class="p-3 text-center"><a href="{{ route('account.orders.show', $o) }}" class="text-violet-600 text-xs font-bold hover:underline">{{ __('app.acc_details') }}</a></td>
             </tr>
             @endforeach
         </tbody>
@@ -54,9 +54,9 @@
         <div class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 grid place-items-center text-2xl mx-auto mb-3">
             <i class="fa-solid fa-box-open"></i>
         </div>
-        <p class="text-slate-500 mb-4">لا توجد طلبات بعد</p>
+        <p class="text-slate-500 mb-4">{{ __('app.acc_no_orders_yet') }}</p>
         <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-md shadow-violet-500/30 hover:opacity-90">
-            <i class="fa-solid fa-bag-shopping"></i> تسوق الآن
+            <i class="fa-solid fa-bag-shopping"></i> {{ __('app.acc_shop_now') }}
         </a>
     </div>
     @endif

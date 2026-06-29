@@ -12,9 +12,9 @@
             </div>
             <div class="min-w-0">
                 <nav class="text-[11px] font-bold text-violet-100/80 mb-1 flex items-center gap-2">
-                    <a href="{{ route('home') }}" class="hover:text-white">Home</a>
+                    <a href="{{ route('home') }}" class="hover:text-white">{{ __('app.acc_home') }}</a>
                     <i class="fa-solid fa-chevron-right text-[8px]"></i>
-                    <span class="text-white">My Account</span>
+                    <span class="text-white">{{ __('app.acc_my_account') }}</span>
                 </nav>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight truncate">{{ $u->name }}</h1>
                 <p class="text-violet-100 text-sm truncate">{{ $u->email }}</p>
@@ -22,7 +22,8 @@
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 py-8 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8 lg:items-start" dir="rtl">
+    <div class="max-w-6xl mx-auto px-4 py-8 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8 lg:items-start" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+
         @include('account.partials.sidebar')
         <div class="min-w-0">
             @yield('account_content')

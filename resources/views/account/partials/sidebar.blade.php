@@ -18,11 +18,11 @@
 
         <nav class="p-3 space-y-1 text-sm">
             @php $items = [
-                ['account.dashboard','fa-gauge-high','لوحة التحكم'],
-                ['account.orders','fa-receipt','طلباتي'],
-                ['account.returns.index','fa-rotate-left','مرتجعاتي'],
-                ['account.reviews','fa-star','مراجعاتي'],
-                ['profile.edit','fa-user-pen','بيانات الحساب'],
+                ['account.dashboard','fa-gauge-high', __('app.acc_nav_dashboard')],
+                ['account.orders','fa-receipt', __('app.acc_nav_orders')],
+                ['account.returns.index','fa-rotate-left', __('app.acc_nav_returns')],
+                ['account.reviews','fa-star', __('app.acc_nav_reviews')],
+                ['profile.edit','fa-user-pen', __('app.acc_nav_profile')],
             ]; @endphp
             @foreach($items as [$r,$i,$l])
                 <a href="{{ route($r) }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all
@@ -31,8 +31,8 @@
                 </a>
             @endforeach
             <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 mt-2 pt-2">@csrf
-                <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-right">
-                    <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> تسجيل الخروج
+                <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">
+                    <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> {{ __('app.acc_logout') }}
                 </button>
             </form>
         </nav>
