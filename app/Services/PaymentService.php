@@ -379,7 +379,8 @@ class PaymentService
         }
 
         try {
-            $amountCents = (int) round(((float) $order->total) * 100);
+            [$amount, $currencyCode] = $this->resolveChargeAmount($order);
+            $amountCents = (int) round($amount * 100);
             $reference = $order->order_number ?: ('ORD-' . $order->id);
             $billing = $this->paymobBillingData($order);
 
