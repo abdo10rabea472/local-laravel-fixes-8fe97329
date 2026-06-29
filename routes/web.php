@@ -377,6 +377,14 @@ Route::get('/locale/{code}', function (string $code) {
     $path    = $parts['path'] ?? '/';
     $query   = isset($parts['query']) ? ('?' . $parts['query']) : '';
 
+    // Only trust the Referer path when it points at this app's own host.
+    // Otherwise, fall back to root to prevent open-redirect via Referer.
+    $appHost = request()->getHost();
+    if (($parts['host'] ?? null) !== null && $parts['host'] !== $appHost) {
+        $path = '/';
+        $query = '';
+    }
+
     // Strip any existing locale prefix from the path.
     $segments = array_values(array_filter(explode('/', $path), fn ($s) => $s !== ''));
     if (!empty($segments) && $svc->exists($segments[0])) {
@@ -384,8 +392,8 @@ Route::get('/locale/{code}', function (string $code) {
     }
     $rest = $segments ? '/' . implode('/', $segments) : '';
 
-    $host = ($parts['scheme'] ?? request()->getScheme()) . '://' . ($parts['host'] ?? request()->getHost())
-          . (isset($parts['port']) ? ':' . $parts['port'] : '');
+    // Always use the app's own scheme+host — never the Referer's.
+    $host = request()->getSchemeAndHttpHost();
 
     return redirect($host . '/' . $code . $rest . $query);
 })->name('locale.switch');

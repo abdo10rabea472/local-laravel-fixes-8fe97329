@@ -334,6 +334,10 @@
     refreshView();
 
 
+    const escHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+
     function renderItems() {
         itemsEl.innerHTML = '';
         cart.forEach(item => {
@@ -345,23 +349,26 @@
                 ? 'opacity-40 cursor-not-allowed'
                 : 'text-slate-600 hover:bg-slate-100';
             const incTitle = atMax ? `الحد الأقصى المتاح: ${max}` : '';
+            const safeId    = escHtml(item.id);
+            const safeName  = escHtml(item.name);
+            const safeImage = escHtml(item.image);
             itemsEl.innerHTML += `
-                <div class="flex gap-4" data-cart-id="${item.id}">
-                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain bg-slate-50 rounded-xl border border-slate-100 p-1">
+                <div class="flex gap-4" data-cart-id="${safeId}">
+                    <img src="${safeImage}" alt="${safeName}" class="w-16 h-16 object-contain bg-slate-50 rounded-xl border border-slate-100 p-1">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-start justify-between gap-2">
-                            <h4 class="font-bold text-sm text-slate-900 truncate">${item.name}</h4>
-                            <button type="button" data-action="remove" data-id="${item.id}" class="text-slate-400 hover:text-rose-600 transition-colors" title="Remove">
+                            <h4 class="font-bold text-sm text-slate-900 truncate">${safeName}</h4>
+                            <button type="button" data-action="remove" data-id="${safeId}" class="text-slate-400 hover:text-rose-600 transition-colors" title="Remove">
                                 <i class="fa-solid fa-trash-can text-sm pointer-events-none"></i>
                             </button>
                         </div>
                         <div class="flex items-center justify-between gap-3 mt-2">
                             <div class="inline-flex items-center border border-slate-200 rounded-xl overflow-hidden">
-                                <button type="button" data-action="dec" data-id="${item.id}" class="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                                <button type="button" data-action="dec" data-id="${safeId}" class="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
                                     <i class="fa-solid fa-minus text-xs pointer-events-none"></i>
                                 </button>
                                 <span class="h-8 min-w-[2rem] px-2 flex items-center justify-center text-sm font-bold text-slate-800 border-x border-slate-200">${qty}</span>
-                                <button type="button" data-action="inc" data-id="${item.id}" ${atMax ? 'disabled aria-disabled="true"' : ''} title="${incTitle}" class="h-8 w-8 flex items-center justify-center transition-colors ${incClasses}">
+                                <button type="button" data-action="inc" data-id="${safeId}" ${atMax ? 'disabled aria-disabled="true"' : ''} title="${escHtml(incTitle)}" class="h-8 w-8 flex items-center justify-center transition-colors ${incClasses}">
                                     <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
                                 </button>
                             </div>

@@ -269,7 +269,37 @@ class CheckoutController extends Controller
                     }
                 }
 
-                $shipping = (float) ($data['shipping_cost'] ?? 0);
+                // SECURITY: never trust the client-submitted shipping cost.
+                // Recompute it from server-side configuration (ShippingRegion)
+                // and only accept a client-supplied value when it matches an
+                // Aramex quote we stored in the session during /aramex-rate.
+                $clientShipping = (float) ($data['shipping_cost'] ?? 0);
+                $shipping = 0.0;
+
+                $countryName = $data['shipping_country'] ?? null;
+                $regionName  = $data['shipping_region'] ?? null;
+                $serverRegion = null;
+                if ($countryName && $regionName) {
+                    $serverRegion = \App\Models\ShippingRegion::query()
+                        ->whereHas('country', fn ($q) => $q->where('name', $countryName))
+                        ->where('name', $regionName)
+                        ->where('status', true)
+                        ->first();
+                }
+
+                if ($serverRegion) {
+                    $shipping = (float) $serverRegion->cost;
+                } else {
+                    // No DB-configured region — allow Aramex quote we recorded
+                    // server-side. Tolerance covers rounding/currency drift.
+                    $quoted = (float) session('aramex.last_quote', 0);
+                    if ($quoted > 0 && abs($clientShipping - $quoted) <= max(1.0, $quoted * 0.02)) {
+                        $shipping = $quoted;
+                    } else {
+                        // Reject silently to zero — never use the raw client value.
+                        $shipping = 0.0;
+                    }
+                }
 
                 // Include payment-gateway extra fees (e.g. COD surcharge).
                 $gateway = \App\Models\PaymentGateway::where('code', $data['payment_gateway'])->first();
@@ -388,6 +418,12 @@ class CheckoutController extends Controller
             'weight' => $weight,
             'number_of_pieces' => $totalQty,
         ], 'EGP');
+
+        if (!empty($res['ok']) && isset($res['data']['amount'])) {
+            // Persist the quoted amount so placeOrder can verify the
+            // client-submitted shipping_cost against a server-known value.
+            session(['aramex.last_quote' => (float) $res['data']['amount']]);
+        }
 
         return response()->json($res, $res['ok'] ? 200 : 422);
     }

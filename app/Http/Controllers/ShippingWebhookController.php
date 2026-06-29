@@ -21,11 +21,15 @@ class ShippingWebhookController extends Controller
         $carrier = ShippingCarrier::where('code', $code)->where('is_active', true)->first();
         abort_unless($carrier, 404);
 
-        if ($carrier->webhook_secret) {
-            $provided = $request->header('X-Webhook-Secret') ?? $request->query('secret');
-            if (!hash_equals($carrier->webhook_secret, (string) $provided)) {
-                return response()->json(['ok' => false, 'message' => 'invalid signature'], 401);
-            }
+        // A webhook secret is mandatory. Carriers without a configured secret
+        // cannot receive webhooks — otherwise anyone could spoof delivery
+        // updates for any tracked order.
+        if (empty($carrier->webhook_secret)) {
+            return response()->json(['ok' => false, 'message' => 'webhook not configured'], 501);
+        }
+        $provided = $request->header('X-Webhook-Secret') ?? $request->query('secret');
+        if (!is_string($provided) || !hash_equals($carrier->webhook_secret, $provided)) {
+            return response()->json(['ok' => false, 'message' => 'invalid signature'], 401);
         }
 
         $data = $request->validate([
