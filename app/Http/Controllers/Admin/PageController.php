@@ -16,7 +16,7 @@ class PageController extends Controller
     }
 
     private const SYSTEM_SLUGS = ['about', 'faqs', 'privacy-policy', 'returns-refunds'];
-    private const HIDDEN_SLUGS = ['checkout'];
+    private const HIDDEN_SLUGS = ['checkout', 'faqs'];
 
     public function index(): View
     {
