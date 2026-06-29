@@ -3,10 +3,23 @@
 @section('title', 'Currencies')
 
 @section('settings-content')
-<div class="space-y-6" x-data="{ open:false, edit:null, form:{} }">
+<style>[x-cloak]{display:none !important;}</style>
+<div class="space-y-6" x-data="{ open:false, edit:null, form:{}, defOpen:false, defCur:{id:null,code:'',name:'',url:''} }">
     @if(session('success'))<div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold">{{ session('success') }}</div>@endif
-    @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold">{{ session('error') }}</div>@endif
+    @if(session('warning'))<div class="p-4 rounded-2xl bg-amber-50 text-amber-800 text-sm font-bold border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i>{{ session('warning') }}</div>@endif
+    @if(session('error'))<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm font-bold border border-rose-200"><i class="fa-solid fa-circle-xmark mr-2"></i>{{ session('error') }}</div>@endif
     @if($errors->any())<div class="p-4 rounded-2xl bg-rose-50 text-rose-700 text-sm">{{ $errors->first() }}</div>@endif
+
+    @php $zeroRates = $currencies->where('exchange_rate', 0)->where('is_default', false); @endphp
+    @if($zeroRates->count())
+    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+        <div class="font-black mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Action required: update exchange rates</div>
+        <p class="text-xs">The following currencies have <strong>rate = 0</strong> and will display incorrect prices until you set their exchange rate relative to the default currency:
+            <span class="font-mono font-bold">{{ $zeroRates->pluck('code')->join(', ') }}</span>
+        </p>
+    </div>
+    @endif
+
 
     <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden">
         <div class="flex items-center justify-between p-5 border-b border-slate-100">
