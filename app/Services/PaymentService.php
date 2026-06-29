@@ -817,4 +817,32 @@ class PaymentService
             ]);
         }
     }
+
+    /**
+     * Compute the amount to charge at the gateway, in the BASE currency.
+     *
+     * Order columns (subtotal/shipping/total) are stored in base currency at
+     * placement time, but we recompute here from the actual order items so any
+     * upstream currency-conversion bug in the storefront cannot leak through.
+     * Returns [amount, currency_code].
+     */
+    protected function resolveChargeAmount(Order $order): array
+    {
+        $itemsTotal = (float) $order->items()->sum(\Illuminate\Support\Facades\DB::raw('unit_price * quantity'));
+        $shipping   = (float) ($order->shipping_cost ?? 0);
+        $fees       = (float) ($order->payment_fees ?? 0);
+        $discount   = (float) ($order->discount_amount ?? 0);
+
+        $amount = max(0.0, round($itemsTotal - $discount + $shipping + $fees, 2));
+
+        // Fallback to the stored total if items somehow weren't persisted.
+        if ($amount <= 0 && (float) $order->total > 0) {
+            $amount = (float) $order->total;
+        }
+
+        $base = app(\App\Services\CurrencyService::class)->default();
+        $code = $base?->code ?: ($order->currency ?: 'EGP');
+
+        return [$amount, strtoupper($code)];
+    }
 }
