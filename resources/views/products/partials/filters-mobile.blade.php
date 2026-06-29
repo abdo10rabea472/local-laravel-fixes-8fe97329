@@ -1,7 +1,7 @@
 <div class="space-y-1 mb-6">
     <a href="{{ route('products.index', request()->except(['college', 'department', 'page'])) }}"
        class="block px-4 py-2.5 rounded-xl text-xs font-bold {{ !$activeCollege ? 'bg-cyan-50 text-cyan-700' : 'text-slate-600' }}">
-        {{ __('products.filter_all_colleges') }}
+        {{ __('app.shared_all_colleges') }}
     </a>
     @foreach($colleges as $college)
     <a href="{{ route('products.index', array_merge(request()->except(['department', 'page']), ['college' => $college->slug])) }}"

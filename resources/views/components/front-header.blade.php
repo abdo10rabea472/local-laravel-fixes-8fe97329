@@ -3,7 +3,7 @@
     <div class="top_cart">
         <h2 class="text flex items-center gap-2">
             <i class="fa-solid fa-bag-shopping"></i>
-            {{ __('nav.shopping_cart') }}
+            {{ __('app.nav_shopping_cart') }}
             <span class="cart-count">(0)</span>
         </h2>
         <span onclick="open_close_cart()" class="close_cart">
@@ -13,12 +13,12 @@
     <div class="items_in_cart"></div>
     <div class="bottom_cart">
         <div class="total">
-            <p>{{ __('nav.cart_total') }}</p>
+            <p>{{ __('app.nav_cart_total') }}</p>
             <p class="price_cart_toral">0 EGP</p>
         </div>
         <div class="button_cart">
-            <a href="{{ route('checkout') }}" class="btn_cart btn">{{ __("nav.checkout") }}</a>
-            <span onclick="open_close_cart()" class="btn_cart trans_bg btn">{{ __("nav.shop_more") }}</span>
+            <a href="{{ route('checkout') }}" class="btn_cart btn">{{ __("app.nav_checkout") }}</a>
+            <span onclick="open_close_cart()" class="btn_cart trans_bg btn">{{ __("app.nav_shop_more") }}</span>
         </div>
     </div>
 </div>
@@ -52,7 +52,7 @@
                     onclick="if (typeof openFreeShippingPopup === 'function') { openFreeShippingPopup(); }"
                     class="hidden md:inline-flex items-center gap-1.5 font-bold text-amber-300 hover:text-amber-200 transition-colors bg-transparent border-0 p-0 cursor-pointer">
                 <i class="fa-solid fa-truck-fast text-[10px]"></i>
-                {{ __('nav.free_shipping_over', ['amount' => money(site_setting('free_shipping_threshold', 2000))]) }}
+                {{ __('app.nav_free_shipping_over', ['amount' => money(site_setting('free_shipping_threshold', 2000))]) }}
             </button>
             @endif
 
@@ -111,14 +111,14 @@
                 @else
                     @guest('web')
                         @if(!auth()->guard('admin')->check())
-                        <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors">{{ __("nav.sign_in") }}</a>
+                        <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors">{{ __("app.shared_sign_in") }}</a>
                         <span class="text-white/40">|</span>
-                        <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">{{ __("nav.register") }}</a>
+                        <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">{{ __("app.nav_register") }}</a>
                         @endif
                     @endguest
                     @auth('web')
                         <a href="{{ route('account.dashboard') }}" class="hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-circle text-[10px]"></i> {{ __("nav.account") }}
+                            <i class="fa-solid fa-user-circle text-[10px]"></i> {{ __("app.nav_account") }}
                         </a>
                     @endauth
                 @endif
@@ -150,7 +150,7 @@
                     <form action="{{ route('products.index') }}" method="get" class="relative w-full group">
                         <input type="search" name="search" value="{{ request('search') }}"
                                class="w-full h-12 pl-12 pr-4 bg-slate-100 border border-transparent focus:border-violet-400 focus:bg-white rounded-full text-sm outline-none transition-all focus:ring-3 focus:ring-violet-100"
-                               placeholder="{{ __('nav.search_long_placeholder') }}">
+                               placeholder="{{ __('app.nav_search_long_placeholder') }}">
                         <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
@@ -161,7 +161,7 @@
                 <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     @if(auth()->guard('admin')->check())
                         <a href="{{ route('admin.dashboard') }}" class="hidden lg:inline-flex items-center gap-2 h-11 px-4 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition shadow-md shadow-violet-500/30">
-                            <i class="fa-solid fa-user-shield"></i> {{ __("nav.admin_panel") }}
+                            <i class="fa-solid fa-user-shield"></i> {{ __("app.nav_admin_panel") }}
                         </a>
                     @endif
 
@@ -170,12 +170,12 @@
                         <a href="{{ route('login') }}"
                            class="hidden sm:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-slate-700 border border-slate-200 hover:border-violet-400 hover:text-violet-700 hover:bg-violet-50/50 transition">
                             <i class="fa-solid fa-right-to-bracket text-xs"></i>
-                            <span>{{ __("nav.sign_in") }}</span>
+                            <span>{{ __("app.shared_sign_in") }}</span>
                         </a>
                         <a href="{{ route('register') }}"
                            class="hidden md:inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition shadow-md shadow-violet-500/30">
                             <i class="fa-solid fa-user-plus text-xs"></i>
-                            <span>{{ __("nav.register") }}</span>
+                            <span>{{ __("app.nav_register") }}</span>
                         </a>
                         @endif
                     @endguest
@@ -193,14 +193,14 @@
                                         <div class="text-sm font-black text-slate-900 truncate">{{ auth()->user()->name }}</div>
                                         <div class="text-[11px] text-slate-500 truncate">{{ auth()->user()->email }}</div>
                                     </div>
-                                    <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> {{ __('nav.dashboard') }}</a>
-                                    <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> {{ __('nav.my_orders') }}</a>
-                                    <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> {{ __('nav.returns') }}</a>
-                                    <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> {{ __('nav.reviews') }}</a>
-                                    <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-heart w-5 text-rose-500"></i> {{ __('nav.wishlist') }}</a>
-                                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> {{ __('nav.profile') }}</a>
+                                    <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> {{ __('app.nav_dashboard') }}</a>
+                                    <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> {{ __('app.nav_my_orders') }}</a>
+                                    <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> {{ __('app.nav_returns') }}</a>
+                                    <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> {{ __('app.shared_reviews') }}</a>
+                                    <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-heart w-5 text-rose-500"></i> {{ __('app.nav_wishlist') }}</a>
+                                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-violet-50 hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> {{ __('app.nav_profile') }}</a>
                                     <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 mt-1 pt-1">@csrf
-                                        <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> {{ __('nav.logout') }}</button>
+                                        <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> {{ __('app.nav_logout') }}</button>
                                     </form>
                                 </div>
                             </div>
@@ -210,7 +210,7 @@
                     {{-- Cart --}}
                     <button type="button" onclick="open_close_cart()" class="relative flex items-center gap-2 h-11 px-3 sm:px-4 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 transition shadow-md shadow-violet-500/30">
                         <i class="fa-solid fa-cart-shopping text-base"></i>
-                        <span class="hidden sm:inline text-sm font-bold">{{ __('nav.cart_btn') }}</span>
+                        <span class="hidden sm:inline text-sm font-bold">{{ __('app.shared_cart') }}</span>
                         <span id="cart-count" class="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-violet-700 bg-amber-300 ring-2 ring-white">0</span>
                     </button>
 
@@ -231,7 +231,7 @@
                         <button type="button" id="colleges-dropdown-btn" aria-expanded="false" aria-haspopup="true"
                                 class="shrink-0 flex items-center gap-2 pl-3 pr-4 h-9 my-1.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition shadow-sm">
                             <i class="fa-solid fa-bars-staggered text-xs"></i>
-                            <span>{{ __('nav.all_colleges') }}</span>
+                            <span>{{ __('app.shared_all_colleges') }}</span>
                             <i id="colleges-dropdown-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200"></i>
                         </button>
 
@@ -240,7 +240,7 @@
                              style="width: min(760px, calc(100vw - 2rem)); max-width: calc(100vw - 2rem);">
                             <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
                                 <div class="bg-gradient-to-r from-violet-50 to-indigo-50 px-5 py-3 border-b border-slate-100">
-                                    <div class="text-xs font-black uppercase tracking-wider text-violet-700">{{ __('nav.browse_by_college') }}</div>
+                                    <div class="text-xs font-black uppercase tracking-wider text-violet-700">{{ __('app.nav_browse_by_college') }}</div>
                                 </div>
                                 <div class="max-h-[min(70vh,520px)] overflow-y-auto overscroll-contain p-4">
                                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
@@ -257,7 +257,7 @@
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <div class="text-sm font-black text-slate-800 group-hover/college:text-violet-700 truncate">{{ $college->name }}</div>
-                                                    <div class="text-[10px] text-slate-400 font-semibold">{{ $college->children_count }} {{ __('nav.departments') }}</div>
+                                                    <div class="text-[10px] text-slate-400 font-semibold">{{ $college->children_count }} {{ __('app.shared_departments') }}</div>
                                                 </div>
                                                 <i class="fa-solid fa-arrow-right text-[10px] text-slate-300 group-hover/college:text-violet-600 group-hover/college:translate-x-0.5 transition shrink-0"></i>
                                             </a>
@@ -283,25 +283,25 @@
                     @endif
 
                     <a href="{{ route('home') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('home') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-house text-xs"></i> {{ __('nav.home_nav') }}
+                        <i class="fa-solid fa-house text-xs"></i> {{ __('app.shared_home') }}
                     </a>
                     <a href="{{ route('products.index') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('products.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-box-open text-xs"></i> {{ __('nav.all_products') }}
+                        <i class="fa-solid fa-box-open text-xs"></i> {{ __('app.shared_all_products') }}
                     </a>
                     <a href="{{ route('offers') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('offers') ? 'text-rose-600 border-b-2 border-rose-500' : 'text-rose-600 hover:text-rose-700 border-b-2 border-transparent hover:border-rose-300' }} transition">
-                        <i class="fa-solid fa-fire text-xs"></i> {{ __('nav.offers') }}
+                        <i class="fa-solid fa-fire text-xs"></i> {{ __('app.shared_offers') }}
                     </a>
                     <a href="{{ route('blog.index') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('blog.*') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-newspaper text-xs"></i> {{ __('nav.blog') }}
+                        <i class="fa-solid fa-newspaper text-xs"></i> {{ __('app.shared_blog') }}
                     </a>
                     <a href="{{ route('track-order') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('track-order') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-truck text-xs"></i> {{ __('nav.track_order') }}
+                        <i class="fa-solid fa-truck text-xs"></i> {{ __('app.shared_track_order') }}
                     </a>
                     <a href="{{ route('contact') }}" class="shrink-0 flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('contact') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-envelope text-xs"></i> {{ __('nav.contact') }}
+                        <i class="fa-solid fa-envelope text-xs"></i> {{ __('app.nav_contact') }}
                     </a>
                     <a href="{{ route('about') }}" class="hidden xl:flex items-center gap-1.5 px-4 h-12 text-sm font-bold {{ request()->routeIs('about') ? 'text-violet-700 border-b-2 border-violet-600' : 'text-slate-600 hover:text-violet-700 border-b-2 border-transparent hover:border-violet-300' }} transition">
-                        <i class="fa-solid fa-circle-info text-xs"></i> {{ __('nav.about') }}
+                        <i class="fa-solid fa-circle-info text-xs"></i> {{ __('app.nav_about') }}
                     </a>
 
                     {{-- Dynamic menu items --}}
@@ -360,13 +360,13 @@
         <div class="px-4 py-4 space-y-4">
             <form action="{{ route('products.index') }}" method="get" class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('nav.search_short') }}"
+                <input type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('app.shared_search_placeholder') }}"
                        class="w-full h-12 pl-10 pr-4 bg-slate-100 rounded-full text-sm outline-none focus:ring-3 focus:ring-violet-100 focus:bg-white">
             </form>
 
             @if(auth()->guard('admin')->check())
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-center gap-2 h-11 px-4 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition shadow-md shadow-violet-500/30">
-                    <i class="fa-solid fa-user-shield"></i> {{ __("nav.admin_panel") }}
+                    <i class="fa-solid fa-user-shield"></i> {{ __("app.nav_admin_panel") }}
                 </a>
             @endif
 
@@ -374,10 +374,10 @@
                 @if(!auth()->guard('admin')->check())
                 <div class="grid grid-cols-2 gap-2">
                     <a href="{{ route('login') }}" class="h-11 flex items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700">
-                        <i class="fa-solid fa-right-to-bracket text-xs"></i> {{ __("nav.sign_in") }}
+                        <i class="fa-solid fa-right-to-bracket text-xs"></i> {{ __("app.shared_sign_in") }}
                     </a>
                     <a href="{{ route('register') }}" class="h-11 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-bold shadow-md">
-                        <i class="fa-solid fa-user-plus text-xs"></i> {{ __("nav.register") }}
+                        <i class="fa-solid fa-user-plus text-xs"></i> {{ __("app.nav_register") }}
                     </a>
                 </div>
                 @endif
@@ -394,14 +394,14 @@
                         <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180"></i>
                     </summary>
                     <div class="p-2 space-y-1 border-t border-slate-100 bg-slate-50/50">
-                        <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> {{ __('nav.dashboard') }}</a>
-                        <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> {{ __('nav.my_orders') }}</a>
-                        <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> {{ __('nav.returns') }}</a>
-                        <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> {{ __('nav.reviews') }}</a>
-                        <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-heart w-5 text-rose-500"></i> {{ __('nav.wishlist') }}</a>
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> {{ __('nav.profile') }}</a>
+                        <a href="{{ route('account.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-gauge-high w-5 text-violet-500"></i> {{ __('app.nav_dashboard') }}</a>
+                        <a href="{{ route('account.orders') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-receipt w-5 text-violet-500"></i> {{ __('app.nav_my_orders') }}</a>
+                        <a href="{{ route('account.returns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-rotate-left w-5 text-violet-500"></i> {{ __('app.nav_returns') }}</a>
+                        <a href="{{ route('account.reviews') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-star w-5 text-violet-500"></i> {{ __('app.shared_reviews') }}</a>
+                        <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-heart w-5 text-rose-500"></i> {{ __('app.nav_wishlist') }}</a>
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-violet-700"><i class="fa-solid fa-user-pen w-5 text-violet-500"></i> {{ __('app.nav_profile') }}</a>
                         <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 mt-1 pt-1">@csrf
-                            <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> {{ __('nav.logout') }}</button>
+                            <button class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 text-right"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> {{ __('app.nav_logout') }}</button>
                         </form>
                     </div>
                 </details>
@@ -409,25 +409,25 @@
 
             <nav class="space-y-1">
                 <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-house w-5 text-violet-600"></i> {{ __('nav.home_nav') }}
+                    <i class="fa-solid fa-house w-5 text-violet-600"></i> {{ __('app.shared_home') }}
                 </a>
                 <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-box-open w-5 text-violet-600"></i> {{ __('nav.all_products') }}
+                    <i class="fa-solid fa-box-open w-5 text-violet-600"></i> {{ __('app.shared_all_products') }}
                 </a>
                 <a href="{{ route('offers') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-rose-600">
-                    <i class="fa-solid fa-fire w-5 text-rose-500"></i> {{ __('nav.offers') }}
+                    <i class="fa-solid fa-fire w-5 text-rose-500"></i> {{ __('app.shared_offers') }}
                 </a>
                 <a href="{{ route('blog.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-newspaper w-5 text-violet-600"></i> {{ __('nav.blog') }}
+                    <i class="fa-solid fa-newspaper w-5 text-violet-600"></i> {{ __('app.shared_blog') }}
                 </a>
                 <a href="{{ route('track-order') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-truck w-5 text-violet-600"></i> {{ __('nav.track_order') }}
+                    <i class="fa-solid fa-truck w-5 text-violet-600"></i> {{ __('app.shared_track_order') }}
                 </a>
                 <a href="{{ route('contact') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-envelope w-5 text-violet-600"></i> {{ __('nav.contact') }}
+                    <i class="fa-solid fa-envelope w-5 text-violet-600"></i> {{ __('app.nav_contact') }}
                 </a>
                 <a href="{{ route('about') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
-                    <i class="fa-solid fa-circle-info w-5 text-violet-600"></i> {{ __('nav.about') }}
+                    <i class="fa-solid fa-circle-info w-5 text-violet-600"></i> {{ __('app.nav_about') }}
                 </a>
 
                 @foreach($navHeaderMenu ?? collect() as $item)
@@ -469,7 +469,7 @@
 
                 @if(($navCategories ?? collect())->isNotEmpty())
                 <div class="pt-2 border-t border-slate-100">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-wider px-4 mb-2">{{ __('nav.all_colleges') }}</p>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-wider px-4 mb-2">{{ __('app.shared_all_colleges') }}</p>
                     @foreach($navCategories ?? [] as $college)
                     <a href="{{ route('category.show', $college->slug) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 font-semibold text-slate-700">
                         <div class="h-9 w-9 rounded-xl flex items-center justify-center text-white text-[10px] font-black" style="background: linear-gradient(135deg, {{ $college->primary_color ?? '#7c3aed' }}, {{ $college->secondary_color ?? '#6366f1' }});">

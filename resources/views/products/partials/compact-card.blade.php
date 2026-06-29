@@ -34,16 +34,16 @@
                 @if($hasDiscount)
                     <del class="text-[10px] text-slate-400 block leading-none">{{ number_format($compareAt, 0) }}</del>
                 @endif
-                <span class="text-sm font-black text-slate-900 leading-tight">{{ number_format($displayPrice, 0) }} <span class="text-[10px] font-bold text-slate-500">{{ __('products.card_currency') }}</span></span>
+                <span class="text-sm font-black text-slate-900 leading-tight">{{ number_format($displayPrice, 0) }} <span class="text-[10px] font-bold text-slate-500">{{ __('app.shared_currency_egp') }}</span></span>
             </div>
             @if($inStock)
                 <button type="button" onclick="event.preventDefault(); addToCart(this);"
                     class="add-btn shrink-0 h-8 w-8 grid place-items-center bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors"
-                    aria-label="{{ __('products.card_add_to_cart') }}">
+                    aria-label="{{ __('app.shared_add_to_cart') }}">
                     <i class="fa-solid fa-plus text-xs"></i>
                 </button>
             @else
-                <span class="text-[9px] font-bold text-rose-500 bg-rose-50 px-1.5 py-1 rounded">{{ __('products.card_out_of_stock') }}</span>
+                <span class="text-[9px] font-bold text-rose-500 bg-rose-50 px-1.5 py-1 rounded">{{ __('app.products_card_out_of_stock') }}</span>
             @endif
         </div>
     </div>
