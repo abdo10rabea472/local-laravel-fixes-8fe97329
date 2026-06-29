@@ -244,7 +244,7 @@ return array (
     'admin_product_form_description_ph' => 'Özellikleri ve teknik detayları yazın...',
     'admin_product_form_short_description' => 'Kısa Açıklama',
     'admin_product_form_short_description_ph' => 'Ürün sayfasının üstünde görünen bir veya iki cümle...',
-    'admin_product_form_short_description_hint' => 'En fazla 500 karakter. Ürün adının hemen altında görünür.',
+    'admin_product_form_short_description_hint' => 'En fazla 200 karakter. Ürün adının hemen altında görünür.',
     'admin_product_form_pricing' => 'Fiyatlandırma ve Stok',
     'admin_product_form_currency_notice_title' => 'Para birimine dikkat!',
     'admin_product_form_currency_notice' => 'Mağazanın varsayılan para birimi :name (:currency). Girdiğiniz fiyat :currency olarak kaydedilecek. Kaydetmeden önce fiyatın gerçekten :currency cinsinden olduğundan emin olun.',

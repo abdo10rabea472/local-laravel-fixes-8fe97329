@@ -607,7 +607,7 @@ return [
     'admin_product_form_description_ph' => 'اكتب المواصفات والتفاصيل الفنية...',
     'admin_product_form_short_description' => 'وصف قصير',
     'admin_product_form_short_description_ph' => 'جملة أو جملتين تظهر أعلى صفحة المنتج...',
-    'admin_product_form_short_description_hint' => 'حد أقصى 500 حرف. يظهر تحت اسم المنتج مباشرة.',
+    'admin_product_form_short_description_hint' => 'حد أقصى 200 حرف. يظهر تحت اسم المنتج مباشرة.',
     'admin_product_form_pricing' => 'التسعير والمخزون',
     'admin_product_form_currency_notice_title' => 'خلي بالك من العملة!',
     'admin_product_form_currency_notice' => 'العملة الافتراضية للمتجر حاليًا هي :name (:currency)، يعني السعر اللي هتكتبه هيتم رفعه بـ :currency. راجع كويس إن السعر اللي بتكتبه فعلًا بـ :currency قبل ما تحفظ.',
