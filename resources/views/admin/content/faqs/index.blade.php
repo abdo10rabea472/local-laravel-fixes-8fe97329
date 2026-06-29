@@ -41,8 +41,8 @@
                 @endforeach
             </select>
             <select name="per_page" class="md:col-span-2 h-11 px-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-                @foreach([20,30,50,100] as $pp)
-                    <option value="{{ $pp }}" @selected(($perPage ?? 30) === $pp)>{{ $pp }} / {{ __('app.admin_pages_form_per_page') }}</option>
+                @foreach([5,10,20,30,50,100] as $pp)
+                    <option value="{{ $pp }}" @selected(($perPage ?? 5) === $pp)>{{ $pp }} / {{ __('app.admin_pages_form_per_page') }}</option>
                 @endforeach
             </select>
             <button class="md:col-span-1 h-11 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold">
