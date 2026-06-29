@@ -11,7 +11,17 @@
             <i class="fa-solid fa-circle-question"></i> Got Questions?
         </span>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-4">{{ $page?->title ?: 'Frequently Asked Questions' }}</h1>
-        <p class="text-lg text-white/90 max-w-2xl mx-auto">Find quick answers about ordering lab equipment, shipping, returns, and more.</p>
+        <p class="text-lg text-white/90 max-w-2xl mx-auto">{{ $page?->seo_description ?: 'Find quick answers about ordering lab equipment, shipping, returns, and more.' }}</p>
+    </div>
+</section>
+
+@if($page && trim((string) $page->content) !== '' && !str_starts_with(ltrim($page->content), '['))
+<main class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <div class="prose prose-slate prose-lg max-w-none bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        {!! $page->content !!}
+    </div>
+</main>
+@else
     </div>
 </section>
 
@@ -34,6 +44,7 @@
         @endforeach
     </div>
 </main>
+@endif
 @endsection
 
 @push('scripts')
