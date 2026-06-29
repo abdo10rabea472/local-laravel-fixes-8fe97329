@@ -181,9 +181,58 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
+                {{-- Language switcher --}}
+                @if(!empty($availableLanguages) && count($availableLanguages) > 0)
+                <div class="relative">
+                    <button onclick="toggleDropdown('admin-lang-menu', event)" class="flex items-center gap-2 px-2 sm:px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 rounded-lg transition-colors" aria-label="Switch language">
+                        <i class="fas fa-language text-lg"></i>
+                        <span class="hidden sm:inline text-xs font-bold uppercase">{{ $currentLocale ?? app()->getLocale() }}</span>
+                    </button>
+                    <div id="admin-lang-menu" class="hidden absolute right-0 mt-2 w-48 max-h-72 overflow-y-auto bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl z-50 py-1">
+                        @foreach($availableLanguages as $lang)
+                            <a href="{{ url('/locale/'.$lang->code) }}"
+                               class="flex items-center justify-between gap-2 px-4 py-2 text-sm {{ ($currentLocale ?? null) === $lang->code ? 'bg-primary-50 dark:bg-dark-800 text-primary-600 font-bold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800' }}">
+                                <span class="flex items-center gap-2">
+                                    <span class="text-xs font-mono uppercase text-gray-400">{{ $lang->code }}</span>
+                                    <span>{{ $lang->name }}</span>
+                                </span>
+                                @if(($currentLocale ?? null) === $lang->code)
+                                    <i class="fas fa-check text-xs"></i>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                {{-- Currency switcher --}}
+                @if(!empty($availableCurrencies) && count($availableCurrencies) > 0)
+                <div class="relative">
+                    <button onclick="toggleDropdown('admin-currency-menu', event)" class="flex items-center gap-2 px-2 sm:px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 rounded-lg transition-colors" aria-label="Switch currency">
+                        <i class="fas fa-money-bill-wave text-lg"></i>
+                        <span class="hidden sm:inline text-xs font-bold uppercase">{{ optional($currentCurrency)->code ?? '—' }}</span>
+                    </button>
+                    <div id="admin-currency-menu" class="hidden absolute right-0 mt-2 w-48 max-h-72 overflow-y-auto bg-white dark:bg-dark-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl z-50 py-1">
+                        @foreach($availableCurrencies as $cur)
+                            <a href="{{ request()->fullUrlWithQuery(['currency' => $cur->code]) }}"
+                               class="flex items-center justify-between gap-2 px-4 py-2 text-sm {{ optional($currentCurrency)->code === $cur->code ? 'bg-primary-50 dark:bg-dark-800 text-primary-600 font-bold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800' }}">
+                                <span class="flex items-center gap-2">
+                                    <span class="text-xs font-mono uppercase text-gray-400">{{ $cur->code }}</span>
+                                    <span>{{ $cur->name }}</span>
+                                </span>
+                                @if(optional($currentCurrency)->code === $cur->code)
+                                    <i class="fas fa-check text-xs"></i>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <button onclick="toggleDarkMode()" class="p-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-500 rounded-lg transition-colors" aria-label="Toggle theme">
                     <i id="theme-icon" class="fas fa-moon text-lg"></i>
                 </button>
+
 
                 <div class="relative">
                     <button onclick="toggleDropdown('notifications-menu', event); loadAdminNotifications();" class="relative p-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 rounded-lg transition-colors">
