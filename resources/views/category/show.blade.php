@@ -162,13 +162,13 @@
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    {{ $isCollege ? 'All ' . $category->name . ' Products' : $category->name . ' Products' }}
+                    {{ $isCollege ? __('app.cat_title_all', ['name' => $category->name]) : __('app.cat_title', ['name' => $category->name]) }}
                 </h2>
                 <p class="text-slate-500 text-sm mt-1">
                     @if(request('search'))
-                        {{ $totalProducts }} results for "{{ request('search') }}"
+                        {{ __('app.cat_results_for', ['count' => $totalProducts, 'term' => request('search')]) }}
                     @else
-                        {{ $totalProducts }} product{{ $totalProducts !== 1 ? 's' : '' }} available
+                        {{ __('app.cat_available', ['count' => $totalProducts]) }}
                     @endif
                 </p>
             </div>
@@ -176,11 +176,12 @@
                 @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
                 <select name="sort" onchange="this.form.submit()"
                     class="h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm font-semibold outline-none shadow-sm hover:border-slate-300 transition-colors">
-                    <option value="newest" @selected(request('sort', 'newest') === 'newest')>Newest</option>
-                    <option value="price_asc" @selected(request('sort') === 'price_asc')>Price ↑</option>
-                    <option value="price_desc" @selected(request('sort') === 'price_desc')>Price ↓</option>
-                    <option value="name" @selected(request('sort') === 'name')>A → Z</option>
+                    <option value="newest" @selected(request('sort', 'newest') === 'newest')>{{ __('app.cat_sort_newest') }}</option>
+                    <option value="price_asc" @selected(request('sort') === 'price_asc')>{{ __('app.cat_sort_price_asc') }}</option>
+                    <option value="price_desc" @selected(request('sort') === 'price_desc')>{{ __('app.cat_sort_price_desc') }}</option>
+                    <option value="name" @selected(request('sort') === 'name')>{{ __('app.cat_sort_name') }}</option>
                 </select>
+
             </form>
         </div>
 
