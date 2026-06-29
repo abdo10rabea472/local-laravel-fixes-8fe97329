@@ -23,8 +23,8 @@
             </nav>
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight">{{ __('app.products_page_title') }}</h1>
-                    <p class="text-violet-100 mt-2 max-w-2xl">{{ __('app.products_page_subtitle') }}</p>
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight">{{ $pageTitle ?: __('app.products_page_title') }}</h1>
+                    <p class="text-violet-100 mt-2 max-w-2xl">{{ $pageSubtitle ?: __('app.products_page_subtitle') }}</p>
                 </div>
                 <div class="flex items-center gap-2 text-xs font-bold">
                     <span class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur border border-white/20 px-3 py-1.5 rounded-full">

@@ -2,10 +2,16 @@
 
 @section('settings-content')
 <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-    <div class="border-b border-slate-100 px-6 py-4">
-        <h3 class="text-base font-bold text-slate-800">صفحة المنتجات</h3>
-        <p class="text-xs text-slate-500 mt-1">تحكم في عنوان ووصف وSEO صفحة قائمة المنتجات.</p>
+    <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between gap-4">
+        <div>
+            <h3 class="text-base font-bold text-slate-800">Products Catalog Page</h3>
+            <p class="text-xs text-slate-500 mt-1">Control the title, subtitle and SEO of the public products listing page.</p>
+        </div>
+        <a href="{{ route('products.index') }}" target="_blank" class="text-xs font-bold text-violet-600 hover:text-violet-800 inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-up-right-from-square"></i> View page
+        </a>
     </div>
+
 
     <form method="POST" action="{{ route('admin.product-catalog.update') }}" class="p-6 space-y-6">
         @csrf
