@@ -24,7 +24,8 @@
 
         <div class="space-y-2">
             <label class="text-xs font-bold text-slate-500">المحتوى</label>
-            <textarea name="content" rows="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ old('content', $page->content) }}</textarea>
+            <textarea id="content-editor" name="content" rows="20" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm">{{ old('content', $page->content) }}</textarea>
+            <p class="text-[11px] text-slate-400">سيظهر هذا المحتوى في الصفحة العامة بدل القالب الافتراضي.</p>
         </div>
 
         <div class="border-t border-slate-100 pt-6">
